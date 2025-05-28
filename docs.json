@@ -46,11 +46,7 @@
       },
       {
         "tab": "API Reference",
-<<<<<<< HEAD
         "openapi": "https://raw.githubusercontent.com/Notifuse/docs/refs/heads/main/openapi.json",
-=======
-        "openapi": "https://raw.githubusercontent.com/Notifuse/notifuse/refs/heads/main/openapi.json",
->>>>>>> origin/main
         "groups": [
           {
             "group": "API Documentation",
