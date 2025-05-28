@@ -34,7 +34,7 @@
             ]
           },
           {
-            "group": "Integrations",
+            "group": "Email Providers",
             "pages": [
               "integrations/sendgrid",
               "integrations/mailgun",
