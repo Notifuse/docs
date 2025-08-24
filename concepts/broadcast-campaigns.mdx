@@ -1,14 +1,125 @@
 ---
 title: Broadcast campaigns
-description: "Broadcast campaigns in Notifuse are targeted email marketing initiatives that allow you to send personalized messages to specific segments of your audience. They combine templates, contact lists, and scheduling to deliver the right message to the right people at the right time."
+description: 'Broadcast campaigns in Notifuse are mass email marketing initiatives that allow you to send targeted messages to your contact lists. They provide powerful features for audience targeting, A/B testing, UTM tracking, and flexible scheduling options to deliver the right message to the right people at the right time.'
 ---
 
-## What is a Broadcast Campaign?
+<img src="/assets/screenshots/broadcast.png" alt="Broadcasts screenshot" />
 
-A broadcast campaign in Notifuse is a coordinated email marketing effort that includes:
+## Multi-List Targeting
 
-- **Target Audience**: Specific contact lists or segments
-- **Email Content**: Templates with personalized messaging
-- **Scheduling**: When and how often emails are sent
-- **Tracking**: Performance metrics and engagement analytics
-- **A/B Testing**: Optimization through content variations
+### Send to Multiple Lists
+
+- **Multiple Selection**: Choose multiple contact lists for a single campaign
+- **Duplicate Prevention**: Automatically skips duplicate email addresses across lists
+- **Unified Audience**: Combines all selected lists into one targeted campaign
+
+**Example**: Send a product announcement to both "Newsletter Subscribers" and "VIP Customers" lists while ensuring each contact receives only one email, even if they're on both lists.
+
+## A/B Testing
+
+Optimize your campaigns by testing different variations with your audience.
+
+### Test Setup
+
+- **Sample Size**: Test variations on a percentage of your total recipients
+- **Multiple Variations**: Create different subject lines, content, or templates
+- **Control Groups**: Automatically split your test audience evenly
+
+### Winner Selection
+
+#### Manual Selection
+
+- **Review Results**: Analyze performance metrics for each variation
+- **Choose Winner**: Manually select the best-performing variation
+- **Send to Remaining**: Deploy the winning variation to the rest of your audience
+
+#### Automatic Selection
+
+Configure automatic winner selection based on performance metrics:
+
+**Open Rate Winner**
+
+- **Metric**: Highest email open rate percentage
+- **Time Period**: Set a specific duration (e.g., 2 hours, 24 hours)
+- **Auto-Deploy**: Automatically send winning variation after the period
+
+**Click Rate Winner**
+
+- **Metric**: Highest click-through rate percentage
+- **Time Period**: Set a specific duration for evaluation
+- **Auto-Deploy**: Automatically send winning variation after the period
+
+### A/B Testing Example
+
+1. Create campaign with 2 subject line variations
+2. Set test sample to 20% of your audience
+3. Configure automatic winner selection based on open rate after 4 hours
+4. System automatically sends winning variation to remaining 80%
+
+<img src="/assets/screenshots/edit_broadcast.png" alt="Edit Broadcast screenshot" />
+
+## UTM Tracking
+
+### Automatic UTM Parameters
+
+All external links in your email templates automatically receive UTM parameters for comprehensive tracking:
+
+- **utm_source**: Identifies the email source
+- **utm_medium**: Set to "email" for all broadcast campaigns
+- **utm_campaign**: Uses your campaign name for tracking
+- **utm_content**: Automatically set to the template ID for content identification
+
+### Example UTM Implementation
+
+**Original Link**: `https://yourwebsite.com/products`
+
+**With UTM Parameters**:
+
+```
+https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campaign=summer_sale_2024
+```
+
+### Analytics Integration
+
+- **Google Analytics**: Track email performance in your analytics dashboard
+- **Campaign Attribution**: Understand which emails drive website traffic and conversions
+- **ROI Measurement**: Calculate campaign effectiveness and return on investment
+
+## Scheduling Options
+
+### Manual Sending
+
+- **Immediate Delivery**: Send your campaign right away
+- **Review Before Send**: Final review and approval before deployment
+- **Real-time Monitoring**: Track delivery and engagement as it happens
+
+### Scheduled Sending
+
+- **Date & Time Selection**: Choose specific delivery date and time
+- **Timezone Awareness**: Respects your workspace timezone settings
+- **Advance Planning**: Schedule campaigns days or weeks in advance
+- **Modification Window**: Edit or cancel scheduled campaigns before send time
+
+### Scheduling Best Practices
+
+- **Optimal Timing**: Schedule for when your audience is most active
+- **Time Zone Considerations**: Consider your audience's geographic distribution
+- **Avoid Peak Times**: Prevent delivery during holidays or industry-specific busy periods
+
+## Campaign Workflow
+
+1. **Create Campaign**: Set name, description, and goals
+2. **Select Lists**: Choose target contact lists (duplicates automatically removed)
+3. **Choose Template**: Select and customize your email template
+4. **Configure A/B Testing**: Set up variations and winner selection criteria (optional)
+5. **Review Settings**: Confirm audience size, UTM parameters, and schedule
+6. **Send or Schedule**: Deploy immediately or schedule for later delivery
+7. **Monitor Results**: Track delivery, opens, clicks, and conversions
+
+## Best Practices
+
+- **List Segmentation**: Use multiple targeted lists rather than one large list
+- **A/B Testing**: Always test subject lines and content for better engagement
+- **UTM Consistency**: Use consistent campaign naming for better analytics tracking
+- **Schedule Strategically**: Time your sends for maximum audience engagement
+- **Monitor Performance**: Review metrics to improve future campaigns

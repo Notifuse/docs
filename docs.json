@@ -30,16 +30,20 @@
               "concepts/templates",
               "concepts/broadcast-campaigns",
               "concepts/transactional-api",
+              "concepts/file-manager",
+              "concepts/logs",
+              "concepts/admins-api-keys",
               "concepts/notification-center"
             ]
           },
           {
             "group": "Email Providers",
             "pages": [
-              "integrations/sendgrid",
               "integrations/mailgun",
               "integrations/amazon-ses",
-              "integrations/postmark"
+              "integrations/postmark",
+              "integrations/sparkpost",
+              "integrations/mailjet"
             ]
           }
         ]

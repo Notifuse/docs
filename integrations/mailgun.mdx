@@ -1,0 +1,112 @@
+---
+title: Mailgun
+description: 'Configure Mailgun as your email provider in Notifuse for reliable email delivery with advanced tracking and analytics.'
+---
+
+<img
+  className="block dark:hidden"
+  src="/assets/integrations/mailgun.png"
+  alt="Mailgun Integration"
+/>
+<img
+  className="hidden dark:block"
+  src="/assets/integrations/mailgun.png"
+  alt="Mailgun Integration"
+/>
+
+## Overview
+
+Mailgun is a powerful email service provider that offers reliable email delivery, detailed analytics, and robust APIs. This integration allows you to use Mailgun as your email provider within Notifuse.
+
+## Features
+
+- **Reliable Delivery**: Industry-leading deliverability rates
+- **Real-time Analytics**: Track opens, clicks, bounces, and more
+- **Domain Authentication**: Full SPF, DKIM, and DMARC support
+- **Global Infrastructure**: Worldwide email delivery network
+- **Advanced Tracking**: Detailed email event tracking
+
+## Configuration
+
+### Prerequisites
+
+Before configuring Mailgun in Notifuse, you'll need:
+
+1. A Mailgun account
+2. A verified domain in Mailgun
+3. Your Mailgun API key
+4. Your Mailgun domain name
+
+### Setup Steps
+
+1. **Navigate to Integrations**
+
+   - Go to your workspace settings
+   - Select "Email Providers"
+   - Click "Add Provider" and choose Mailgun
+
+2. **Enter Configuration Details**
+
+   - **API Key**: Your Mailgun private API key
+   - **Domain**: Your verified Mailgun domain
+   - **Region**: Select your Mailgun region (US or EU)
+
+3. **Verify Configuration**
+   - Test the connection with a test email
+   - Ensure all settings are correct
+
+### Required Settings
+
+| Setting | Description                  | Example                   |
+| ------- | ---------------------------- | ------------------------- |
+| API Key | Your Mailgun private API key | `key-1234567890abcdef...` |
+| Domain  | Your verified sending domain | `mg.yourdomain.com`       |
+| Region  | Mailgun region (US/EU)       | `US` or `EU`              |
+
+## Domain Setup
+
+To use Mailgun effectively, you'll need to configure DNS records for your domain:
+
+### DNS Records
+
+Add the following DNS records to your domain:
+
+1. **TXT Record** (SPF)
+
+   ```
+   v=spf1 include:mailgun.org ~all
+   ```
+
+2. **DKIM Records**
+
+   - Mailgun will provide specific DKIM records for your domain
+
+3. **CNAME Record** (Tracking)
+   ```
+   email.yourdomain.com CNAME mailgun.org
+   ```
+
+## Testing
+
+After configuration, test your Mailgun integration:
+
+1. Send a test email from Notifuse
+2. Check Mailgun logs for delivery status
+3. Verify tracking data appears in your analytics
+
+## Troubleshooting
+
+### Common Issues
+
+- **Authentication Errors**: Verify your API key is correct
+- **Domain Issues**: Ensure your domain is verified in Mailgun
+- **DNS Problems**: Check that all DNS records are properly configured
+- **Rate Limits**: Monitor your Mailgun usage limits
+
+### Support
+
+For additional help:
+
+- Check Mailgun's documentation
+- Contact Notifuse support
+- Review Mailgun's status page for service issues

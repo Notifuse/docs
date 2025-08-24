@@ -21,12 +21,12 @@ Contacts in Notifuse are comprehensive customer profiles that store subscriber i
 | `first_name`                               | String   | Contact's first name                       |
 | `last_name`                                | String   | Contact's last name                        |
 | `phone`                                    | String   | Phone number                               |
-| `timezone`                                 | String   | Contact's timezone                         |
+| `timezone`                                 | String   | Contact's ISO timezone                     |
 | `language`                                 | String   | Preferred language                         |
 | `job_title`                                | String   | Professional title                         |
 | `address_line_1`                           | String   | Primary address                            |
 | `address_line_2`                           | String   | Secondary address (apartment, suite, etc.) |
-| `country`                                  | String   | Country                                    |
+| `country`                                  | String   | Country ISO format                         |
 | `state`                                    | String   | State or province                          |
 | `postcode`                                 | String   | Postal/ZIP code                            |
 | `lifetime_value`                           | Number   | Total customer value                       |
@@ -55,10 +55,30 @@ Contacts use upsert logic based on email address:
 - Subscription status is managed per list
 - List memberships are tracked through the `contact_lists` relationship
 
+## Importing Contacts from CSV
+
+<img
+  src="/assets/screenshots/import_csv.png"
+  alt="CSV import interface showing field mapping and list selection options"
+/>
+
+Notifuse provides a powerful CSV import feature that streamlines the process of adding multiple contacts to your workspace. The import system is designed to be intuitive and robust, handling large datasets efficiently.
+
+### Auto-Detection and Field Mapping
+
+The CSV importer automatically detects and suggests field mappings based on your CSV column headers. Common column names like "email", "first_name", "last_name", and "phone" are automatically matched to their corresponding contact fields. For custom or non-standard column names, you can manually map each CSV column to the appropriate contact field through an intuitive interface.
+
+### Mailing List Assignment
+
+During the import process, you can select one or multiple mailing lists to add your contacts to. This allows you to immediately segment your imported contacts and ensures they're properly organized within your workspace. All imported contacts will be automatically subscribed to the selected lists upon successful import.
+
+### Progress Tracking and Recovery
+
+The import process includes automatic progress saving, which means if your import is interrupted due to network issues or browser closure, you can resume from where you left off. This is particularly valuable when importing large CSV files with thousands of contacts, ensuring no data is lost during the process.
+
 ## Key Features
 
 - **Flexible Schema**: Predefined fields cover most use cases while custom fields provide extensibility
 - **Automatic Deduplication**: Email-based upserts prevent duplicate contacts
-- **Multi-List Support**: Single contact can belong to multiple segmented lists
+- **Multi-List Support**: Single contact can belong to multiple mailing lists
 - **Data Removal**: Explicit null handling for field cleanup
-- **Timestamp Tracking**: Automatic creation and update timestamps

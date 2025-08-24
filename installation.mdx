@@ -31,13 +31,13 @@ Notifuse needs an SMTP server to send system emails (e.g. password reset emails,
 
 ### A public API endpoint
 
-Notifuse needs a public API endpoint to be accessible from the web. Example: `https://notifuse.yourcompany.com`
+Notifuse needs a public API endpoint to be accessible from the web. Example: `https://emails.yourcompany.com`
 
 ### A cron scheduler
 
 The Notifuse API is 100% stateless: you can run many instances of it in parallel behind a load balancer.
 
-However, to trigger the automatic sending of emails, you will need to run a cron job that will call the `https://your_notifuse_endpoint.your_company.com/api/v1/cron` endpoint **every minute**.
+However, to trigger the automatic sending of emails, you will need to run a cron job that will call the `https://YOUR_ENDPOINT/api/cron` endpoint **every minute**.
 
 When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
 
@@ -48,7 +48,7 @@ When a newsletter campaign is being sent, the task is executed for at most 55 se
 | Variable             | Description                                                                                            |
 | -------------------- | ------------------------------------------------------------------------------------------------------ |
 | `ROOT_EMAIL`         | Root administrator email (e.g., `admin@yourcompany.com`)                                               |
-| `API_ENDPOINT`       | Public API endpoint URL (e.g., `https://api.yourcompany.com`)                                          |
+| `API_ENDPOINT`       | Public API endpoint URL (e.g., `https://emails.yourcompany.com`)                                       |
 | `DB_HOST`            | PostgreSQL host (e.g., `localhost` or `db.yourcompany.com`)                                            |
 | `DB_PORT`            | PostgreSQL port (e.g., `5432`)                                                                         |
 | `DB_USER`            | Database username (e.g., `postgres`)                                                                   |

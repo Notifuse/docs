@@ -1,0 +1,56 @@
+---
+title: File Manager
+description: 'The file manager connects to your S3-compatible bucket to store and serve files and images used in your email templates. You can optionally configure a CDN endpoint to customize S3 URLs for better performance.'
+---
+
+<img src="/assets/screenshots/file_manager.png" alt="File Manager screenshot" />
+
+## S3 Storage Configuration
+
+Configure your S3-compatible storage with these settings:
+
+- **S3 Endpoint**: Your S3-compatible storage endpoint URL
+- **S3 Access Key**: Access key for authentication
+- **S3 Secret Key**: Secret key for authentication
+- **S3 Bucket**: Bucket name where files will be stored
+- **S3 Region**: Storage region (e.g., us-east-1)
+
+## CDN Configuration
+
+### CDN Endpoint
+
+- **Purpose**: URL of the CDN that caches your files
+- **Benefit**: Faster file delivery and reduced bandwidth costs
+- **Optional**: CDN configuration is not required but recommended
+
+### URL Customization
+
+When a CDN endpoint is configured, file URLs in your email templates will use the CDN URL instead of the direct S3 URL for optimized delivery.
+
+## Supported Storage Providers
+
+Files can be uploaded to any S3-compatible storage service:
+
+- Amazon S3
+- DigitalOcean Spaces
+- Wasabi
+- MinIO
+- Backblaze B2
+- Google Cloud Storage (S3 API)
+
+## File Usage
+
+Once configured, uploaded files can be used in:
+
+- Email template images
+- Attachments
+- Brand assets (logos, headers)
+- Any media content in your email campaigns
+
+## Template Editor Integration
+
+The visual email editor provides seamless access to your file manager:
+
+- **Modal Access**: File manager opens in a modal while creating templates
+- **Direct Integration**: Select and insert files directly from the editor
+- **Real-Time Upload**: Upload new files without leaving the template editor

@@ -1,14 +1,139 @@
 ---
 title: Templates
-description: "Templates in Notifuse are the foundation of your email design system. They provide reusable, responsive email layouts that can be personalized with dynamic content using Liquid templating and built with MJML components for perfect cross-client compatibility."
+description: 'Templates in Notifuse are the foundation of your email design system. They provide reusable, responsive email layouts that can be personalized with dynamic content using Liquid templating and built with MJML components for perfect cross-client compatibility.'
 ---
 
-## What is a Template?
+<img src="/assets/screenshots/editor.png" alt="Visual editor screenshot" />
 
-A template in Notifuse is a pre-designed email layout that includes:
+## Overview
 
-- **Visual Structure**: Header, body, footer, and content sections
-- **Responsive Design**: Mobile-optimized layouts that work across devices
-- **Dynamic Content**: Liquid variables for personalization
-- **Brand Elements**: Colors, fonts, logos, and styling
-- **Reusable Blocks**: Modular components for easy customization
+Email templates in Notifuse are built using a **visual drag-and-drop editor** that combines:
+
+- **MJML Framework**: Guarantees full email client compatibility across all devices and email providers
+- **Liquid Templating**: Dynamic content personalization using variables like `{{ contact.first_name }}`
+- **Version Control**: Every template update creates a new version to track previously sent contents
+- **Multi-Purpose**: Used by both broadcast campaigns and transactional notifications
+
+## Template Builder Features
+
+- **Drag-and-Drop Interface**: Visual editor for easy template creation
+- **Responsive Design**: Mobile-optimized layouts that work across all devices
+- **Pre-built Blocks**: Headers, footers, buttons, images, and content sections
+- **Brand Consistency**: Colors, fonts, logos, and styling options
+- **Real-time Preview**: See exactly how your email will look before sending
+
+## Usage
+
+Templates are used across Notifuse for:
+
+- **Broadcast Campaigns**: Mass email campaigns sent to your contact lists
+- **Transactional Notifications**: Automated emails triggered by user actions
+- **Double Opt-In Emails**: Sent when anonymous contacts subscribe to lists
+- **Welcome Emails**: Sent when contacts confirm their subsription to lists
+- **Unsubscribe Confirmations**: Sent when contacts opt out
+
+<img src="/assets/screenshots/templates.png" alt="Email templates screenshot" />
+
+## Liquid Syntax
+
+Notifuse uses Liquid templating to insert dynamic content into your emails. Variables are enclosed in double curly braces and automatically replaced with actual data when emails are sent.
+
+### Contact Variables
+
+The `contact` object contains the **full contact profile** with all stored information. Access any contact field for personalization:
+
+```liquid
+Hello {{ contact.first_name }}!
+
+Your account email: {{ contact.email }}
+Full name: {{ contact.first_name }} {{ contact.last_name }}
+```
+
+**Output Example:**
+
+```
+Hello John!
+
+Your account email: john.doe@example.com
+Full name: John Doe
+```
+
+### List Variables
+
+Reference the mailing list information:
+
+```liquid
+You're subscribed to: {{ list.name }}
+List ID: {{ list.id }}
+```
+
+**Output Example:**
+
+```
+You're subscribed to: Newsletter
+List ID: newsletter
+```
+
+### System URLs
+
+Use pre-generated URLs for common actions:
+
+#### Unsubscribe Link
+
+```liquid
+<a href="{{ unsubscribe_url }}">Unsubscribe from this list</a>
+```
+
+#### Subscription Confirmation
+
+```liquid
+<a href="{{ confirm_subscription_url }}">Confirm your subscription</a>
+```
+
+#### Notification Center
+
+```liquid
+<a href="{{ notification_center_url }}">Manage your preferences</a>
+```
+
+### Complete Example
+
+```liquid
+<h1>Welcome {{ contact.first_name }}!</h1>
+
+<p>Thank you for subscribing to {{ list.name }}. We're excited to have you on board!</p>
+
+<p>Your registered email: {{ contact.email }}</p>
+
+<div style="margin: 20px 0;">
+  <a href="{{ notification_center_url }}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none;">
+    Manage Preferences
+  </a>
+</div>
+
+<p style="font-size: 12px; color: #666;">
+  Don't want to receive these emails?
+  <a href="{{ unsubscribe_url }}">Unsubscribe here</a>
+</p>
+```
+
+### Available Data Structure
+
+When designing templates, you have access to this data structure:
+
+```json
+{
+  "contact": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com"
+  },
+  "list": {
+    "id": "newsletter",
+    "name": "Newsletter"
+  },
+  "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/unsubscribe?email={{ contact.email }}&lid={{ list.id }}&email_hmac={{ contact.hmac }}",
+  "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&email_hmac=abc123",
+  "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
+}
+```

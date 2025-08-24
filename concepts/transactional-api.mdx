@@ -1,14 +1,156 @@
 ---
 title: Transactional API
-description: "Transactional API in Notifuse are API-triggered emails sent to a specific contact."
+description: 'The Transactional API enables you to send event-driven emails directly from your application. Unlike broadcast campaigns, transactional emails are sent individually to specific contacts in real-time with automatic contact management, making them perfect for user-triggered notifications and automated workflows.'
 ---
 
-Example:
+<img src="/assets/screenshots/transactional_api.png" alt="Transactional templates screenshot" />
+
+## Common Use Cases
 
 ```
 - Password Reset
 - Order Confirmation
 - Welcome Email
 - Account Deletion
+- Purchase Receipt
+- Shipping Notifications
+- Account Verification
+- Payment Confirmations
 ```
 
+## Key Features
+
+### Automatic Contact Management
+
+- **Contact Upsert**: Contacts are automatically created or updated before sending
+- **Profile Enrichment**: Template data is automatically merged with existing contact profile information
+- **Data Consistency**: Ensures contact information is always current
+
+### Template Data Enrichment
+
+When you send a transactional email, Notifuse automatically:
+
+1. **Looks up the contact** by email address in your workspace
+2. **Merges your API data** with the existing contact profile
+3. **Enriches the template** with the complete contact information
+4. **Sends the personalized email** with all available data
+
+**Example**: If your API sends `{"order_id": "12345"}` but the contact profile contains `{"first_name": "John", "last_name": "Doe"}`, the template will have access to both the order data and the contact's full profile.
+
+### Email Delivery Options
+
+Configure email routing with flexible options:
+
+- **Reply-To**: Set custom reply-to addresses
+- **CC**: Add carbon copy recipients
+- **BCC**: Include blind carbon copy recipients
+
+## API Endpoint
+
+Send transactional emails using a simple POST request:
+
+### Request
+
+```bash
+curl -X POST \
+  "https://v3.notifuse.com/api/transactional.send" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+  "workspace_id": "your_workspace",
+  "notification": {
+    "id": "password_reset",
+    "channels": ["email"],
+    "contact": {
+      "email": "user@example.com"
+    },
+    "data": {
+      "reset_token": "abc123",
+      "expiry_time": "2024-01-01T12:00:00Z"
+    },
+    "email_options": {
+      "reply_to": "support@yourcompany.com",
+      "cc": ["admin@yourcompany.com"],
+      "bcc": ["logs@yourcompany.com"]
+    }
+  }
+}'
+```
+
+### Parameters
+
+| Parameter                    | Type   | Required | Description                                 |
+| ---------------------------- | ------ | -------- | ------------------------------------------- |
+| `workspace_id`               | string | Yes      | Your workspace identifier                   |
+| `notification.id`            | string | Yes      | Template identifier for the email           |
+| `notification.channels`      | array  | Yes      | Must include "email"                        |
+| `notification.contact`       | object | Yes      | Contact object with at least an email field |
+| `notification.data`          | object | No       | Custom data for template variables          |
+| `notification.email_options` | object | No       | Email routing configuration                 |
+
+### Email Options
+
+| Parameter  | Type   | Description                          |
+| ---------- | ------ | ------------------------------------ |
+| `reply_to` | string | Set custom reply-to email address    |
+| `cc`       | array  | List of carbon copy recipients       |
+| `bcc`      | array  | List of blind carbon copy recipients |
+
+## Template Integration
+
+### Data Structure in Templates
+
+Your templates have access to both API data and contact profile:
+
+```liquid
+<!-- From API data -->
+Hello! Your order #{{ order_id }} has been confirmed.
+
+<!-- From contact profile (automatically enriched) -->
+Dear {{ contact.first_name }} {{ contact.last_name }},
+
+<!-- Combining both -->
+We've sent your order #{{ order_id }} to {{ contact.email }}.
+```
+
+### Complete Example
+
+**API Request Data**:
+
+```json
+{
+  "order_id": "ORD-12345",
+  "total": "$99.99",
+  "items": ["Product A", "Product B"]
+}
+```
+
+**Existing Contact Profile**:
+
+```json
+{
+  "first_name": "Sarah",
+  "last_name": "Johnson",
+  "email": "sarah@example.com",
+  "phone": "+1234567890"
+}
+```
+
+**Available in Template**:
+
+```liquid
+Hi {{ contact.first_name }}!
+
+Your order #{{ order_id }} totaling {{ total }} has been confirmed.
+
+Items:
+{% for item in items %}
+- {{ item }}
+{% endfor %}
+
+We'll send updates to {{ contact.email }}.
+```
+
+## API Reference
+
+For complete API documentation and additional parameters, see the [API Reference](/api-reference/send-a-transactional-notification).

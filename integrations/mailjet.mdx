@@ -1,0 +1,296 @@
+---
+title: Mailjet
+description: 'Configure Mailjet as your email provider in Notifuse for transactional and marketing email delivery with comprehensive analytics and collaboration tools.'
+---
+
+<img
+  className="block dark:hidden"
+  src="/assets/integrations/mailjet.png"
+  alt="Mailjet Integration"
+/>
+<img
+  className="hidden dark:block"
+  src="/assets/integrations/mailjet.png"
+  alt="Mailjet Integration"
+/>
+
+## Overview
+
+Mailjet is a comprehensive email service provider that offers both transactional and marketing email solutions. With powerful APIs, advanced analytics, and collaborative features, Mailjet helps businesses of all sizes deliver emails effectively.
+
+## Features
+
+- **Dual Purpose**: Both transactional and marketing emails
+- **Real-time Analytics**: Comprehensive tracking and reporting
+- **Template Builder**: Drag-and-drop email designer
+- **A/B Testing**: Built-in split testing capabilities
+- **Collaboration Tools**: Team-friendly workspace
+- **Global Infrastructure**: Worldwide delivery network
+
+## Configuration
+
+### Prerequisites
+
+Before configuring Mailjet in Notifuse, you'll need:
+
+1. A Mailjet account
+2. Verified sender domain or email
+3. Your Mailjet API key and secret key
+4. Proper DNS configuration (for domains)
+
+### Setup Steps
+
+1. **Navigate to Integrations**
+
+   - Go to your workspace settings
+   - Select "Email Providers"
+   - Click "Add Provider" and choose Mailjet
+
+2. **Enter Configuration Details**
+
+   - **API Key**: Your Mailjet public API key
+   - **Secret Key**: Your Mailjet private secret key
+   - **From Email**: Your verified sender email
+   - **From Name**: Display name for emails
+
+3. **Verify Configuration**
+   - Test the connection with a test email
+   - Ensure all settings are correct
+
+### Required Settings
+
+| Setting    | Description                   | Example                            |
+| ---------- | ----------------------------- | ---------------------------------- |
+| API Key    | Mailjet public API key        | `1234567890abcdef1234567890abcdef` |
+| Secret Key | Mailjet private secret key    | `abcdef1234567890abcdef1234567890` |
+| From Email | Verified sender email address | `noreply@yourdomain.com`           |
+| From Name  | Display name for sender       | `Your Company Name`                |
+
+## Mailjet Setup
+
+### Get API Credentials
+
+1. Log into your Mailjet account
+2. Go to "Account Settings" → "Master API Keys & Sub accounts"
+3. Copy your API Key (public) and Secret Key (private)
+4. Alternatively, create a sub-account for better organization
+
+### Verify Sender
+
+You can verify either email addresses or entire domains:
+
+#### Email Address Verification
+
+1. Go to "Account Settings" → "Sender domains & addresses"
+2. Click "Add a sender address"
+3. Enter your email address
+4. Check your email and click the verification link
+
+#### Domain Verification (Recommended)
+
+1. Go to "Account Settings" → "Sender domains & addresses"
+2. Click "Add a sender domain"
+3. Enter your domain name
+4. Add the required DNS records
+5. Wait for verification
+
+## DNS Configuration
+
+For domain verification and optimal deliverability:
+
+### SPF Record
+
+```
+v=spf1 include:spf.mailjet.com ?all
+```
+
+### DKIM Records
+
+Mailjet will provide specific DKIM records for your domain:
+
+```
+mailjet._domainkey.yourdomain.com CNAME mailjet._domainkey.mailjet.com
+```
+
+### DMARC Record
+
+```
+v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com; ruf=mailto:dmarc@yourdomain.com; fo=1
+```
+
+### Tracking Domain (Optional)
+
+For custom tracking links:
+
+```
+click.yourdomain.com CNAME click.mailjet.com
+```
+
+## API Versions
+
+Mailjet offers different API versions:
+
+- **v3**: REST API for general email operations
+- **v3.1**: Enhanced REST API with additional features
+- **v4**: GraphQL API for advanced queries
+
+Notifuse typically uses v3.1 for optimal compatibility and features.
+
+## Email Types
+
+### Transactional Emails
+
+- Order confirmations
+- Password resets
+- Account notifications
+- System alerts
+
+### Marketing Emails
+
+- Newsletters
+- Promotional campaigns
+- Announcements
+- Product updates
+
+## Analytics and Reporting
+
+Mailjet provides detailed analytics:
+
+### Delivery Metrics
+
+- Delivered, bounced, blocked messages
+- Delivery rates and timing
+- Geographic distribution
+
+### Engagement Metrics
+
+- Open rates and timing
+- Click rates and heat maps
+- Unsubscribe rates
+- Spam complaints
+
+### Advanced Analytics
+
+- Device and client statistics
+- Link performance
+- Geolocation data
+- Time-based analytics
+
+## Templates and Personalization
+
+### Template System
+
+Mailjet offers multiple templating options:
+
+- Drag-and-drop editor
+- HTML/CSS custom templates
+- API-based templates
+
+### Personalization
+
+Use template variables for dynamic content:
+
+```
+Hello {{var:first_name}},
+Welcome to {{var:company_name}}!
+```
+
+### Conditional Content
+
+Create dynamic sections:
+
+```
+{{#if var:premium_user}}
+  Premium content here
+{{else}}
+  Standard content here
+{{/if}}
+```
+
+## Contact Management
+
+### Lists and Segments
+
+- Organize contacts into lists
+- Create dynamic segments
+- Import/export contact data
+- Manage subscriptions
+
+### Contact Properties
+
+Store custom data for personalization:
+
+- Demographics
+- Preferences
+- Behavioral data
+- Custom fields
+
+## Testing
+
+After configuration, test your Mailjet integration:
+
+1. Send test emails from Notifuse
+2. Check Mailjet statistics dashboard
+3. Verify tracking data appears
+4. Test different email types
+5. Monitor delivery and engagement
+
+## Best Practices
+
+### List Management
+
+- Use double opt-in for subscriptions
+- Regularly clean your contact lists
+- Honor unsubscribe requests immediately
+- Segment lists for better targeting
+
+### Content Guidelines
+
+- Write clear, compelling subject lines
+- Optimize for mobile devices
+- Include unsubscribe links
+- Balance text and images
+
+### Sending Practices
+
+- Warm up new domains gradually
+- Monitor sender reputation
+- Avoid spam trigger words
+- Test across email clients
+
+## Troubleshooting
+
+### Common Issues
+
+- **Authentication Errors**: Verify API credentials
+- **Sender Not Verified**: Complete sender verification
+- **DNS Problems**: Check DNS record configuration
+- **Rate Limits**: Monitor account limits
+- **Delivery Issues**: Check sender reputation
+
+### Error Codes
+
+Common Mailjet error codes:
+
+- `400`: Bad request (check parameters)
+- `401`: Unauthorized (check API keys)
+- `403`: Forbidden (permission issue)
+- `429`: Rate limit exceeded
+
+### Monitoring
+
+Keep track of important metrics:
+
+- Delivery success rates
+- Bounce and complaint rates
+- Sender reputation scores
+- Account usage limits
+
+### Support
+
+For additional help:
+
+- Check Mailjet documentation
+- Use Mailjet support center
+- Contact Notifuse support
+- Review Mailjet status page

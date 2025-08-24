@@ -1,0 +1,192 @@
+---
+title: Postmark
+description: 'Configure Postmark as your email provider in Notifuse for fast, reliable transactional email delivery with detailed analytics.'
+---
+
+<img
+  className="block dark:hidden"
+  src="/assets/integrations/postmark.png"
+  alt="Postmark Integration"
+/>
+<img
+  className="hidden dark:block"
+  src="/assets/integrations/postmark.png"
+  alt="Postmark Integration"
+/>
+
+## Overview
+
+Postmark is a fast and reliable email service designed specifically for transactional emails. Known for exceptional deliverability and detailed analytics, Postmark helps ensure your important emails reach the inbox.
+
+## Features
+
+- **Lightning Fast**: Emails delivered in seconds
+- **Exceptional Deliverability**: 99%+ inbox placement
+- **Detailed Analytics**: Real-time tracking and insights
+- **Templates**: Rich template system with dynamic content
+- **Bounce Management**: Automatic bounce handling
+- **Domain Authentication**: Full DKIM and SPF support
+
+## Configuration
+
+### Prerequisites
+
+Before configuring Postmark in Notifuse, you'll need:
+
+1. A Postmark account
+2. A verified domain or sender signature
+3. Your Postmark server API token
+4. A configured sender stream
+
+### Setup Steps
+
+1. **Navigate to Integrations**
+
+   - Go to your workspace settings
+   - Select "Email Providers"
+   - Click "Add Provider" and choose Postmark
+
+2. **Enter Configuration Details**
+
+   - **Server API Token**: Your Postmark server token
+   - **From Email**: Your verified sender email
+   - **From Name**: Display name for emails
+
+3. **Verify Configuration**
+   - Test the connection with a test email
+   - Ensure all settings are correct
+
+### Required Settings
+
+| Setting          | Description                   | Example                                |
+| ---------------- | ----------------------------- | -------------------------------------- |
+| Server API Token | Postmark server API token     | `12345678-1234-1234-1234-123456789012` |
+| From Email       | Verified sender email address | `noreply@yourdomain.com`               |
+| From Name        | Display name for sender       | `Your Company Name`                    |
+
+## Postmark Setup
+
+### Create a Server
+
+1. Log into your Postmark account
+2. Go to "Servers" and click "Create Server"
+3. Choose "Transactional" as the server type
+4. Configure your server settings
+5. Copy the Server API Token
+
+### Verify Sender
+
+You can verify either individual email addresses or entire domains:
+
+#### Sender Signatures (Individual Emails)
+
+1. Go to "Sender Signatures"
+2. Click "Add Sender Signature"
+3. Enter your email address
+4. Check your email and click the confirmation link
+
+#### Domains (Recommended)
+
+1. Go to "Sender Signatures"
+2. Click "Add Domain"
+3. Enter your domain name
+4. Add the provided DNS records
+5. Wait for verification
+
+## DNS Configuration
+
+For domain verification, add these DNS records:
+
+### DKIM Record
+
+```
+20230601._domainkey.yourdomain.com CNAME 20230601.dkim.postmarkapp.com
+```
+
+### Return-Path
+
+```
+pm-bounces CNAME pm.mtasv.net
+```
+
+### SPF Record
+
+```
+v=spf1 a mx include:spf.mtasv.net ~all
+```
+
+## Message Streams
+
+Postmark uses message streams to categorize emails:
+
+- **Transactional**: For application emails (receipts, notifications)
+- **Broadcast**: For marketing emails (newsletters, promotions)
+
+Make sure to use the appropriate stream for your email type.
+
+## Testing
+
+After configuration, test your Postmark integration:
+
+1. Send a test email from Notifuse
+2. Check Postmark's activity feed
+3. Verify email delivery and tracking data
+4. Test different email types (HTML, text)
+
+## Analytics and Monitoring
+
+Postmark provides detailed analytics:
+
+- **Delivery Rates**: Track successful deliveries
+- **Open Tracking**: Monitor email opens
+- **Click Tracking**: Track link clicks
+- **Bounce Management**: Handle bounces automatically
+- **Spam Complaints**: Monitor reputation
+
+## Best Practices
+
+### Email Authentication
+
+- Always verify your sending domain
+- Configure DKIM and SPF records
+- Monitor your sender reputation
+
+### Content Guidelines
+
+- Keep subject lines clear and relevant
+- Include unsubscribe links
+- Avoid spam trigger words
+- Use proper HTML structure
+
+### List Management
+
+- Remove bounced emails promptly
+- Handle unsubscribes immediately
+- Segment your email lists appropriately
+
+## Troubleshooting
+
+### Common Issues
+
+- **Authentication Errors**: Verify your API token
+- **Sender Not Verified**: Check sender signature status
+- **Domain Issues**: Ensure DNS records are correct
+- **Rate Limits**: Check your account limits
+- **Bounces**: Monitor bounce rates and clean lists
+
+### Error Codes
+
+Common Postmark error codes:
+
+- `422`: Invalid email format
+- `406`: Inactive recipient
+- `300`: Sender signature not confirmed
+
+### Support
+
+For additional help:
+
+- Check Postmark's documentation
+- Use Postmark's support resources
+- Contact Notifuse support
+- Review Postmark's status page
