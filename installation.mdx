@@ -1,0 +1,94 @@
+---
+title: Installation
+description: 'How to self-host Notifuse'
+---
+
+## Getting started
+
+### Docker host
+
+Notifuse is distributed via the Docker image `notifuse/notifuse:latest`, and exposed on port `8080`. You can run it with the following command:
+
+```bash
+docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
+```
+
+**Note**: You'll need to set the [required environment variables](#required-variables) for the container to work properly.
+
+### PASETO keys
+
+You can generate PASETO keys with https://paseto.notifuse.com
+
+### PostgreSQL database
+
+You can use any PostgreSQL database **with root credentials**. Notifuse automatically creates a system database for itself.
+
+A new database will be created for each Notifuse workspace to avoid multi-tenant issues (that's why you need root credentials).
+
+### An SMTP server
+
+Notifuse needs an SMTP server to send system emails (e.g. password reset emails, invitation emails, etc.).
+
+### A public API endpoint
+
+Notifuse needs a public API endpoint to be accessible from the web. Example: `https://notifuse.yourcompany.com`
+
+### A cron scheduler
+
+The Notifuse API is 100% stateless: you can run many instances of it in parallel behind a load balancer.
+
+However, to trigger the automatic sending of emails, you will need to run a cron job that will call the `https://your_notifuse_endpoint.your_company.com/api/v1/cron` endpoint **every minute**.
+
+When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
+
+## Environment Variables
+
+### Required Variables
+
+| Variable             | Description                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ROOT_EMAIL`         | Root administrator email (e.g., `admin@yourcompany.com`)                                               |
+| `API_ENDPOINT`       | Public API endpoint URL (e.g., `https://api.yourcompany.com`)                                          |
+| `DB_HOST`            | PostgreSQL host (e.g., `localhost` or `db.yourcompany.com`)                                            |
+| `DB_PORT`            | PostgreSQL port (e.g., `5432`)                                                                         |
+| `DB_USER`            | Database username (e.g., `postgres`)                                                                   |
+| `DB_PASSWORD`        | Database password (e.g., `postgres`)                                                                   |
+| `PASETO_PRIVATE_KEY` | Base64 encoded PASETO private key (e.g., `1IC3m5Hk2jkVW...`) - generate at https://paseto.notifuse.com |
+| `PASETO_PUBLIC_KEY`  | Base64 encoded PASETO public key (e.g., `5p36ZqXdo7...`) - generate at https://paseto.notifuse.com     |
+| `SECRET_KEY`         | Secret key for database encryption (e.g., `your_32_character_secret_key_here`)                         |
+| `SMTP_HOST`          | SMTP server host (e.g., `smtp.gmail.com`)                                                              |
+| `SMTP_PORT`          | SMTP server port (e.g., `587` or `465`)                                                                |
+| `SMTP_USERNAME`      | SMTP username (e.g., `noreply@yourcompany.com`)                                                        |
+| `SMTP_PASSWORD`      | SMTP password (e.g., `your_smtp_password`)                                                             |
+| `SMTP_FROM_EMAIL`    | From email address (e.g., `noreply@yourcompany.com`)                                                   |
+| `SMTP_FROM_NAME`     | From name (e.g., `Your Company Name`)                                                                  |
+
+### Optional Variables
+
+| Variable                            | Description                                                                               | Default                              |
+| ----------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------ |
+| **Server Configuration**            |
+| `SERVER_PORT`                       | Port for the server to listen on (e.g., `8080`)                                           | `8080`                               |
+| `SERVER_HOST`                       | Host address to bind to (e.g., `0.0.0.0`)                                                 | `0.0.0.0`                            |
+| `CORS_ALLOW_ORIGIN`                 | CORS allowed origins (e.g., `https://yourapp.com,https://admin.yourapp.com`)              | `*`                                  |
+| `ENVIRONMENT`                       | Environment mode (e.g., `production`)                                                     | `production`                         |
+| `LOG_LEVEL`                         | Logging level (e.g., `debug` or `warn`)                                                   | `info`                               |
+| **Database Configuration**          |
+| `DB_PREFIX`                         | Database table prefix (e.g., `notifuse`)                                                  | `notifuse`                           |
+| `DB_NAME`                           | Database name (e.g., `notifuse_system`)                                                   | `${DB_PREFIX}_system`                |
+| `DB_SSLMODE`                        | SSL mode for database (e.g., `require` or `disable`)                                      | `require`                            |
+| **Tracing Configuration**           |
+| `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
+| `TRACING_SERVICE_NAME`              | Service name for tracing (e.g., `notifuse-production`)                                    | `notifuse-api`                       |
+| `TRACING_SAMPLING_PROBABILITY`      | Sampling probability (e.g., `0.05`)                                                       | `0.1`                                |
+| `TRACING_TRACE_EXPORTER`            | Trace exporter: jaeger/zipkin/stackdriver/datadog/xray/none (e.g., `jaeger` or `datadog`) | `none`                               |
+| `TRACING_JAEGER_ENDPOINT`           | Jaeger endpoint (e.g., `http://jaeger:14268/api/traces`)                                  | `http://localhost:14268/api/traces`  |
+| `TRACING_ZIPKIN_ENDPOINT`           | Zipkin endpoint (e.g., `http://zipkin:9411/api/v2/spans`)                                 | `http://localhost:9411/api/v2/spans` |
+| `TRACING_STACKDRIVER_PROJECT_ID`    | Stackdriver project ID (e.g., `my-gcp-project-id`)                                        | -                                    |
+| `TRACING_AZURE_INSTRUMENTATION_KEY` | Azure Monitor instrumentation key (e.g., `12345678-1234-1234-1234-123456789012`)          | -                                    |
+| `TRACING_DATADOG_AGENT_ADDRESS`     | Datadog agent address (e.g., `datadog-agent:8126`)                                        | `localhost:8126`                     |
+| `TRACING_DATADOG_API_KEY`           | Datadog API key (e.g., `1234567890abcdef1234567890abcdef`)                                | -                                    |
+| `TRACING_XRAY_REGION`               | AWS X-Ray region (e.g., `us-east-1`)                                                      | `us-west-2`                          |
+| `TRACING_AGENT_ENDPOINT`            | General agent endpoint (e.g., `monitoring-agent:8126`)                                    | `localhost:8126`                     |
+| `TRACING_METRICS_EXPORTER`          | Metrics exporter: stackdriver/prometheus/datadog/none (e.g., `prometheus`)                | `none`                               |
+| `TRACING_PROMETHEUS_PORT`           | Prometheus metrics port (e.g., `9464`)                                                    | `9464`                               |

@@ -1,7 +1,77 @@
 ---
 title: Notification Center
-description:
-  "The Notification Center is the central hub for a contact to manage its notifications, subscriptions, and preferences."
+description: 'The Notification Center is the central hub for a contact to manage its notifications, subscriptions, and preferences.'
 ---
 
 ## What is a Notification Center?
+
+The Notification Center is a mobile-first interface that Notifuse automatically renders when users click on unsubscribe links in newsletters. It provides a seamless experience for contacts to manage their email subscription preferences across all public lists.
+
+Example:
+
+<Frame>
+  <img
+    src="/images/phone_notification_center_left.png"
+    alt="Notification Center interface showing subscription management"
+
+/>
+
+</Frame>
+
+## Features
+
+### Automatic Rendering
+
+- Displays automatically when users click unsubscribe links
+- Mobile-responsive design
+- No configuration required
+
+### Multi-Language Support
+
+Automatically detects browser language and displays content accordingly. Supported languages:
+
+- English (en)
+- French (fr)
+- Spanish (es)
+- German (de)
+- Chinese (zh)
+- Hindi (hi)
+- Arabic (ar)
+- Portuguese (pt)
+- Russian (ru)
+- Japanese (ja)
+
+Defaults to English if browser language is not supported.
+
+### Subscription Management
+
+Users can:
+
+- View all public lists
+- Subscribe/unsubscribe with one click
+- See real-time feedback messages
+
+## Configuration
+
+### Branding
+
+The notification center uses:
+
+- Logo from workspace settings
+- Website URL from workspace settings
+
+## Technical Details
+
+### User Flow
+
+1. User clicks unsubscribe link
+2. Notification center opens
+3. User modifies subscription preferences
+4. Changes applied immediately
+
+### Implementation
+
+- Cross-browser compatible
+- Responsive design
+- Secure subscription handling
+- Error handling with localized messages

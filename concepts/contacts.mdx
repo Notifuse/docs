@@ -1,13 +1,64 @@
 ---
 title: Contacts
-description: "Contacts are the foundation of your email marketing efforts in Notifuse. They represent your subscribers, customers, and prospects, complete with detailed profiles, custom fields, and engagement history."
+description: 'Contacts are the foundation of your email marketing efforts in Notifuse. They represent your subscribers, customers, and prospects, complete with detailed profiles, custom fields, and engagement history.'
 ---
 
-## What is a Contact?
+<img
+  src="/assets/screenshots/contacts.png"
+  alt="Contacts interface showing contact list with various fields and custom data options"
+/>
 
-A contact in Notifuse is a comprehensive profile that includes:
+## Overview
 
-- **Basic Information**: Email address, name, and contact details
-- **Custom Fields**: Unlimited additional data points specific to your business
-- **List Memberships**: Which lists the contact belongs to and their subscription status
-- **Message History**: All messages sent to the contact
+Contacts in Notifuse are comprehensive customer profiles that store subscriber information, preferences, and engagement data. They support flexible data storage through predefined fields and can be associated with multiple mailing lists.
+
+## Contact Fields
+
+| Field                                      | Type     | Description                                |
+| ------------------------------------------ | -------- | ------------------------------------------ |
+| `email`                                    | String   | Contact's email address (**Required**)     |
+| `external_id`                              | String   | Your system's unique identifier            |
+| `first_name`                               | String   | Contact's first name                       |
+| `last_name`                                | String   | Contact's last name                        |
+| `phone`                                    | String   | Phone number                               |
+| `timezone`                                 | String   | Contact's timezone                         |
+| `language`                                 | String   | Preferred language                         |
+| `job_title`                                | String   | Professional title                         |
+| `address_line_1`                           | String   | Primary address                            |
+| `address_line_2`                           | String   | Secondary address (apartment, suite, etc.) |
+| `country`                                  | String   | Country                                    |
+| `state`                                    | String   | State or province                          |
+| `postcode`                                 | String   | Postal/ZIP code                            |
+| `lifetime_value`                           | Number   | Total customer value                       |
+| `orders_count`                             | Number   | Number of orders placed                    |
+| `last_order_at`                            | DateTime | Date of last order                         |
+| `custom_string_1` to `custom_string_5`     | String   | Custom string fields                       |
+| `custom_number_1` to `custom_number_5`     | Number   | Custom number fields                       |
+| `custom_datetime_1` to `custom_datetime_5` | DateTime | Custom datetime fields                     |
+| `custom_json_1` to `custom_json_5`         | JSON     | Custom JSON fields                         |
+
+<img src="/assets/screenshots/contact_profile.png" alt="Profile of a contact" />
+
+## Contact Management
+
+### Upsert Behavior
+
+Contacts use upsert logic based on email address:
+
+- **New emails**: Automatically creates a new contact
+- **Existing emails**: Updates the existing contact with provided fields
+- **Null values**: Setting any field to `null` removes that value from the contact
+
+### List Subscriptions
+
+- Contacts can subscribe to one or multiple mailing lists
+- Subscription status is managed per list
+- List memberships are tracked through the `contact_lists` relationship
+
+## Key Features
+
+- **Flexible Schema**: Predefined fields cover most use cases while custom fields provide extensibility
+- **Automatic Deduplication**: Email-based upserts prevent duplicate contacts
+- **Multi-List Support**: Single contact can belong to multiple segmented lists
+- **Data Removal**: Explicit null handling for field cleanup
+- **Timestamp Tracking**: Automatic creation and update timestamps
