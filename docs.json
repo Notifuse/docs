@@ -51,19 +51,7 @@
       {
         "tab": "API Reference",
         "openapi": "https://raw.githubusercontent.com/Notifuse/docs/refs/heads/main/openapi.json",
-        "groups": [
-          {
-            "group": "API Documentation",
-            "pages": ["api-reference/introduction", "api-reference/authentication"]
-          },
-          {
-            "group": "Transactional Notifications",
-            "pages": [
-              "api-reference/endpoint/send-transactional",
-              "api-reference/transactional-examples"
-            ]
-          }
-        ]
+        "groups": []
       }
     ]
   },

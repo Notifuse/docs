@@ -99,22 +99,16 @@ Use pre-generated URLs for common actions:
 ### Complete Example
 
 ```liquid
-<h1>Welcome {{ contact.first_name }}!</h1>
+Welcome {{ contact.first_name }}!
 
-<p>Thank you for subscribing to {{ list.name }}. We're excited to have you on board!</p>
+Thank you for subscribing to {{ list.name }}. We're excited to have you on board!
 
-<p>Your registered email: {{ contact.email }}</p>
+Your registered email: {{ contact.email }}
 
-<div style="margin: 20px 0;">
-  <a href="{{ notification_center_url }}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none;">
-    Manage Preferences
-  </a>
-</div>
+Manage Preferences: {{ notification_center_url }}
 
-<p style="font-size: 12px; color: #666;">
-  Don't want to receive these emails?
-  <a href="{{ unsubscribe_url }}">Unsubscribe here</a>
-</p>
+Don't want to receive these emails?
+Unsubscribe here: {{ unsubscribe_url }}
 ```
 
 ### Available Data Structure
@@ -132,7 +126,7 @@ When designing templates, you have access to this data structure:
     "id": "newsletter",
     "name": "Newsletter"
   },
-  "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/unsubscribe?email={{ contact.email }}&lid={{ list.id }}&email_hmac={{ contact.hmac }}",
+  "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/unsubscribe?email=john.doe@example.com&lid=newsletter&email_hmac=abc123",
   "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&email_hmac=abc123",
   "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
 }
