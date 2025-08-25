@@ -1,170 +1,69 @@
 ---
 title: Amazon SES
-description: 'Configure Amazon Simple Email Service (SES) as your email provider in Notifuse for scalable, cost-effective email delivery.'
+description: 'Configure Amazon SES as your email provider in Notifuse.'
 ---
 
-<img
-  className="block dark:hidden"
-  src="/assets/integrations/amazonses.png"
-  alt="Amazon SES Integration"
-/>
-<img
-  className="hidden dark:block"
-  src="/assets/integrations/amazonses.png"
-  alt="Amazon SES Integration"
-/>
+Amazon SES integration allows you to use AWS Simple Email Service for sending emails through Notifuse.
 
-## Overview
-
-Amazon Simple Email Service (SES) is a cloud-based email service designed to help digital marketers and application developers send marketing, notification, and transactional emails. This integration allows you to use Amazon SES as your email provider within Notifuse.
-
-## Features
-
-- **Cost-Effective**: Pay only for what you use
-- **Scalable**: Handle millions of emails per day
-- **High Deliverability**: Built-in reputation management
-- **Global Infrastructure**: Available in multiple AWS regions
-- **Integration**: Seamless integration with other AWS services
+<img className="block" src="/assets/screenshots/ses_form.png" alt="Amazon SES Integration Form" />
 
 ## Configuration
 
-### Prerequisites
+Navigate to **Settings** → **Integrations** → **Add Integration** → **Amazon SES**.
 
-Before configuring Amazon SES in Notifuse, you'll need:
+<img className="block" src="/assets/screenshots/ses_settings.png" alt="Amazon SES Settings" />
 
-1. An AWS account with SES enabled
-2. Verified email addresses or domains
-3. AWS Access Key ID and Secret Access Key
-4. SES sending limits increased (if needed)
+### Form Fields
 
-### Setup Steps
+| Field              | Description                         | Example                                    |
+| ------------------ | ----------------------------------- | ------------------------------------------ |
+| **AWS Region**     | AWS region dropdown select          | `us-east-1`                                |
+| **AWS Access Key** | AWS access key with SES permissions | `AKIAIOSFODNN7EXAMPLE`                     |
+| **AWS Secret Key** | AWS secret access key               | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
 
-1. **Navigate to Integrations**
+### Senders List
 
-   - Go to your workspace settings
-   - Select "Email Providers"
-   - Click "Add Provider" and choose Amazon SES
+Add sender addresses that have been verified in your AWS SES settings:
 
-2. **Enter Configuration Details**
+| Field     | Description                 | Example                  |
+| --------- | --------------------------- | ------------------------ |
+| **Name**  | Display name for the sender | `Support Team`           |
+| **Email** | Sender email address        | `support@yourdomain.com` |
 
-   - **Access Key ID**: Your AWS access key
-   - **Secret Access Key**: Your AWS secret key
-   - **Region**: Your SES region
-   - **From Email**: Your verified sender email
+**Important**: Senders must be verified in AWS SES console before they can be used.
 
-3. **Verify Configuration**
-   - Test the connection with a test email
-   - Ensure all settings are correct
+### Usage Types
 
-### Required Settings
+Configure how this Amazon SES integration will be used:
 
-| Setting           | Description                         | Example                                    |
-| ----------------- | ----------------------------------- | ------------------------------------------ |
-| Access Key ID     | AWS access key with SES permissions | `AKIAIOSFODNN7EXAMPLE`                     |
-| Secret Access Key | AWS secret access key               | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
-| Region            | AWS region where SES is configured  | `us-east-1`                                |
-| From Email        | Verified sender email address       | `noreply@yourdomain.com`                   |
+| Option                    | Description                                           | Examples                                                    |
+| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| **Use for Transactional** | System-generated emails triggered by user actions     | Password resets, order confirmations, account notifications |
+| **Use for Marketing**     | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns   |
 
-## AWS IAM Permissions
+You can enable both options to use the same SES configuration for all email types.
 
-Your AWS user needs the following SES permissions:
+### Webhooks
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": ["ses:SendEmail", "ses:SendRawEmail", "ses:GetSendQuota", "ses:GetSendStatistics"],
-      "Resource": "*"
-    }
-  ]
-}
-```
+Notifuse automatically subscribes to the following SES webhooks:
 
-## Email Verification
+| Webhook Type   | Description                     | Purpose                     |
+| -------------- | ------------------------------- | --------------------------- |
+| **Delivery**   | Email successfully delivered    | Track successful deliveries |
+| **Bounce**     | Email bounced                   | Monitor bounces             |
+| **Complaints** | Recipient filed abuse complaint | Handle abuse reports        |
 
-### Verify Email Addresses
+These webhooks provide real-time feedback on email performance and delivery status.
 
-1. Log into AWS SES Console
-2. Go to "Verified Identities"
-3. Click "Create Identity"
-4. Choose "Email address" and enter your email
-5. Check your email and click the verification link
+## Prerequisites
 
-### Verify Domains
+Before configuring Amazon SES:
 
-1. In SES Console, click "Create Identity"
-2. Choose "Domain" and enter your domain
-3. Add the provided DNS records to your domain
-4. Wait for verification (can take up to 72 hours)
-
-## Moving Out of Sandbox
-
-New AWS accounts start in "sandbox mode" with limitations:
-
-- Can only send to verified email addresses
-- Limited to 200 emails per day
-- Maximum 1 email per second
-
-To request production access:
-
-1. Go to SES Console
-2. Click "Get set up" in the sandbox notification
-3. Follow the instructions to request sending limit increase
-
-## DNS Configuration
-
-For better deliverability, configure these DNS records:
-
-### SPF Record
-
-```
-v=spf1 include:amazonses.com ~all
-```
-
-### DKIM
-
-Enable DKIM signing in SES console and add the provided CNAME records.
-
-### DMARC
-
-```
-v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com
-```
+1. **AWS Account**: Active AWS account with SES enabled
+2. **Verified Senders**: Email addresses or domains verified in AWS SES console
+3. **IAM Permissions**: AWS user with SES sending permissions
+4. **Production Access**: Move out of sandbox mode for unrestricted sending
 
 ## Testing
 
-After configuration, test your Amazon SES integration:
-
-1. Send a test email from Notifuse
-2. Check AWS SES sending statistics
-3. Monitor bounce and complaint rates
-4. Verify delivery to different email providers
-
-## Troubleshooting
-
-### Common Issues
-
-- **Access Denied**: Check IAM permissions
-- **Email Not Verified**: Verify sender email in SES
-- **Sandbox Limitations**: Request production access
-- **Rate Limits**: Check and increase sending limits
-- **DNS Issues**: Verify SPF, DKIM, and DMARC records
-
-### Monitoring
-
-Monitor your SES performance:
-
-- Sending quota usage
-- Bounce and complaint rates
-- Reputation metrics
-- Delivery statistics
-
-### Support
-
-For additional help:
-
-- Check AWS SES documentation
-- Contact Notifuse support
-- Review AWS service health dashboard
+Click **Test Integration** to verify your configuration.

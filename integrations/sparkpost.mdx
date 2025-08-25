@@ -1,242 +1,72 @@
 ---
 title: SparkPost
-description: 'Configure SparkPost as your email provider in Notifuse for high-volume email delivery with advanced analytics and real-time data.'
+description: 'Configure SparkPost as your email provider in Notifuse.'
 ---
 
+SparkPost integration allows you to use SparkPost for sending emails through Notifuse.
+
 <img
-  className="block dark:hidden"
-  src="/assets/integrations/sparkpost.png"
-  alt="SparkPost Integration"
+  className="block"
+  src="/assets/screenshots/sparkpost_form.png"
+  alt="SparkPost Integration Form"
 />
-<img
-  className="hidden dark:block"
-  src="/assets/integrations/sparkpost.png"
-  alt="SparkPost Integration"
-/>
-
-## Overview
-
-SparkPost is a cloud-based email delivery service designed for high-volume senders. It offers advanced analytics, real-time data, and powerful APIs to help businesses send emails at scale with maximum deliverability.
-
-## Features
-
-- **High-Volume Delivery**: Handle millions of emails per hour
-- **Advanced Analytics**: Real-time insights and detailed reporting
-- **Predictive Analytics**: AI-powered deliverability optimization
-- **Global Infrastructure**: Worldwide email delivery network
-- **Template Engine**: Dynamic templating with personalization
-- **Webhook Events**: Real-time event notifications
 
 ## Configuration
 
-### Prerequisites
+Navigate to **Settings** → **Integrations** → **Add Integration** → **SparkPost**.
 
-Before configuring SparkPost in Notifuse, you'll need:
+<img className="block" src="/assets/screenshots/sparkpost_settings.png" alt="SparkPost Settings" />
 
-1. A SparkPost account
-2. A verified sending domain
-3. Your SparkPost API key
-4. Proper DNS configuration
+### Form Fields
 
-### Setup Steps
+| Field                 | Description                             | Example                                    |
+| --------------------- | --------------------------------------- | ------------------------------------------ |
+| **API Endpoint**      | SparkPost API endpoint dropdown select  | `https://api.eu.sparkpost.com`             |
+| **SparkPost API Key** | SparkPost API key with send permissions | `0123456789abcdef0123456789abcdef01234567` |
+| **Sandbox Mode**      | Enable sandbox mode toggle              | `Disabled` (for production)                |
 
-1. **Navigate to Integrations**
+### Senders List
 
-   - Go to your workspace settings
-   - Select "Email Providers"
-   - Click "Add Provider" and choose SparkPost
+Add sender addresses that have been verified in your SparkPost account:
 
-2. **Enter Configuration Details**
+| Field     | Description                 | Example                  |
+| --------- | --------------------------- | ------------------------ |
+| **Name**  | Display name for the sender | `Support Team`           |
+| **Email** | Sender email address        | `support@yourdomain.com` |
 
-   - **API Key**: Your SparkPost API key
-   - **From Email**: Your verified sender email
-   - **From Name**: Display name for emails
-   - **Region**: SparkPost region (US/EU)
+**Important**: Senders must be verified in SparkPost console before they can be used.
 
-3. **Verify Configuration**
-   - Test the connection with a test email
-   - Ensure all settings are correct
+### Usage Types
 
-### Required Settings
+Configure how this SparkPost integration will be used:
 
-| Setting    | Description                             | Example                                    |
-| ---------- | --------------------------------------- | ------------------------------------------ |
-| API Key    | SparkPost API key with send permissions | `0123456789abcdef0123456789abcdef01234567` |
-| From Email | Verified sender email address           | `noreply@yourdomain.com`                   |
-| From Name  | Display name for sender                 | `Your Company Name`                        |
-| Region     | SparkPost region                        | `US` or `EU`                               |
+| Option                    | Description                                           | Examples                                                    |
+| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| **Use for Transactional** | System-generated emails triggered by user actions     | Password resets, order confirmations, account notifications |
+| **Use for Marketing**     | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns   |
 
-## SparkPost Setup
+You can enable both options to use the same SparkPost configuration for all email types.
 
-### Create API Key
+### Webhooks
 
-1. Log into your SparkPost account
-2. Go to "Account" → "API Keys"
-3. Click "Create API Key"
-4. Select permissions (minimum: Send via SMTP, Transmissions: Read/Write)
-5. Copy the generated API key
+Notifuse automatically registers the following SparkPost webhooks:
 
-### Verify Sending Domain
+| Webhook Type   | Description                     | Purpose                     |
+| -------------- | ------------------------------- | --------------------------- |
+| **Delivery**   | Email successfully delivered    | Track successful deliveries |
+| **Bounce**     | Email bounced                   | Monitor bounces             |
+| **Complaints** | Recipient filed abuse complaint | Handle abuse reports        |
 
-1. Go to "Account" → "Sending Domains"
-2. Click "Add Domain"
-3. Enter your domain name
-4. Add the required DNS records
-5. Wait for verification
+These webhooks provide real-time feedback on email performance and delivery status.
 
-## DNS Configuration
+## Prerequisites
 
-Add these DNS records to your domain for optimal deliverability:
+Before configuring SparkPost:
 
-### SPF Record
-
-```
-v=spf1 include:sparkpostmail.com ~all
-```
-
-### DKIM Records
-
-SparkPost will provide specific DKIM records for your domain:
-
-```
-scph0316._domainkey.yourdomain.com CNAME scph0316.dkim.sparkpostmail.com
-```
-
-### DMARC Record
-
-```
-v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com; sp=quarantine; aspf=r;
-```
-
-### Bounce Domain
-
-```
-sparkpostmail.yourdomain.com CNAME sparkpostmail.com
-```
-
-## Templates and Personalization
-
-SparkPost offers powerful templating features:
-
-### Template Variables
-
-Use substitution data for personalization:
-
-```
-Hello {{first_name}},
-Welcome to {{company_name}}!
-```
-
-### Dynamic Content
-
-Create conditional content based on recipient data:
-
-```
-{{#if premium_user}}
-  Access your premium features
-{{else}}
-  Upgrade to premium
-{{/if}}
-```
-
-## Analytics and Reporting
-
-SparkPost provides comprehensive analytics:
-
-- **Delivery Metrics**: Successful deliveries, bounces, delays
-- **Engagement Metrics**: Opens, clicks, unsubscribes
-- **Reputation Monitoring**: IP and domain reputation scores
-- **Predictive Analytics**: Deliverability predictions
-- **Real-time Events**: Live event stream via webhooks
-
-## Webhooks
-
-Configure webhooks to receive real-time event data:
-
-### Event Types
-
-- `delivery`: Message delivered successfully
-- `injection`: Message accepted by SparkPost
-- `bounce`: Message bounced
-- `open`: Recipient opened email
-- `click`: Recipient clicked link
-- `spam_complaint`: Recipient marked as spam
-
-### Configuration
-
-1. Go to "Account" → "Webhooks"
-2. Click "Create Webhook"
-3. Enter your endpoint URL
-4. Select event types
-5. Test the webhook
-
-## Best Practices
-
-### List Management
-
-- Maintain clean email lists
-- Remove bounced emails promptly
-- Honor unsubscribe requests immediately
-- Use double opt-in for subscriptions
-
-### Content Optimization
-
-- Use clear, relevant subject lines
-- Optimize for mobile devices
-- Include alt text for images
-- Provide text version of emails
-
-### Sending Practices
-
-- Warm up new IP addresses gradually
-- Monitor reputation scores
-- Segment email lists appropriately
-- Test emails before sending
+1. **SparkPost Account**: Active SparkPost account
+2. **Verified Senders**: Email addresses or domains verified in SparkPost console
+3. **API Key**: SparkPost API key with send permissions
 
 ## Testing
 
-After configuration, test your SparkPost integration:
-
-1. Send test emails from Notifuse
-2. Check SparkPost message events
-3. Verify delivery and tracking data
-4. Test different content types
-5. Monitor analytics dashboard
-
-## Troubleshooting
-
-### Common Issues
-
-- **API Errors**: Check API key permissions
-- **Domain Not Verified**: Complete domain verification
-- **DNS Issues**: Verify all DNS records are correct
-- **Rate Limits**: Check account sending limits
-- **Bounces**: Monitor bounce rates and list quality
-
-### Error Codes
-
-Common SparkPost error codes:
-
-- `1000`: General error
-- `1100`: Invalid recipient
-- `1200`: Invalid template
-- `1300`: Generation failure
-
-### Monitoring
-
-Keep track of key metrics:
-
-- Delivery rates
-- Bounce rates
-- Complaint rates
-- Reputation scores
-- Engagement metrics
-
-### Support
-
-For additional help:
-
-- Check SparkPost documentation
-- Use SparkPost support resources
-- Contact Notifuse support
-- Review SparkPost status page
+Click **Test Integration** to verify your configuration.

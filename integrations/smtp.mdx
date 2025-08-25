@@ -1,0 +1,71 @@
+---
+title: SMTP
+description: 'Configure SMTP as your email provider in Notifuse.'
+---
+
+SMTP integration allows you to connect any SMTP-compatible email service to Notifuse.
+
+<img className="block" src="/assets/screenshots/smtp_form.png" alt="SMTP Integration Form" />
+
+## Configuration
+
+Navigate to **Settings** → **Integrations** → **Add Integration** → **SMTP**.
+
+<img className="block" src="/assets/screenshots/smtp_settings.png" alt="SMTP Settings" />
+
+### Form Fields
+
+| Field                | Description                              | Example                |
+| -------------------- | ---------------------------------------- | ---------------------- |
+| **Integration Name** | Display name for this SMTP configuration | `Company SMTP`         |
+| **SMTP Host**        | SMTP server hostname or IP address       | `smtp.gmail.com`       |
+| **SMTP Port**        | SMTP server port number                  | `587`                  |
+| **Use TLS**          | Enable TLS encryption (toggle)           | `On` (recommended)     |
+| **SMTP Username**    | Authentication username                  | `your-email@gmail.com` |
+| **SMTP Password**    | Authentication password                  | `your-app-password`    |
+
+### Senders List
+
+Add sender addresses that can be used with this SMTP integration:
+
+| Field     | Description                 | Example                  |
+| --------- | --------------------------- | ------------------------ |
+| **Name**  | Display name for the sender | `Support Team`           |
+| **Email** | Sender email address        | `support@yourdomain.com` |
+
+Click **Add Sender** to add multiple sender addresses.
+
+### Usage Types
+
+Configure how this SMTP integration will be used:
+
+| Option                    | Description                                           | Examples                                                    |
+| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| **Use for Transactional** | System-generated emails triggered by user actions     | Password resets, order confirmations, account notifications |
+| **Use for Marketing**     | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns   |
+
+You can enable both options to use the same SMTP configuration for all email types.
+
+### Limitations
+
+SMTP integrations have the following limitations:
+
+- **No delivery webhooks**: SMTP does not provide real-time delivery status updates
+- **No spam notifications**: No automatic notifications when emails are marked as spam
+- **No complaint tracking**: No webhooks for unsubscribe requests or abuse complaints
+
+**Note**: Notifuse automatically adds open and click tracking to all emails, regardless of the email provider used.
+
+For delivery webhooks and advanced provider features, consider using dedicated email service providers like Mailgun, SendGrid, or Postmark.
+
+## Common Providers
+
+| Provider | Host                    | Port  | TLS |
+| -------- | ----------------------- | ----- | --- |
+| Gmail    | `smtp.gmail.com`        | `587` | Yes |
+| Outlook  | `smtp-mail.outlook.com` | `587` | Yes |
+| Yahoo    | `smtp.mail.yahoo.com`   | `587` | Yes |
+
+## Testing
+
+Click **Test Integration** to verify your configuration.

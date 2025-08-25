@@ -1,0 +1,164 @@
+---
+title: 'Newsletter Form Input'
+description: 'This tutorial will guide you through creating a newsletter subscription form and integrating it with Notifuse to collect and manage subscriber contacts'
+---
+
+Newsletter forms are essential for growing your email list and engaging with your audience. With Notifuse, you can easily collect subscriber information and automatically add them to your contact lists for future campaigns.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- A Notifuse workspace set up
+- Basic understanding of HTML/JavaScript
+- Access to your website or application where you want to embed the form
+
+## Step 1: Create a Contact List
+
+First, create a dedicated list for your newsletter subscribers:
+
+1. Navigate to **Lists** in your Notifuse dashboard
+2. Click **Create New List**
+3. Name your list (e.g., "Newsletter Subscribers")
+4. Add a description and save
+
+## Step 2: Generate a Complete Working Example
+
+Instead of manually coding the form, you can use AI to generate a complete, working example:
+
+**[📝 Generate with ChatGPT](https://chatgpt.com/)**
+
+**[📝 Generate with Claude.ai](https://claude.ai/)**
+
+Copy and paste this prompt to either AI assistant:
+
+```
+Create a newsletter subscription box using HTML, CSS, and JavaScript. The form should:
+
+1. Collect email address (required) and first name (optional)
+2. Have modern, responsive styling with a clean minimalist design
+3. Include client-side email validation
+4. Show loading states during submission
+5. Display success/error messages
+6. Use the Notifuse /subscribe API endpoint
+
+Read the API reference: https://docs.notifuse.com/api-reference/subscribe-to-email-lists
+
+The form should POST to: https://YOUR_NOTIFUSE_DOMAIN/subscribe
+With this JSON structure:
+{
+  "workspace_id": "YOUR_WORKSPACE_ID",
+  "contact": {
+    "email": "user@example.com",
+    "first_name": "John"
+  },
+  "list_ids": ["YOUR_LIST_ID"]
+}
+
+Make it production-ready with proper error handling, user feedback, and mobile-friendly design. Use placeholder values that users can easily replace.
+```
+
+## Step 3: API Integration (Manual Implementation)
+
+**Note**: This step is only for those who didn't use the AI prompt above. If you used the AI prompt, your form should already have the correct API integration.
+
+For manual implementation, use the Notifuse `/subscribe` endpoint to handle newsletter subscriptions. This is a public endpoint that doesn't require authentication:
+
+```javascript
+async function subscribeToNewsletter(email, firstName, workspaceId, listIds) {
+  try {
+    const response = await fetch('https://YOUR_NOTIFUSE_DOMAIN/subscribe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        workspace_id: workspaceId,
+        contact: {
+          email: email,
+          first_name: firstName || null
+        },
+        list_ids: listIds
+      })
+    })
+
+    if (response.ok) {
+      const result = await response.json()
+      return { success: true, data: result }
+    } else {
+      const error = await response.json()
+      return { success: false, error: error.error }
+    }
+  } catch (error) {
+    return { success: false, error: 'Network error occurred' }
+  }
+}
+
+// Usage example
+document.getElementById('newsletter-form').addEventListener('submit', async function (e) {
+  e.preventDefault()
+
+  const email = document.getElementById('email').value
+  const firstName = document.getElementById('firstName').value
+
+  const result = await subscribeToNewsletter(email, firstName, 'YOUR_WORKSPACE_ID', [
+    'YOUR_LIST_ID'
+  ])
+
+  if (result.success) {
+    // Show success message
+    alert('Thank you for subscribing!')
+  } else {
+    // Show error message
+    alert(`Error: ${result.error}`)
+  }
+})
+```
+
+Replace the placeholder values in your code:
+
+- `YOUR_NOTIFUSE_DOMAIN`: Your unique Notifuse domain (e.g., `demo.notifuse.com`)
+- `YOUR_WORKSPACE_ID`: Your workspace ID
+- `YOUR_LIST_ID`: The ID of your newsletter list
+
+## Step 5: Testing Your Form
+
+1. Test the form with a valid email address
+2. Check your Notifuse dashboard to confirm the contact was added to your list
+3. If the list has double opt-in enabled, check that confirmation emails are sent
+
+## Best Practices
+
+- **Double Opt-in**: Enable double opt-in on your lists for better engagement and compliance
+- **Privacy Compliance**: Add links to your privacy policy and terms of service
+- **Error Handling**: Provide clear error messages for different scenarios
+- **Mobile Responsive**: Ensure your form works well on all devices
+- **Public Lists**: Make sure your list is marked as "public" to allow subscriptions via the `/subscribe` endpoint
+
+## Troubleshooting
+
+### Common Issues
+
+**"list is not public" Error**: Ensure your list is configured as public in your Notifuse dashboard.
+
+**"invalid contact: invalid email format" Error**: Check that email validation is working correctly on the frontend.
+
+**Network Errors**: Verify that `YOUR_NOTIFUSE_DOMAIN` is correct and accessible.
+
+**CORS Errors**: The `/subscribe` endpoint supports CORS, but make sure you're using the correct domain.
+
+## Next Steps
+
+Once your newsletter form is working:
+
+1. Create welcome email templates for new subscribers
+2. Set up automated welcome campaigns
+3. Design regular newsletter broadcasts
+4. Monitor subscription analytics in your Notifuse dashboard
+
+## Related Documentation
+
+- [Contacts](/concepts/contacts)
+- [Lists](/concepts/lists)
+- [Broadcast Campaigns](/concepts/broadcast-campaigns)
+- [Transactional API](/concepts/transactional-api)

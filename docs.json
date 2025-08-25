@@ -37,13 +37,18 @@
             ]
           },
           {
+            "group": "Tutorials",
+            "pages": ["tutorials/newsletter-form-input"]
+          },
+          {
             "group": "Email Providers",
             "pages": [
               "integrations/mailgun",
               "integrations/amazon-ses",
               "integrations/postmark",
               "integrations/sparkpost",
-              "integrations/mailjet"
+              "integrations/mailjet",
+              "integrations/smtp"
             ]
           }
         ]
