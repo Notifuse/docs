@@ -5,25 +5,43 @@ description: 'How to self-host Notifuse'
 
 ## Getting started
 
-### Docker host
+You have two options to deploy Notifuse:
 
-Notifuse is distributed via the Docker image `notifuse/notifuse:latest`, and exposed on port `8080`. You can run it with the following command:
+### Option 1: Docker Compose (Recommended for testing)
+
+This option includes an embedded PostgreSQL database for easy testing and development:
+
+```bash
+# Clone the repository or download docker-compose.yml
+curl -O https://raw.githubusercontent.com/notifuse/notifuse/main/docker-compose.yml
+
+# Start Notifuse with embedded PostgreSQL
+docker-compose up -d
+```
+
+This will start Notifuse on port `8080` with a PostgreSQL database. You'll still need to configure the [required environment variables](#required-variables) in a `.env` file or directly in the `docker-compose.yml`.
+
+### Option 2: Standalone Docker (Production)
+
+For production deployments, use the standalone Docker image with your own PostgreSQL database:
 
 ```bash
 docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
 ```
 
-**Note**: You'll need to set the [required environment variables](#required-variables) for the container to work properly.
+**Note**: You'll need to set the [required environment variables](#required-variables) and provide your own PostgreSQL database.
 
 ### PASETO keys
 
 You can generate PASETO keys with https://paseto.notifuse.com
 
-### PostgreSQL database
+### PostgreSQL database (Option 2 only)
 
-You can use any PostgreSQL database **with root credentials**. Notifuse automatically creates a system database for itself.
+If using the standalone Docker option, you can use any PostgreSQL database **with root credentials**. Notifuse automatically creates a system database for itself.
 
 A new database will be created for each Notifuse workspace to avoid multi-tenant issues (that's why you need root credentials).
+
+**Note**: This is not required when using Docker Compose as PostgreSQL is included.
 
 ### An SMTP server
 
@@ -38,6 +56,11 @@ Notifuse needs a public API endpoint to be accessible from the web. Example: `ht
 The Notifuse API is 100% stateless: you can run many instances of it in parallel behind a load balancer.
 
 However, to trigger the automatic sending of emails, you will need to run a cron job that will call the `https://YOUR_ENDPOINT/api/cron` endpoint **every minute**.
+
+```bash
+# Run every minute
+* * * * * curl -X POST https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1
+```
 
 When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
 
