@@ -35,6 +35,16 @@ docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
 
 You can generate PASETO keys with https://paseto.notifuse.com
 
+Alternatively, you can generate keys manually using the built-in keygen command:
+
+```bash
+# If you have the source code
+make keygen
+
+# Or directly with Go
+go run cmd/keygen/main.go
+```
+
 ### PostgreSQL database (Option 2 only)
 
 If using the standalone Docker option, you can use any PostgreSQL database **with root credentials**. Notifuse automatically creates a system database for itself.
@@ -78,13 +88,13 @@ When a newsletter campaign is being sent, the task is executed for at most 55 se
 | `DB_PASSWORD`        | Database password (e.g., `postgres`)                                                                   |
 | `PASETO_PRIVATE_KEY` | Base64 encoded PASETO private key (e.g., `1IC3m5Hk2jkVW...`) - generate at https://paseto.notifuse.com |
 | `PASETO_PUBLIC_KEY`  | Base64 encoded PASETO public key (e.g., `5p36ZqXdo7...`) - generate at https://paseto.notifuse.com     |
-| `SECRET_KEY`         | Secret key for database encryption (e.g., `your_32_character_secret_key_here`)                         |
-| `SMTP_HOST`          | SMTP server host (e.g., `smtp.gmail.com`)                                                              |
-| `SMTP_PORT`          | SMTP server port (e.g., `587` or `465`)                                                                |
-| `SMTP_USERNAME`      | SMTP username (e.g., `noreply@yourcompany.com`)                                                        |
-| `SMTP_PASSWORD`      | SMTP password (e.g., `your_smtp_password`)                                                             |
-| `SMTP_FROM_EMAIL`    | From email address (e.g., `noreply@yourcompany.com`)                                                   |
-| `SMTP_FROM_NAME`     | From name (e.g., `Your Company Name`)                                                                  |
+
+| `SMTP_HOST` | SMTP server host (e.g., `smtp.gmail.com`) |
+| `SMTP_PORT` | SMTP server port (e.g., `587` or `465`) |
+| `SMTP_USERNAME` | SMTP username (e.g., `noreply@yourcompany.com`) |
+| `SMTP_PASSWORD` | SMTP password (e.g., `your_smtp_password`) |
+| `SMTP_FROM_EMAIL` | From email address (e.g., `noreply@yourcompany.com`) |
+| `SMTP_FROM_NAME` | From name (e.g., `Your Company Name`) |
 
 ### Optional Variables
 
