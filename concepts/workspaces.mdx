@@ -1,6 +1,6 @@
 ---
 title: Workspaces
-description: "Workspaces are the foundational organizational unit in Notifuse. They provide a complete, isolated environment for managing your email marketing operations, making it easy to separate different projects, clients, or business units."
+description: 'Workspaces are the foundational organizational unit in Notifuse. They provide a complete, isolated environment for managing your email marketing operations, making it easy to separate different projects, clients, or business units.'
 ---
 
 ## What is a Workspace?
@@ -13,8 +13,21 @@ A workspace in Notifuse is a self-contained environment that includes:
 - **Transactional Notifications**: Event-triggered emails
 - **Message & webhooks History**: All messages sent to the contact and webhooks received
 - **Settings**: Email providers and configurations
+- **Custom Endpoint URL**: Workspace-specific domain for click tracking, unsubscribe links, and notification center
+
+## Custom Endpoint URL
+
+Each workspace can be configured with a custom endpoint URL to provide a branded experience for your recipients. This custom domain is used for:
+
+- **Click Tracking**: All tracked links in your emails will use your custom domain
+- **Unsubscribe Links**: Recipients will see your branded domain when unsubscribing
+- **Notification Center**: Your notification center will be accessible via your custom domain
+
+This feature allows you to maintain brand consistency and build trust with your recipients by using your own domain instead of the default Notifuse domain.
 
 ## Multi-Tenant Architecture
+
 - **Complete Isolation**: Each workspace operates independently
 - **Separate Databases**: Contacts, campaigns, and data are isolated
 - **Individual Settings**: Each workspace has its own email providers and configurations
+- **Custom Branding**: Each workspace can use its own domain for all recipient-facing URLs
