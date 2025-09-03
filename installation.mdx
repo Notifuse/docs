@@ -69,7 +69,7 @@ However, to trigger the automatic sending of emails, you will need to run a cron
 
 ```bash
 # Run every minute
-* * * * * curl -X POST https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1
+* * * * * curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1
 ```
 
 When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
