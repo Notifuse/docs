@@ -37,6 +37,14 @@ When you send a transactional email, Notifuse automatically:
 
 **Example**: If your API sends `{"order_id": "12345"}` but the contact profile contains `{"first_name": "John", "last_name": "Doe"}`, the template will have access to both the order data and the contact's full profile.
 
+### Deduplication with External ID
+
+- **Prevent Duplicates**: Use `external_id` to prevent sending the same notification multiple times
+- **Idempotent Requests**: Notifications with the same `external_id` will only be sent once
+- **Custom Identifiers**: Use your own unique identifiers (order IDs, event IDs, etc.)
+
+**Example**: Setting `external_id: "order-12345"` ensures that even if your system sends the same order confirmation multiple times, the email will only be delivered once.
+
 ### Email Delivery Options
 
 Configure email routing with flexible options:
@@ -60,6 +68,7 @@ curl -X POST \
   "workspace_id": "your_workspace",
   "notification": {
     "id": "password_reset",
+    "external_id": "pwd-reset-user123-20240101",
     "channels": ["email"],
     "contact": {
       "email": "user@example.com"
@@ -67,6 +76,11 @@ curl -X POST \
     "data": {
       "reset_token": "abc123",
       "expiry_time": "2024-01-01T12:00:00Z"
+    },
+    "metadata": {
+      "user_id": "12345",
+      "trigger": "forgot_password",
+      "source": "web_app"
     },
     "email_options": {
       "reply_to": "support@yourcompany.com",
@@ -83,9 +97,11 @@ curl -X POST \
 | ---------------------------- | ------ | -------- | ------------------------------------------- |
 | `workspace_id`               | string | Yes      | Your workspace identifier                   |
 | `notification.id`            | string | Yes      | Template identifier for the email           |
+| `notification.external_id`   | string | No       | Unique identifier for deduplication         |
 | `notification.channels`      | array  | Yes      | Must include "email"                        |
 | `notification.contact`       | object | Yes      | Contact object with at least an email field |
-| `notification.data`          | object | No       | Custom data for template variables          |
+| `notification.data`          | object | No       | Template variables for email content        |
+| `notification.metadata`      | object | No       | Tracking data (not available in templates)  |
 | `notification.email_options` | object | No       | Email routing configuration                 |
 
 ### Email Options
@@ -95,6 +111,40 @@ curl -X POST \
 | `reply_to` | string | Set custom reply-to email address    |
 | `cc`       | array  | List of carbon copy recipients       |
 | `bcc`      | array  | List of blind carbon copy recipients |
+
+## Data vs Metadata
+
+### Template Variables (`data`)
+
+The `data` object contains variables that will be available in your email templates:
+
+```json
+{
+  "data": {
+    "order_id": "ORD-12345",
+    "total": "$99.99",
+    "discount_code": "WELCOME20"
+  }
+}
+```
+
+These can be used in templates as: `{{ order_id }}`, `{{ total }}`, `{{ discount_code }}`
+
+### Tracking Data (`metadata`)
+
+The `metadata` object stores information for analytics and tracking but is **not available** in templates:
+
+```json
+{
+  "metadata": {
+    "campaign_id": "welcome-series",
+    "source": "mobile_app",
+    "user_segment": "premium"
+  }
+}
+```
+
+Use metadata for internal tracking, analytics, and reporting purposes.
 
 ## Template Integration
 
@@ -115,13 +165,27 @@ We've sent your order #{{ order_id }} to {{ contact.email }}.
 
 ### Complete Example
 
-**API Request Data**:
+**API Request**:
 
 ```json
 {
-  "order_id": "ORD-12345",
-  "total": "$99.99",
-  "items": ["Product A", "Product B"]
+  "workspace_id": "your_workspace",
+  "notification": {
+    "id": "order_confirmation",
+    "external_id": "order-12345-confirmation",
+    "contact": {
+      "email": "sarah@example.com"
+    },
+    "data": {
+      "order_id": "ORD-12345",
+      "total": "$99.99",
+      "items": ["Product A", "Product B"]
+    },
+    "metadata": {
+      "campaign_id": "order-confirmations",
+      "source": "checkout"
+    }
+  }
 }
 ```
 
@@ -152,5 +216,33 @@ We'll send updates to {{ contact.email }}.
 ```
 
 ## API Reference
+
+## Deduplication Examples
+
+### Order Confirmations
+
+```json
+{
+  "external_id": "order-12345-confirmation"
+}
+```
+
+### Password Resets
+
+```json
+{
+  "external_id": "pwd-reset-user123-20240101"
+}
+```
+
+### Welcome Emails
+
+```json
+{
+  "external_id": "welcome-user123"
+}
+```
+
+Using consistent `external_id` patterns ensures that duplicate notifications are automatically prevented, even if your application sends multiple requests.
 
 For complete API documentation and additional parameters, see the [API Reference](/api-reference/send-a-transactional-notification).
