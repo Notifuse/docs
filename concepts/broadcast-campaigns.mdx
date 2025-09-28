@@ -116,6 +116,46 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 6. **Send or Schedule**: Deploy immediately or schedule for later delivery
 7. **Monitor Results**: Track delivery, opens, clicks, and conversions
 
+## Transmission Failure Handling
+
+### Circuit Breaker Protection
+
+Notifuse includes built-in protection against email delivery issues through a circuit breaker mechanism:
+
+- **Failure Threshold**: After 5 consecutive transmission failures, the circuit breaker automatically pauses the broadcast
+- **Automatic Pause**: The broadcast status changes to "Paused" with a clear reason indicating the circuit breaker was triggered
+- **Immediate Protection**: This prevents further failed attempts and protects your sender reputation
+
+### Failed Message Behavior
+
+When the circuit breaker triggers:
+
+- **Failed Messages**: The 5 recipients that caused the failures are marked as "failed" in the Message History Logs
+- **No Automatic Retry**: These failed messages will NOT be retried when the broadcast resumes
+- **Permanent Failure**: The affected recipients will not receive the message for this campaign
+
+### Manual Resume Required
+
+- **Manual Intervention**: Broadcasts paused by the circuit breaker must be manually resumed from the UI
+- **Root Cause Analysis**: Before resuming, investigate and resolve the underlying delivery issues
+- **Fresh Start**: When resumed, the broadcast continues from where it left off, skipping the previously failed messages
+
+### Common Failure Scenarios
+
+Circuit breaker activation typically occurs due to:
+
+- **Email Provider Issues**: Temporary outages or rate limit exceeded
+- **Authentication Problems**: Invalid API keys or credentials
+- **Configuration Errors**: Incorrect SMTP settings or provider configuration
+- **Reputation Issues**: High bounce rates or spam complaints
+
+### Recovery Steps
+
+1. **Check Message History Logs** to identify the specific failure reasons
+2. **Resolve the underlying issue** (fix credentials, contact provider, etc.)
+3. **Resume the broadcast** manually from the campaign interface
+4. **Monitor closely** to ensure successful delivery continues
+
 ## Best Practices
 
 - **List Segmentation**: Use multiple targeted lists rather than one large list
@@ -123,3 +163,5 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 - **UTM Consistency**: Use consistent campaign naming for better analytics tracking
 - **Schedule Strategically**: Time your sends for maximum audience engagement
 - **Monitor Performance**: Review metrics to improve future campaigns
+- **Provider Monitoring**: Keep an eye on your email provider status and limits
+- **Test Campaigns**: Send test campaigns to verify configuration before large broadcasts
