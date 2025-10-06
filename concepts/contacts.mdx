@@ -55,6 +55,65 @@ Contacts use upsert logic based on email address:
 - Subscription status is managed per list
 - List memberships are tracked through the `contact_lists` relationship
 
+## Contact Segmentation Engine
+
+<img
+  src="/assets/screenshots/segment_form.png"
+  alt="Segmentation interface showing contact property filters and activity-based conditions"
+/>
+
+Notifuse includes a powerful real-time contact segmentation engine that allows you to create dynamic audience segments based on contact properties and engagement behavior. Segments automatically update as contact data changes, ensuring your targeting remains accurate and current.
+
+### Building Segments
+
+Segments are built using a flexible condition system that supports:
+
+#### Contact Property Conditions
+
+Filter contacts based on their profile data using standard comparison operators:
+
+- **Numerical fields**: `lifetime_value`, `orders_count`, custom number fields
+- **Date fields**: `last_order_at`, custom datetime fields
+- **String fields**: `first_name`, `last_name`, `country`, custom string fields
+- **Comparison operators**: greater than, less than, equal to, not equal to, contains, etc.
+
+#### Activity-Based Conditions
+
+Target contacts based on their engagement behavior with your emails:
+
+- **New message**: Contact received an email
+- **Open email**: Contact opened an email
+- **Click email**: Contact clicked a link in an email
+- **Bounce email**: Email bounced for this contact
+- **Complain email**: Contact marked an email as spam
+- **Unsubscribe from list**: Contact unsubscribed from a mailing list
+
+Activity conditions support additional parameters:
+
+- **Frequency**: Number of times the activity occurred
+- **Timeframe**: When the activity happened (e.g., in the last 30 days)
+
+### Condition Logic
+
+Segments support both AND/OR logic for combining multiple conditions:
+
+- **ALL conditions**: Contact must match every condition (AND logic)
+- **ANY conditions**: Contact needs to match at least one condition (OR logic)
+
+### Use Cases
+
+Common segmentation scenarios include:
+
+- **VIP Customers**: Target high-value customers (`lifetime_value >= 1000` AND `orders_count >= 5`)
+- **Engagement Recovery**: Re-engage inactive subscribers who haven't opened emails in 90 days
+- **Cart Abandoners**: Reach customers who received cart reminders but haven't completed orders
+- **Geographic Targeting**: Send region-specific campaigns based on country or state
+- **Behavioral Triggers**: Target users who clicked specific product links
+
+### Technical Details
+
+The segmentation engine leverages contact timeline data introduced in version 7.0, which tracks all contact interactions including messages, webhook events, and profile mutations. Activity events include granular `kind` field types (e.g., `open_email`, `click_email`) enabling precise behavioral targeting. All timestamps are stored in UTC timezone and can be evaluated in user-specified timezones for date-based conditions.
+
 ## Importing Contacts from CSV
 
 <img

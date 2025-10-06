@@ -5,7 +5,9 @@ description: 'Broadcast campaigns in Notifuse are mass email marketing initiativ
 
 <img src="/assets/screenshots/broadcast.png" alt="Broadcasts screenshot" />
 
-## Multi-List Targeting
+## Audience Targeting
+
+Broadcast campaigns offer flexible audience targeting through both contact lists and dynamic segments, allowing you to reach the right people with precision.
 
 ### Send to Multiple Lists
 
@@ -14,6 +16,25 @@ description: 'Broadcast campaigns in Notifuse are mass email marketing initiativ
 - **Unified Audience**: Combines all selected lists into one targeted campaign
 
 **Example**: Send a product announcement to both "Newsletter Subscribers" and "VIP Customers" lists while ensuring each contact receives only one email, even if they're on both lists.
+
+### Segment Filters
+
+Apply dynamic segment filters to further refine your broadcast audience based on contact properties and behavior:
+
+- **Property-Based Filtering**: Target contacts by `lifetime_value`, `orders_count`, location, or any custom fields
+- **Behavioral Filtering**: Reach contacts based on email engagement (opens, clicks, bounces)
+- **Combined Filters**: Use multiple segment conditions with AND/OR logic for precise targeting
+- **Real-Time Updates**: Segment membership is evaluated at send time, ensuring accuracy
+- **List + Segment**: Combine list selection with segment filters for maximum targeting precision
+
+#### Segment Filter Examples
+
+- **High-Value Customers**: Send to "All Customers" list + segment filter for `lifetime_value >= 1000`
+- **Re-engagement**: Target "Newsletter" list + segment for contacts who haven't opened emails in 90 days
+- **Geographic Campaigns**: Use "All Contacts" + segment filter for `country = "US"` AND `state = "California"`
+- **Purchase Behavior**: Target segments with `orders_count >= 3` to reward loyal customers
+
+**Important**: When both lists and segment filters are applied, only contacts that belong to the selected lists AND match the segment criteria will receive the broadcast.
 
 ## A/B Testing
 
@@ -109,7 +130,7 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 ## Campaign Workflow
 
 1. **Create Campaign**: Set name, description, and goals
-2. **Select Lists**: Choose target contact lists (duplicates automatically removed)
+2. **Select Audience**: Choose target contact lists and apply segment filters (duplicates automatically removed)
 3. **Choose Template**: Select and customize your email template
 4. **Configure A/B Testing**: Set up variations and winner selection criteria (optional)
 5. **Review Settings**: Confirm audience size, UTM parameters, and schedule
