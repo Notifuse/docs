@@ -76,6 +76,22 @@ However, to trigger the automatic sending of emails, you will need to run a cron
 
 When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
 
+You can set up a cron service in `docker-compose.yml` using the snippet below:
+
+```yaml
+  cron:
+    image: alpine:3.20
+    restart: unless-stopped
+    depends_on:
+      - notifuse
+    command: >
+      /bin/sh -c "
+        apk add --no-cache curl &&
+        echo '* * * * * /usr/bin/curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1' > /etc/crontabs/root &&
+        crond -f -L /dev/stdout
+      "
+```
+
 ## Environment Variables
 
 ### Required Variables
