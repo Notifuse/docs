@@ -21,7 +21,17 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
 4. Save the displayed PASETO keys securely
 5. Start using Notifuse!
 
-You have two options to deploy Notifuse:
+### One-click Deployments
+
+Deploy Notifuse instantly with these one-click deployment options:
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/aBzOMu?referralCode=73Ps3m)
+
+These deployment platforms will automatically set up Notifuse with all required dependencies. After deployment, you'll be guided through the Setup Wizard to complete your configuration.
+
+---
+
+You also have the following options to deploy Notifuse:
 
 ### Option 1: Docker Compose (Recommended for testing)
 
@@ -102,17 +112,17 @@ When a newsletter campaign is being sent, the task is executed for at most 55 se
 You can set up a cron service in `docker-compose.yml` using the snippet below:
 
 ```yaml
-  cron:
-    image: alpine:3.20
-    restart: unless-stopped
-    depends_on:
-      - notifuse
-    command: >
-      /bin/sh -c "
-        apk add --no-cache curl &&
-        echo '* * * * * /usr/bin/curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1' > /etc/crontabs/root &&
-        crond -f -L /dev/stdout
-      "
+cron:
+  image: alpine:3.20
+  restart: unless-stopped
+  depends_on:
+    - notifuse
+  command: >
+    /bin/sh -c "
+      apk add --no-cache curl &&
+      echo '* * * * * /usr/bin/curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1' > /etc/crontabs/root &&
+      crond -f -L /dev/stdout
+    "
 ```
 
 ## Environment Variables
