@@ -126,8 +126,8 @@ When designing templates, you have access to this data structure:
     "id": "newsletter",
     "name": "Newsletter"
   },
-  "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/unsubscribe?email=john.doe@example.com&lid=newsletter&email_hmac=abc123",
-  "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&email_hmac=abc123",
+  "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=unsubscribe&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
+  "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
   "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
 }
 ```

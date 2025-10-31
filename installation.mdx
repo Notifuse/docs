@@ -38,16 +38,16 @@ You also have the following options to deploy Notifuse:
 This option includes an embedded PostgreSQL database for easy testing and development:
 
 ```bash
-# Clone the repository or download docker-compose.yml
-curl -O https://raw.githubusercontent.com/notifuse/notifuse/main/docker-compose.yml
+# Clone the repository or download compose.yaml
+curl -O https://raw.githubusercontent.com/notifuse/notifuse/main/compose.yaml
 
 # Start Notifuse with embedded PostgreSQL
-docker-compose up -d
+docker compose up -d
 ```
 
 This will start Notifuse on port `8080` with a PostgreSQL database.
 
-On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables) in a `.env` file or directly in the `docker-compose.yml`.
+On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables) in a `.env` file or directly in the `compose.yaml`.
 
 ### Option 2: Standalone Docker (Production)
 
@@ -82,6 +82,8 @@ go run cmd/keygen/main.go
 
 If using the standalone Docker option, you can use any PostgreSQL database **with root credentials**. Notifuse automatically creates a system database for itself.
 
+**Recommended version**: PostgreSQL 17 or higher
+
 A new database will be created for each Notifuse workspace to avoid multi-tenant issues (that's why you need root credentials).
 
 **Note**: This is not required when using Docker Compose as PostgreSQL is included.
@@ -95,35 +97,6 @@ If using SES, you can create SMTP credentials in the SMTP settings section of th
 ### A public API endpoint
 
 Notifuse needs a public API endpoint to be accessible from the web. Example: `https://emails.yourcompany.com`
-
-### A cron scheduler
-
-The Notifuse API is 100% stateless: you can run many instances of it in parallel behind a load balancer.
-
-However, to trigger the automatic sending of emails, you will need to run a cron job that will call the `https://YOUR_ENDPOINT/api/cron` endpoint **every minute**.
-
-```bash
-# Run every minute
-* * * * * curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1
-```
-
-When a newsletter campaign is being sent, the task is executed for at most 55 seconds and will wait for the next cron tick to continue its execution.
-
-You can set up a cron service in `docker-compose.yml` using the snippet below:
-
-```yaml
-cron:
-  image: alpine:3.20
-  restart: unless-stopped
-  depends_on:
-    - notifuse
-  command: >
-    /bin/sh -c "
-      apk add --no-cache curl &&
-      echo '* * * * * /usr/bin/curl https://YOUR_ENDPOINT/api/cron > /dev/null 2>&1' > /etc/crontabs/root &&
-      crond -f -L /dev/stdout
-    "
-```
 
 ## Environment Variables
 
@@ -170,6 +143,17 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `DB_PREFIX`                         | Database table prefix (e.g., `notifuse`)                                                  | `notifuse`                           |
 | `DB_NAME`                           | Database name (e.g., `notifuse_system`)                                                   | `${DB_PREFIX}_system`                |
 | `DB_SSLMODE`                        | SSL mode for database (e.g., `require` or `disable`)                                      | `require`                            |
+| `DB_MAX_CONNECTIONS`                | Total max connections across all databases (e.g., `100`)                                  | `100`                                |
+| `DB_MAX_CONNECTIONS_PER_DB`         | Max connections per workspace database (e.g., `3`)                                        | `3`                                  |
+| `DB_CONNECTION_MAX_LIFETIME`        | Maximum lifetime of a connection (e.g., `10m`)                                            | `10m`                                |
+| `DB_CONNECTION_MAX_IDLE_TIME`       | Maximum idle time before closing connection (e.g., `5m`)                                  | `5m`                                 |
+| **Task Scheduler Configuration**    |
+| `TASK_SCHEDULER_ENABLED`            | Enable internal task scheduler (e.g., `true` or `false`)                                  | `true`                               |
+| `TASK_SCHEDULER_INTERVAL`           | Task execution interval in seconds (e.g., `30`)                                           | `30`                                 |
+| `TASK_SCHEDULER_MAX_TASKS`          | Maximum concurrent tasks (e.g., `10`)                                                     | `10`                                 |
+| **Privacy Settings**                |
+| `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
+| `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
 | `TRACING_SERVICE_NAME`              | Service name for tracing (e.g., `notifuse-production`)                                    | `notifuse-api`                       |
