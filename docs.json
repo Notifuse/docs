@@ -79,7 +79,7 @@
     "primary": {
       "type": "button",
       "label": "Live Demo",
-      "href": "https://demo.notifuse.com"
+      "href": "https://demo.notifuse.com/signin?email=demo@notifuse.com"
     }
   },
   "footer": {
