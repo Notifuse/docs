@@ -17,9 +17,7 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
    - Enter your root administrator email
    - Configure your API endpoint
    - Set up SMTP settings
-   - PASETO keys will be automatically generated
-4. Save the displayed PASETO keys securely
-5. Start using Notifuse!
+4. Start using Notifuse!
 
 ### One-click Deployments
 
@@ -60,23 +58,6 @@ docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
 On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables).
 
 **Note**: You'll need to provide your own PostgreSQL database.
-
-### PASETO keys
-
-PASETO keys are automatically generated during the Setup Wizard. The keys will be displayed at the end of setup - make sure to save them securely.
-
-If you prefer to generate keys manually or need to pre-configure via environment variables:
-
-- Generate keys online: https://paseto.notifuse.com
-- Or use the built-in keygen command:
-
-```bash
-# If you have the source code
-make keygen
-
-# Or directly with Go
-go run cmd/keygen/main.go
-```
 
 ### PostgreSQL database (Option 2 only)
 
@@ -135,18 +116,16 @@ This limitation only applies to `.env` files. Environment variables set directly
 
 These variables can be configured via the Setup Wizard on first launch, or set as environment variables. Environment variables always override wizard settings.
 
-| Variable             | Description                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------- |
-| `ROOT_EMAIL`         | Root administrator email (e.g., `admin@yourcompany.com`)                                                |
-| `API_ENDPOINT`       | Public API endpoint URL (e.g., `https://emails.yourcompany.com`)                                        |
-| `PASETO_PRIVATE_KEY` | Base64 encoded PASETO private key (auto-generated in wizard or generate at https://paseto.notifuse.com) |
-| `PASETO_PUBLIC_KEY`  | Base64 encoded PASETO public key (auto-generated in wizard or generate at https://paseto.notifuse.com)  |
-| `SMTP_HOST`          | SMTP server host (e.g., `smtp.gmail.com`)                                                               |
-| `SMTP_PORT`          | SMTP server port (e.g., `587` or `465`)                                                                 |
-| `SMTP_USERNAME`      | SMTP username (e.g., `noreply@yourcompany.com`)                                                         |
-| `SMTP_PASSWORD`      | SMTP password (e.g., `your_smtp_password`)                                                              |
-| `SMTP_FROM_EMAIL`    | From email address (e.g., `noreply@yourcompany.com`)                                                    |
-| `SMTP_FROM_NAME`     | From name (e.g., `Your Company Name`)                                                                   |
+| Variable          | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| `ROOT_EMAIL`      | Root administrator email (e.g., `admin@yourcompany.com`)         |
+| `API_ENDPOINT`    | Public API endpoint URL (e.g., `https://emails.yourcompany.com`) |
+| `SMTP_HOST`       | SMTP server host (e.g., `smtp.gmail.com`)                        |
+| `SMTP_PORT`       | SMTP server port (e.g., `587` or `465`)                          |
+| `SMTP_USERNAME`   | SMTP username (e.g., `noreply@yourcompany.com`)                  |
+| `SMTP_PASSWORD`   | SMTP password (e.g., `your_smtp_password`)                       |
+| `SMTP_FROM_EMAIL` | From email address (e.g., `noreply@yourcompany.com`)             |
+| `SMTP_FROM_NAME`  | From name (e.g., `Your Company Name`)                            |
 
 ### Optional Variables
 
@@ -197,4 +176,4 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 - **Environment Variables**: Recommended for production deployments. Provides better security for sensitive data and allows configuration management through your deployment pipeline.
 - **Priority**: Environment variables always take precedence over database settings when both are present.
 
-**For Production Deployments**: We recommend using environment variables for sensitive configuration (SMTP credentials, PASETO keys) and the Setup Wizard or admin interface for non-sensitive settings (API endpoint, etc.).
+**For Production Deployments**: We recommend using environment variables for sensitive configuration (SMTP credentials, SECRET_KEY) and the Setup Wizard or admin interface for non-sensitive settings (API endpoint, etc.).
