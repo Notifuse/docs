@@ -102,7 +102,7 @@ This limitation only applies to `.env` files. Environment variables set directly
 
 </Warning>
 
-### Database Variables (Required)
+### Required Variables
 
 | Variable      | Description                                                 |
 | ------------- | ----------------------------------------------------------- |
@@ -110,7 +110,19 @@ This limitation only applies to `.env` files. Environment variables set directly
 | `DB_PORT`     | PostgreSQL port (e.g., `5432`)                              |
 | `DB_USER`     | Database username (e.g., `postgres`)                        |
 | `DB_PASSWORD` | Database password (e.g., `postgres`)                        |
-| `SECRET_KEY`  | Secret key for encryption (generate a random string)        |
+| `SECRET_KEY`  | Secret key for encryption (generate with command below)     |
+
+**Generate SECRET_KEY:**
+
+```bash
+openssl rand -base64 32
+```
+
+<Warning>
+  **IMPORTANT**: Never change your `SECRET_KEY` after initial setup. It encrypts all workspace
+  integration secrets (email provider API keys, SMTP passwords, etc.). Changing it will permanently
+  destroy all encrypted credentials.
+</Warning>
 
 ### Application Variables (Optional with Setup Wizard)
 
@@ -131,12 +143,14 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 
 | Variable                            | Description                                                                               | Default                              |
 | ----------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------ |
+|                                     |
 | **Server Configuration**            |
 | `SERVER_PORT`                       | Port for the server to listen on (e.g., `8080`)                                           | `8080`                               |
 | `SERVER_HOST`                       | Host address to bind to (e.g., `0.0.0.0`)                                                 | `0.0.0.0`                            |
 | `CORS_ALLOW_ORIGIN`                 | CORS allowed origins (e.g., `https://yourapp.com,https://admin.yourapp.com`)              | `*`                                  |
 | `ENVIRONMENT`                       | Environment mode (e.g., `production`)                                                     | `production`                         |
 | `LOG_LEVEL`                         | Logging level (e.g., `debug` or `warn`)                                                   | `info`                               |
+|                                     |
 | **Database Configuration**          |
 | `DB_PREFIX`                         | Database table prefix (e.g., `notifuse`)                                                  | `notifuse`                           |
 | `DB_NAME`                           | Database name (e.g., `notifuse_system`)                                                   | `${DB_PREFIX}_system`                |
@@ -145,13 +159,16 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `DB_MAX_CONNECTIONS_PER_DB`         | Max connections per workspace database (e.g., `3`)                                        | `3`                                  |
 | `DB_CONNECTION_MAX_LIFETIME`        | Maximum lifetime of a connection (e.g., `10m`)                                            | `10m`                                |
 | `DB_CONNECTION_MAX_IDLE_TIME`       | Maximum idle time before closing connection (e.g., `5m`)                                  | `5m`                                 |
+|                                     |
 | **Task Scheduler Configuration**    |
 | `TASK_SCHEDULER_ENABLED`            | Enable internal task scheduler (e.g., `true` or `false`)                                  | `true`                               |
 | `TASK_SCHEDULER_INTERVAL`           | Task execution interval in seconds (e.g., `30`)                                           | `30`                                 |
 | `TASK_SCHEDULER_MAX_TASKS`          | Maximum concurrent tasks (e.g., `10`)                                                     | `10`                                 |
+|                                     |
 | **Privacy Settings**                |
 | `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
 | `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |
+|                                     |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
 | `TRACING_SERVICE_NAME`              | Service name for tracing (e.g., `notifuse-production`)                                    | `notifuse-api`                       |
