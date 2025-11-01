@@ -102,6 +102,25 @@ Notifuse needs a public API endpoint to be accessible from the web. Example: `ht
 
 With the Setup Wizard, many environment variables are optional and can be configured through the web interface. Environment variables always take precedence over database settings when present.
 
+<Warning>
+**Special Characters in .env Files**
+
+If you're using a `.env` file and any of your values contain the `#` character (common in passwords), you **must** wrap the value in quotes:
+
+```bash
+# ✅ CORRECT - value is quoted
+DB_PASSWORD="mypass#word123"
+SECRET_KEY="abc123#xyz789"
+
+# ❌ INCORRECT - will be truncated at the # character
+DB_PASSWORD=mypass#word123   # parsed as "mypass"
+SECRET_KEY=abc123#xyz789     # parsed as "abc123"
+```
+
+This limitation only applies to `.env` files. Environment variables set directly in your shell, Docker Compose, or container orchestration platform do not have this restriction.
+
+</Warning>
+
 ### Database Variables (Required)
 
 | Variable      | Description                                                 |
