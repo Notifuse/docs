@@ -237,6 +237,52 @@ Send files with your transactional emails such as invoices, receipts, tickets, o
 - **Reports**: Attach analytics reports and summaries
 - **Certificates**: Attach completion certificates and badges
 
+## SMTP Relay
+
+Notifuse includes a built-in SMTP relay server that allows you to send transactional emails using standard SMTP clients instead of HTTP API calls. This is particularly useful when:
+
+- **Legacy Systems**: Integrating with existing applications that only support SMTP
+- **Email Libraries**: Using standard email libraries in any programming language
+- **Framework Integration**: Working with frameworks that have built-in SMTP support
+- **Gradual Migration**: Moving from existing email providers without changing application code
+
+### How It Works
+
+The SMTP relay server accepts emails via SMTP with TLS encryption on port 587. The email body must contain a JSON payload matching the Transactional API format. Authentication is done using your workspace API credentials.
+
+### Sending Emails via SMTP
+
+#### Authentication
+
+- **Username**: Your workspace API email (the email associated with your API key)
+- **Password**: Your workspace API key
+- **Security**: STARTTLS (port 587)
+- **Server**: Your configured SMTP relay host (e.g., `smtp.yourdomain.com`)
+
+#### Email Format
+
+The email body must be a JSON payload matching the Transactional API format:
+
+```json
+{
+  "workspace_id": "your_workspace",
+  "notification": {
+    "id": "password_reset",
+    "external_id": "unique-id-123",
+    "channels": ["email"],
+    "contact": {
+      "email": "user@example.com",
+      "first_name": "John",
+      "last_name": "Doe"
+    },
+    "data": {
+      "reset_token": "abc123",
+      "expiry_time": "1 hour"
+    }
+  }
+}
+```
+
 ## Template Integration
 
 ### Data Structure in Templates

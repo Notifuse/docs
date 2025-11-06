@@ -41,6 +41,10 @@
             "pages": ["tutorials/newsletter-form-input"]
           },
           {
+            "group": "Integrations",
+            "pages": ["integrations/supabase"]
+          },
+          {
             "group": "Email Providers",
             "pages": [
               "integrations/mailgun",

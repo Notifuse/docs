@@ -169,6 +169,13 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
 | `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |
 |                                     |
+| **SMTP Relay Configuration**        |
+| `SMTP_RELAY_ENABLED`                | Enable SMTP relay server for transactional emails (e.g., `true` or `false`)               | `false`                              |
+| `SMTP_RELAY_PORT`                   | SMTP relay port (e.g., `587` for STARTTLS)                                                | `587`                                |
+| `SMTP_RELAY_DOMAIN`                 | Public domain name for SMTP relay (e.g., `smtp.yourdomain.com`)                           | `localhost`                          |
+| `SMTP_RELAY_TLS_CERT_BASE64`        | Base64-encoded TLS certificate for SMTP relay                                             | -                                    |
+| `SMTP_RELAY_TLS_KEY_BASE64`         | Base64-encoded TLS private key for SMTP relay                                             | -                                    |
+|                                     |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
 | `TRACING_SERVICE_NAME`              | Service name for tracing (e.g., `notifuse-production`)                                    | `notifuse-api`                       |
@@ -184,6 +191,138 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `TRACING_AGENT_ENDPOINT`            | General agent endpoint (e.g., `monitoring-agent:8126`)                                    | `localhost:8126`                     |
 | `TRACING_METRICS_EXPORTER`          | Metrics exporter: stackdriver/prometheus/datadog/none (e.g., `prometheus`)                | `none`                               |
 | `TRACING_PROMETHEUS_PORT`           | Prometheus metrics port (e.g., `9464`)                                                    | `9464`                               |
+
+## SMTP Relay Configuration
+
+The SMTP Relay feature allows you to send transactional emails using standard SMTP clients instead of HTTP API calls. This is useful for integrating legacy systems or using standard email libraries.
+
+See [SMTP Relay usage documentation](/concepts/transactional-api#smtp-relay) for examples of how to send emails once configured.
+
+### Production Setup with Let's Encrypt
+
+For production deployments, use valid TLS certificates from Let's Encrypt using certbot with DNS challenges.
+
+#### Step 1: Install Certbot
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install certbot
+
+# macOS
+brew install certbot
+
+# CentOS/RHEL
+sudo yum install certbot
+```
+
+#### Step 2: Generate Certificate with DNS Challenge
+
+DNS challenge is recommended because it doesn't require opening port 80 or 443, and works even if your SMTP server is on a different port.
+
+```bash
+# Generate certificate using DNS challenge
+sudo certbot certonly \
+  --manual \
+  --preferred-challenges dns \
+  --email admin@yourdomain.com \
+  --agree-tos \
+  -d smtp.yourdomain.com
+```
+
+When prompted, certbot will ask you to create a DNS TXT record:
+
+```
+Please deploy a DNS TXT record under the name
+_acme-challenge.smtp.yourdomain.com with the following value:
+
+XyZ123AbC456...
+
+Before continuing, verify the record is deployed by running:
+dig -t txt _acme-challenge.smtp.yourdomain.com
+```
+
+#### Step 3: Add DNS TXT Record
+
+Add the TXT record to your DNS provider:
+
+```
+Type: TXT
+Name: _acme-challenge.smtp
+Value: XyZ123AbC456... (the value provided by certbot)
+TTL: 300 (5 minutes)
+```
+
+Wait a few minutes for DNS propagation, verify with:
+
+```bash
+dig -t txt _acme-challenge.smtp.yourdomain.com
+
+# Or using nslookup
+nslookup -type=TXT _acme-challenge.smtp.yourdomain.com
+```
+
+Press Enter in certbot to continue once the record is verified.
+
+#### Step 4: Encode Certificates to Base64
+
+After certbot successfully generates the certificates, encode them to base64:
+
+```bash
+# Certificate location (typically):
+# Certificate: /etc/letsencrypt/live/smtp.yourdomain.com/fullchain.pem
+# Private Key: /etc/letsencrypt/live/smtp.yourdomain.com/privkey.pem
+
+# Encode certificate to base64 (single line)
+sudo cat /etc/letsencrypt/live/smtp.yourdomain.com/fullchain.pem | base64 -w 0 > cert_base64.txt
+
+# Encode private key to base64 (single line)
+sudo cat /etc/letsencrypt/live/smtp.yourdomain.com/privkey.pem | base64 -w 0 > key_base64.txt
+
+# On macOS, omit the -w flag:
+sudo cat /etc/letsencrypt/live/smtp.yourdomain.com/fullchain.pem | base64 > cert_base64.txt
+sudo cat /etc/letsencrypt/live/smtp.yourdomain.com/privkey.pem | base64 > key_base64.txt
+```
+
+#### Step 5: Add to Environment Variables
+
+Copy the base64-encoded values to your `.env` file:
+
+```bash
+SMTP_RELAY_ENABLED=true
+SMTP_RELAY_DOMAIN=smtp.yourdomain.com
+SMTP_RELAY_PORT=587
+SMTP_RELAY_TLS_CERT_BASE64="<paste-cert-base64-here>"
+SMTP_RELAY_TLS_KEY_BASE64="<paste-key-base64-here>"
+```
+
+<Note>
+  Certbot automatically sets up a renewal cron job. After certificate renewal, you'll need to
+  re-encode the certificates to base64 and update your environment variables.
+</Note>
+
+### Development Setup with Self-Signed Certificates
+
+For local development, you can use self-signed certificates:
+
+```bash
+# Using the provided script
+./scripts/generate-dev-certs.sh localapi.notifuse.com
+
+# Or manually with openssl
+openssl req -x509 -newkey rsa:2048 \
+  -keyout dev-cert.key.pem \
+  -out dev-cert.cert.pem \
+  -days 365 -nodes \
+  -subj "/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+
+# Encode to base64
+cat dev-cert.cert.pem | base64 > cert_base64.txt
+cat dev-cert.key.pem | base64 > key_base64.txt
+```
+
+**⚠️ Warning**: Self-signed certificates are for development only. Never use them in production!
 
 ## Configuration Management
 
