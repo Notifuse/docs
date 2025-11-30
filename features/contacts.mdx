@@ -29,9 +29,6 @@ Contacts in Notifuse are comprehensive customer profiles that store subscriber i
 | `country`                                  | String   | Country ISO format                         |
 | `state`                                    | String   | State or province                          |
 | `postcode`                                 | String   | Postal/ZIP code                            |
-| `lifetime_value`                           | Number   | Total customer value                       |
-| `orders_count`                             | Number   | Number of orders placed                    |
-| `last_order_at`                            | DateTime | Date of last order                         |
 | `custom_string_1` to `custom_string_5`     | String   | Custom string fields                       |
 | `custom_number_1` to `custom_number_5`     | Number   | Custom number fields                       |
 | `custom_datetime_1` to `custom_datetime_5` | DateTime | Custom datetime fields                     |
@@ -72,10 +69,20 @@ Segments are built using a flexible condition system that supports:
 
 Filter contacts based on their profile data using standard comparison operators:
 
-- **Numerical fields**: `lifetime_value`, `orders_count`, custom number fields
-- **Date fields**: `last_order_at`, custom datetime fields
+- **Numerical fields**: Custom number fields
+- **Date fields**: Custom datetime fields
 - **String fields**: `first_name`, `last_name`, `country`, custom string fields
 - **Comparison operators**: greater than, less than, equal to, not equal to, contains, etc.
+
+#### Goal-Based Conditions
+
+Build RFM (Recency, Frequency, Monetary) segments using [Custom Events & Goals](/features/custom-events):
+
+- **Monetary**: Total spend, average order value
+- **Frequency**: Purchase count, event count
+- **Recency**: Activity within a timeframe
+
+Example segments: VIP customers (spent $1000+), repeat buyers (3+ orders), at-risk customers (no purchase in 90 days).
 
 #### Activity-Based Conditions
 
@@ -104,9 +111,9 @@ Segments support both AND/OR logic for combining multiple conditions:
 
 Common segmentation scenarios include:
 
-- **VIP Customers**: Target high-value customers (`lifetime_value >= 1000` AND `orders_count >= 5`)
+- **VIP Customers**: High spenders with multiple purchases (use goal-based conditions)
 - **Engagement Recovery**: Re-engage inactive subscribers who haven't opened emails in 90 days
-- **Cart Abandoners**: Reach customers who received cart reminders but haven't completed orders
+- **At-Risk Customers**: Previously active buyers with no recent purchases
 - **Geographic Targeting**: Send region-specific campaigns based on country or state
 - **Behavioral Triggers**: Target users who clicked specific product links
 

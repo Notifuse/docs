@@ -1,5 +1,18 @@
 {
   "$schema": "https://mintlify.com/docs.json",
+  "redirects": [
+    { "source": "/concepts/workspaces", "destination": "/features/workspaces" },
+    { "source": "/concepts/contacts", "destination": "/features/contacts" },
+    { "source": "/concepts/lists", "destination": "/features/lists" },
+    { "source": "/concepts/templates", "destination": "/features/templates" },
+    { "source": "/concepts/broadcast-campaigns", "destination": "/features/broadcast-campaigns" },
+    { "source": "/concepts/transactional-api", "destination": "/features/transactional-api" },
+    { "source": "/concepts/custom-events", "destination": "/features/custom-events" },
+    { "source": "/concepts/file-manager", "destination": "/features/file-manager" },
+    { "source": "/concepts/logs", "destination": "/features/logs" },
+    { "source": "/concepts/admins-api-keys", "destination": "/features/admins-api-keys" },
+    { "source": "/concepts/notification-center", "destination": "/features/notification-center" }
+  ],
   "theme": "mint",
   "name": "Notifuse Documentation",
   "colors": {
@@ -22,18 +35,23 @@
             "pages": ["index", "installation"]
           },
           {
-            "group": "Core Concepts",
+            "group": "Features",
             "pages": [
-              "concepts/workspaces",
-              "concepts/contacts",
-              "concepts/lists",
-              "concepts/templates",
-              "concepts/broadcast-campaigns",
-              "concepts/transactional-api",
-              "concepts/file-manager",
-              "concepts/logs",
-              "concepts/admins-api-keys",
-              "concepts/notification-center"
+              "features/workspaces",
+              "features/contacts",
+              "features/lists",
+              "features/templates",
+              "features/broadcast-campaigns",
+              "features/transactional-api",
+              "features/custom-events",
+              {
+                "group": "Blog ✨",
+                "pages": ["blog/setup", "blog/theme", "blog/posts"]
+              },
+              "features/file-manager",
+              "features/logs",
+              "features/admins-api-keys",
+              "features/notification-center"
             ]
           },
           {
@@ -59,8 +77,67 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "https://raw.githubusercontent.com/Notifuse/docs/refs/heads/main/openapi.json",
-        "groups": []
+        "groups": [
+          {
+            "group": "Transactional",
+            "openapi": "openapi.json",
+            "pages": ["POST /api/transactional.send"]
+          },
+          {
+            "group": "Contacts",
+            "openapi": "openapi.json",
+            "pages": [
+              "POST /api/contacts.upsert",
+              "GET /api/contacts.getByEmail",
+              "GET /api/contacts.getByExternalID",
+              "POST /api/contacts.import",
+              "POST /api/contacts.delete"
+            ]
+          },
+          {
+            "group": "Lists",
+            "openapi": "openapi.json",
+            "pages": [
+              "POST /api/contactLists.updateStatus",
+              "POST /subscribe"
+            ]
+          },
+          {
+            "group": "Custom Events",
+            "openapi": "openapi.json",
+            "pages": ["POST /api/customEvents.import"]
+          },
+          {
+            "group": "Broadcasts",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /api/broadcasts.list",
+              "GET /api/broadcasts.get",
+              "POST /api/broadcasts.create",
+              "POST /api/broadcasts.update",
+              "POST /api/broadcasts.schedule",
+              "POST /api/broadcasts.pause",
+              "POST /api/broadcasts.resume",
+              "POST /api/broadcasts.cancel",
+              "POST /api/broadcasts.sendToIndividual",
+              "POST /api/broadcasts.delete",
+              "GET /api/broadcasts.getTestResults",
+              "POST /api/broadcasts.selectWinner"
+            ]
+          },
+          {
+            "group": "Templates",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /api/templates.list",
+              "GET /api/templates.get",
+              "POST /api/templates.create",
+              "POST /api/templates.update",
+              "POST /api/templates.delete",
+              "POST /api/templates.compile"
+            ]
+          }
+        ]
       }
     ]
   },

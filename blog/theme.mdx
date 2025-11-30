@@ -1,0 +1,189 @@
+---
+title: Theme
+description: 'Customize your blog appearance with Liquid templates.'
+---
+
+
+
+<img src="/assets/screenshots/theme_editor.png" alt="Blog theme editor" />
+
+## Theme Files
+
+Each theme consists of 8 files:
+
+| File | Purpose |
+|------|---------|
+| `home.liquid` | Homepage template |
+| `category.liquid` | Category listing page |
+| `post.liquid` | Individual post page |
+| `header.liquid` | Shared header partial |
+| `footer.liquid` | Shared footer partial |
+| `shared.liquid` | Reusable components |
+| `styles.css` | Custom CSS |
+| `scripts.js` | Custom JavaScript |
+
+## Liquid Templating
+
+Themes use [Liquid](https://shopify.github.io/liquid/) templating syntax:
+
+```liquid
+<h1>{{ workspace.blog_title }}</h1>
+
+{% for post in posts %}
+  <article>
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.excerpt }}</p>
+  </article>
+{% endfor %}
+```
+
+
+## Available Variables
+
+### Global (all pages)
+
+```liquid
+{{ workspace.id }}
+{{ workspace.name }}
+{{ workspace.blog_title }}
+{{ workspace.logo_url }}
+{{ workspace.icon_url }}
+{{ base_url }}
+{{ current_year }}
+{{ theme.version }}
+```
+
+### Categories
+
+```liquid
+{% for category in categories %}
+  {{ category.id }}
+  {{ category.slug }}
+  {{ category.name }}
+  {{ category.description }}
+{% endfor %}
+```
+
+### Posts (home and category pages)
+
+```liquid
+{% for post in posts %}
+  {{ post.id }}
+  {{ post.slug }}
+  {{ post.category_slug }}
+  {{ post.title }}
+  {{ post.excerpt }}
+  {{ post.featured_image_url }}
+  {{ post.published_at }}
+  {{ post.reading_time_minutes }}
+
+  {% for author in post.authors %}
+    {{ author.name }}
+    {{ author.avatar_url }}
+  {% endfor %}
+{% endfor %}
+```
+
+### Single Post (post page)
+
+```liquid
+{{ post.title }}
+{{ post.content }}
+{{ post.excerpt }}
+{{ post.featured_image_url }}
+{{ post.published_at }}
+{{ post.reading_time_minutes }}
+
+{% for toc in post.table_of_contents %}
+  {{ toc.id }}
+  {{ toc.level }}
+  {{ toc.text }}
+{% endfor %}
+
+{{ category.name }}
+{{ category.slug }}
+```
+
+### Pagination
+
+```liquid
+{{ pagination.current_page }}
+{{ pagination.total_pages }}
+{{ pagination.has_next }}
+{{ pagination.has_previous }}
+{{ pagination.total_count }}
+{{ pagination.per_page }}
+```
+
+### Newsletter Lists
+
+```liquid
+{% for list in public_lists %}
+  {{ list.id }}
+  {{ list.name }}
+  {{ list.description }}
+{% endfor %}
+```
+
+## Useful Filters
+
+| Filter | Description | Example |
+|--------|-------------|---------|
+| `date` | Format dates | `{{ post.published_at \| date: "%B %d, %Y" }}` |
+| `truncate` | Limit string length | `{{ post.excerpt \| truncate: 150 }}` |
+| `truncatewords` | Limit word count | `{{ post.excerpt \| truncatewords: 25 }}` |
+| `upcase` / `downcase` | Change case | `{{ category.name \| upcase }}` |
+| `capitalize` | Capitalize first letter | `{{ author.name \| capitalize }}` |
+| `strip_html` | Remove HTML tags | `{{ post.content \| strip_html }}` |
+| `escape` | Escape HTML entities | `{{ post.title \| escape }}` |
+| `url_encode` | Encode for URLs | `{{ post.title \| url_encode }}` |
+| `default` | Fallback value | `{{ post.featured_image_url \| default: "/images/placeholder.jpg" }}` |
+| `size` | Array/string length | `{{ posts \| size }}` |
+| `first` / `last` | Get first/last item | `{{ categories \| first }}` |
+| `sort` | Sort array | `{{ posts \| sort: "published_at" }}` |
+| `reverse` | Reverse array | `{{ posts \| reverse }}` |
+| `where` | Filter array | `{{ posts \| where: "category_id", "news" }}` |
+| `map` | Extract property | `{{ posts \| map: "title" }}` |
+| `join` | Join array items | `{{ post.tags \| join: ", " }}` |
+| `split` | Split string | `{{ "a,b,c" \| split: "," }}` |
+| `replace` | Replace text | `{{ post.title \| replace: "-", " " }}` |
+| `append` / `prepend` | Add to string | `{{ post.slug \| prepend: "/" }}` |
+| `plus` / `minus` | Math operations | `{{ pagination.current_page \| plus: 1 }}` |
+| `times` / `divided_by` | Math operations | `{{ post.reading_time_minutes \| times: 60 }}` |
+
+## Partials
+
+### Include (shares parent scope)
+
+```liquid
+{% include 'header' %}
+{% include 'footer' %}
+```
+
+### Render (isolated scope)
+
+```liquid
+{% render 'shared', widget: 'newsletter' %}
+{% render 'shared', widget: 'categories' %}
+```
+
+## Theme Versioning
+
+Themes are versioned. Each save creates a new version:
+
+<img src="/assets/screenshots/theme_versions.png" alt="Blog theme versions" />
+
+- Only one version can be published at a time
+- Published themes cannot be edited (create a new version instead)
+- Unpublished versions are drafts
+
+## Preview Mode
+
+Preview unpublished themes by adding `?preview_theme_version=X` to any blog URL:
+
+```
+https://blog.example.com/?preview_theme_version=5
+https://blog.example.com/category/slug?preview_theme_version=5
+```
+
+Preview bypasses cache and requires authentication.
