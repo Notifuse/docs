@@ -49,6 +49,7 @@
                 "pages": ["blog/setup", "blog/theme", "blog/posts"]
               },
               "features/file-manager",
+              "features/webhooks",
               "features/logs",
               "features/admins-api-keys",
               "features/notification-center"
@@ -87,6 +88,8 @@
             "group": "Contacts",
             "openapi": "openapi.json",
             "pages": [
+              "GET /api/contacts.list",
+              "GET /api/contacts.count",
               "POST /api/contacts.upsert",
               "GET /api/contacts.getByEmail",
               "GET /api/contacts.getByExternalID",
@@ -99,7 +102,8 @@
             "openapi": "openapi.json",
             "pages": [
               "POST /api/contactLists.updateStatus",
-              "POST /subscribe"
+              "POST /subscribe",
+              "POST /api/lists.subscribe"
             ]
           },
           {
@@ -135,6 +139,22 @@
               "POST /api/templates.update",
               "POST /api/templates.delete",
               "POST /api/templates.compile"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "openapi": "openapi.json",
+            "pages": [
+              "POST /api/webhookSubscriptions.create",
+              "GET /api/webhookSubscriptions.list",
+              "GET /api/webhookSubscriptions.get",
+              "POST /api/webhookSubscriptions.update",
+              "POST /api/webhookSubscriptions.delete",
+              "POST /api/webhookSubscriptions.toggle",
+              "POST /api/webhookSubscriptions.regenerateSecret",
+              "GET /api/webhookSubscriptions.deliveries",
+              "POST /api/webhookSubscriptions.test",
+              "GET /api/webhookSubscriptions.eventTypes"
             ]
           }
         ]
