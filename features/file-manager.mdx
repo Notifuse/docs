@@ -27,16 +27,71 @@ Configure your S3-compatible storage with these settings:
 
 When a CDN endpoint is configured, file URLs in your email templates will use the CDN URL instead of the direct S3 URL for optimized delivery.
 
+## CORS Configuration
+
+To allow the file manager to upload files directly from your browser, you need to configure CORS (Cross-Origin Resource Sharing) on your storage bucket.
+
+### Cloudflare R2 / AWS S3
+
+Create a CORS policy with the following configuration:
+
+```json
+[
+  {
+    "AllowedOrigins": ["*"],
+    "AllowedMethods": ["GET", "POST", "HEAD", "DELETE", "PUT"],
+    "AllowedHeaders": ["*"]
+  }
+]
+```
+
+<Tip>For production, replace `"*"` in `AllowedOrigins` with your Notifuse console URL for better security.</Tip>
+
+### Google Cloud Storage
+
+For GCS, use the `gsutil` command with a JSON configuration file:
+
+```json
+[
+  {
+    "origin": ["*"],
+    "method": ["GET", "POST", "HEAD", "PUT", "DELETE", "OPTIONS"],
+    "responseHeader": ["Content-Type", "*"]
+  }
+]
+```
+
+Apply the CORS configuration:
+
+```bash
+gsutil cors set cors.json gs://your-bucket-name
+```
+
 ## Supported Storage Providers
 
 Files can be uploaded to any S3-compatible storage service:
 
 - Amazon S3
+- Cloudflare R2
 - DigitalOcean Spaces
 - Wasabi
 - MinIO
 - Backblaze B2
 - Google Cloud Storage (S3 API)
+
+## Self-Hosted S3 Option
+
+If you prefer not to use cloud storage providers, you can run your own S3-compatible storage server using our self-hosted solution:
+
+<Card title="Self-Hosted S3 Storage" icon="server" href="https://github.com/Notifuse/selfhost_s3">
+  A lightweight, Docker-based S3-compatible storage server perfect for self-hosting Notifuse without external dependencies.
+</Card>
+
+This option is ideal for:
+- Air-gapped or offline environments
+- Development and testing
+- Users who want full control over their data
+- Avoiding cloud provider costs
 
 ## File Usage
 
