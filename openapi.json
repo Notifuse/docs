@@ -5189,11 +5189,12 @@
       },
       "ScheduleSettings": {
         "type": "object",
+        "description": "Schedule settings for a broadcast. Note: When a broadcast is first created,\nthese fields are empty/false. Use the /api/broadcasts.schedule endpoint to\nconfigure scheduling.\n",
         "properties": {
           "is_scheduled": {
             "type": "boolean",
-            "description": "Whether the broadcast is scheduled",
-            "example": true
+            "description": "Whether the broadcast is scheduled (false after creation, set via broadcasts.schedule)",
+            "example": false
           },
           "scheduled_date": {
             "type": "string",
