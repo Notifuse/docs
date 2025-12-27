@@ -44,6 +44,7 @@
               "features/broadcast-campaigns",
               "features/transactional-api",
               "features/custom-events",
+              "features/automations",
               {
                 "group": "Blog ✨",
                 "pages": ["blog/setup", "blog/theme", "blog/posts"]

@@ -1,0 +1,510 @@
+---
+title: Webhooks
+description: 'Receive real-time HTTP callbacks when events occur in your workspace.'
+---
+
+## Overview
+
+Notifuse handles two types of webhooks:
+
+1. **Incoming webhooks** - Callbacks from email providers (Amazon SES, Mailgun, Postmark, etc.) that notify Notifuse about email events like bounces, complaints, and deliveries. These are configured automatically when you set up an email integration.
+
+2. **Outgoing webhooks** - HTTP callbacks that Notifuse sends to *your* server when events occur. This is what this feature page covers.
+
+Outgoing webhooks allow you to receive HTTP POST requests to your server when specific events occur in Notifuse. This enables you to:
+
+- Sync contact data to your CRM or other systems
+- Trigger workflows in external automation tools
+- Build custom integrations and dashboards
+- React to email engagement events in real-time
+
+<img src="/assets/screenshots/outgoing_webhooks.png" alt="Outgoing webhooks screenshot" />
+
+## Creating a Webhook Subscription
+
+Create a webhook subscription via the API or the Notifuse console:
+
+```bash
+curl -X POST "https://your-instance.com/api/webhookSubscriptions.create" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workspace_id": "your_workspace",
+    "name": "Production Webhook",
+    "url": "https://api.example.com/webhooks/notifuse",
+    "event_types": ["contact.created", "contact.updated", "email.sent"]
+  }'
+```
+
+## Available Event Types
+
+### Contact Events
+
+| Event | Description |
+|-------|-------------|
+| `contact.created` | A new contact was added to the workspace |
+| `contact.updated` | Contact data was modified |
+| `contact.deleted` | A contact was permanently deleted |
+
+### List Events
+
+| Event | Description |
+|-------|-------------|
+| `list.subscribed` | Contact subscribed to a list |
+| `list.unsubscribed` | Contact unsubscribed from a list |
+| `list.confirmed` | Contact confirmed double opt-in subscription |
+| `list.resubscribed` | Previously unsubscribed contact resubscribed |
+| `list.bounced` | Email to contact bounced |
+| `list.complained` | Contact marked email as spam |
+| `list.pending` | Contact subscription is awaiting confirmation |
+| `list.removed` | Contact was removed from list |
+
+### Segment Events
+
+| Event | Description |
+|-------|-------------|
+| `segment.joined` | Contact entered a segment (matched segment criteria) |
+| `segment.left` | Contact left a segment (no longer matches criteria) |
+
+### Email Events
+
+| Event | Description |
+|-------|-------------|
+| `email.sent` | Email was sent to contact |
+| `email.delivered` | Email delivery was confirmed by the recipient's server |
+| `email.opened` | Contact opened the email |
+| `email.clicked` | Contact clicked a link in the email |
+| `email.bounced` | Email delivery failed |
+| `email.complained` | Contact marked email as spam |
+| `email.unsubscribed` | Contact unsubscribed via email link |
+
+### Custom Events
+
+| Event | Description |
+|-------|-------------|
+| `custom_event.created` | A new custom event was recorded |
+| `custom_event.updated` | A custom event was updated |
+| `custom_event.deleted` | A custom event was soft-deleted |
+
+#### Custom Event Filters
+
+For custom events, you can optionally filter by `goal_types` and `event_names`:
+
+```json
+{
+  "event_types": ["custom_event.created"],
+  "custom_event_filters": {
+    "goal_types": ["purchase", "subscription"],
+    "event_names": ["orders/fulfilled", "payment.succeeded"]
+  }
+}
+```
+
+## Payload Structure
+
+All webhook payloads follow this structure:
+
+```json
+{
+  "id": "delivery_abc123",
+  "type": "contact.created",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "workspace_id": "ws_1234567890",
+  "data": {
+    // Event-specific data
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier for the webhook delivery |
+| `type` | The event type that triggered the webhook |
+| `timestamp` | ISO 8601 timestamp when the webhook was sent |
+| `workspace_id` | The workspace where the event occurred |
+| `data` | Event-specific payload data |
+
+### Example: Contact Created
+
+```json
+{
+  "id": "delivery_abc123",
+  "type": "contact.created",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "workspace_id": "ws_1234567890",
+  "data": {
+    "email": "user@example.com",
+    "id": "contact_12345",
+    "external_id": "ext_67890",
+    "first_name": "John",
+    "last_name": "Doe",
+    "tags": ["newsletter", "customer"],
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Example: Email Sent
+
+```json
+{
+  "id": "delivery_def456",
+  "type": "email.sent",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "workspace_id": "ws_1234567890",
+  "data": {
+    "message_id": "msg_xyz789",
+    "email": "user@example.com",
+    "subject": "Welcome to our newsletter",
+    "broadcast_id": "bc_abc123",
+    "template_id": "welcome_email",
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+### Example: Email Opened
+
+```json
+{
+  "id": "delivery_ghi789",
+  "type": "email.opened",
+  "timestamp": "2024-01-15T11:45:00Z",
+  "workspace_id": "ws_1234567890",
+  "data": {
+    "message_id": "msg_xyz789",
+    "email": "user@example.com",
+    "subject": "Welcome to our newsletter",
+    "broadcast_id": "bc_abc123",
+    "template_id": "welcome_email",
+    "created_at": "2024-01-15T11:45:00Z"
+  }
+}
+```
+
+### Example: Segment Joined
+
+```json
+{
+  "id": "delivery_jkl012",
+  "type": "segment.joined",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "workspace_id": "ws_1234567890",
+  "data": {
+    "email": "user@example.com",
+    "contact_id": "contact_12345",
+    "segment_id": "seg_vip_customers",
+    "segment_name": "VIP Customers",
+    "created_at": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+## Verifying Webhook Signatures
+
+Notifuse signs all webhook payloads using the [Standard Webhooks](https://www.standardwebhooks.com/) specification with HMAC-SHA256.
+
+### Headers
+
+Each webhook request includes these headers:
+
+| Header | Description |
+|--------|-------------|
+| `webhook-id` | Unique identifier for the webhook delivery |
+| `webhook-timestamp` | Unix timestamp when the webhook was sent |
+| `webhook-signature` | HMAC-SHA256 signature of the payload |
+
+### Verifying the Signature
+
+1. Extract the timestamp and signature from the headers
+2. Construct the signed payload: `{webhook-id}.{webhook-timestamp}.{body}`
+3. Compute HMAC-SHA256 using your webhook secret
+4. Compare with the provided signature
+
+### Code Examples
+
+<CodeGroup>
+
+```javascript Node.js
+const crypto = require('crypto');
+
+function verifyWebhook(payload, headers, secret) {
+  const msgId = headers['webhook-id'];
+  const msgTimestamp = headers['webhook-timestamp'];
+  const msgSignature = headers['webhook-signature'];
+
+  // Check timestamp is within 5 minutes
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(now - parseInt(msgTimestamp)) > 300) {
+    throw new Error('Timestamp too old');
+  }
+
+  // Construct signed payload
+  const signedPayload = `${msgId}.${msgTimestamp}.${payload}`;
+
+  // Compute signature
+  const secretBytes = Buffer.from(secret.replace('whsec_', ''), 'base64');
+  const expectedSignature = crypto
+    .createHmac('sha256', secretBytes)
+    .update(signedPayload)
+    .digest('base64');
+
+  // Extract v1 signature
+  const signatures = msgSignature.split(' ');
+  for (const sig of signatures) {
+    const [version, signature] = sig.split(',');
+    if (version === 'v1' && signature === expectedSignature) {
+      return true;
+    }
+  }
+
+  throw new Error('Invalid signature');
+}
+```
+
+```python Python
+import hmac
+import hashlib
+import base64
+import time
+
+def verify_webhook(payload: str, headers: dict, secret: str) -> bool:
+    msg_id = headers.get('webhook-id')
+    msg_timestamp = headers.get('webhook-timestamp')
+    msg_signature = headers.get('webhook-signature')
+
+    # Check timestamp is within 5 minutes
+    now = int(time.time())
+    if abs(now - int(msg_timestamp)) > 300:
+        raise ValueError('Timestamp too old')
+
+    # Construct signed payload
+    signed_payload = f"{msg_id}.{msg_timestamp}.{payload}"
+
+    # Compute signature
+    secret_bytes = base64.b64decode(secret.replace('whsec_', ''))
+    expected_signature = base64.b64encode(
+        hmac.new(secret_bytes, signed_payload.encode(), hashlib.sha256).digest()
+    ).decode()
+
+    # Extract v1 signature
+    for sig in msg_signature.split(' '):
+        version, signature = sig.split(',')
+        if version == 'v1' and signature == expected_signature:
+            return True
+
+    raise ValueError('Invalid signature')
+```
+
+```go Go
+package main
+
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "encoding/base64"
+    "errors"
+    "fmt"
+    "math"
+    "strconv"
+    "strings"
+    "time"
+)
+
+func VerifyWebhook(payload string, headers map[string]string, secret string) error {
+    msgID := headers["webhook-id"]
+    msgTimestamp := headers["webhook-timestamp"]
+    msgSignature := headers["webhook-signature"]
+
+    // Check timestamp is within 5 minutes
+    ts, _ := strconv.ParseInt(msgTimestamp, 10, 64)
+    now := time.Now().Unix()
+    if math.Abs(float64(now-ts)) > 300 {
+        return errors.New("timestamp too old")
+    }
+
+    // Construct signed payload
+    signedPayload := fmt.Sprintf("%s.%s.%s", msgID, msgTimestamp, payload)
+
+    // Compute signature
+    secretBytes, _ := base64.StdEncoding.DecodeString(strings.TrimPrefix(secret, "whsec_"))
+    h := hmac.New(sha256.New, secretBytes)
+    h.Write([]byte(signedPayload))
+    expectedSig := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+    // Extract v1 signature
+    for _, sig := range strings.Split(msgSignature, " ") {
+        parts := strings.SplitN(sig, ",", 2)
+        if len(parts) == 2 && parts[0] == "v1" && parts[1] == expectedSig {
+            return nil
+        }
+    }
+
+    return errors.New("invalid signature")
+}
+```
+
+```php PHP
+<?php
+
+function verifyWebhook(string $payload, array $headers, string $secret): bool {
+    $msgId = $headers['webhook-id'] ?? '';
+    $msgTimestamp = $headers['webhook-timestamp'] ?? '';
+    $msgSignature = $headers['webhook-signature'] ?? '';
+
+    // Check timestamp is within 5 minutes
+    $now = time();
+    if (abs($now - (int)$msgTimestamp) > 300) {
+        throw new Exception('Timestamp too old');
+    }
+
+    // Construct signed payload
+    $signedPayload = "{$msgId}.{$msgTimestamp}.{$payload}";
+
+    // Compute signature
+    $secretBytes = base64_decode(str_replace('whsec_', '', $secret));
+    $expectedSignature = base64_encode(
+        hash_hmac('sha256', $signedPayload, $secretBytes, true)
+    );
+
+    // Extract v1 signature
+    foreach (explode(' ', $msgSignature) as $sig) {
+        [$version, $signature] = explode(',', $sig, 2);
+        if ($version === 'v1' && $signature === $expectedSignature) {
+            return true;
+        }
+    }
+
+    throw new Exception('Invalid signature');
+}
+```
+
+</CodeGroup>
+
+## Retry Behavior
+
+Notifuse automatically retries failed webhook deliveries with an exponential backoff strategy.
+
+### Retry Schedule
+
+Webhooks are retried up to **10 times** over approximately **34 hours**:
+
+| Attempt | Delay After Previous |
+|---------|---------------------|
+| 1 | Immediate |
+| 2 | 30 seconds |
+| 3 | 1 minute |
+| 4 | 2 minutes |
+| 5 | 5 minutes |
+| 6 | 15 minutes |
+| 7 | 30 minutes |
+| 8 | 1 hour |
+| 9 | 2 hours |
+| 10 | 6 hours |
+| Final | 24 hours |
+
+### Success Criteria
+
+A webhook delivery is considered successful if your endpoint returns HTTP status code `2xx` (200-299).
+
+### Failure Conditions
+
+A delivery attempt fails if:
+- Your endpoint returns a non-2xx status code
+- The request times out (30 second timeout)
+- The endpoint is unreachable (DNS error, connection refused, etc.)
+
+## Best Practices
+
+### Return 2xx Quickly
+
+Return a successful response as quickly as possible. Process the webhook payload asynchronously if needed:
+
+```javascript
+// Good: Acknowledge quickly, process later
+app.post('/webhooks/notifuse', async (req, res) => {
+  // Quickly validate signature
+  verifyWebhook(req.body, req.headers, SECRET);
+
+  // Queue for async processing
+  await queue.add('process-webhook', req.body);
+
+  // Respond immediately
+  res.status(200).json({ received: true });
+});
+```
+
+### Handle Duplicate Deliveries
+
+Webhooks may be delivered more than once in rare cases. Use the `webhook-id` header to implement idempotency:
+
+```javascript
+app.post('/webhooks/notifuse', async (req, res) => {
+  const webhookId = req.headers['webhook-id'];
+
+  // Check if we've already processed this webhook
+  if (await hasProcessed(webhookId)) {
+    return res.status(200).json({ received: true, duplicate: true });
+  }
+
+  // Mark as processed before handling
+  await markProcessed(webhookId);
+
+  // Process the webhook
+  await processWebhook(req.body);
+
+  res.status(200).json({ received: true });
+});
+```
+
+### Verify Signatures
+
+Always verify webhook signatures in production to ensure requests are from Notifuse.
+
+### Monitor Delivery Failures
+
+Use the Notifuse console or API to monitor webhook delivery status:
+
+```bash
+curl "https://your-instance.com/api/webhookSubscriptions.deliveries?workspace_id=ws_123&subscription_id=whsub_456" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Testing Webhooks
+
+### Send a Test Webhook
+
+Use the test endpoint to verify your webhook configuration:
+
+```bash
+curl -X POST "https://your-instance.com/api/webhookSubscriptions.test" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "workspace_id": "your_workspace",
+    "id": "whsub_a1b2c3d4e5f6",
+    "event_type": "contact.created"
+  }'
+```
+
+The `event_type` parameter is optional. If provided, the test webhook will include a realistic sample payload for that event type. If omitted, a generic test payload is sent.
+
+### Local Development
+
+For local development, use tools like [ngrok](https://ngrok.com/) or [localtunnel](https://localtunnel.github.io/www/) to expose your local server:
+
+```bash
+# Start ngrok
+ngrok http 3000
+
+# Use the ngrok URL as your webhook endpoint
+# https://abc123.ngrok.io/webhooks/notifuse
+```
+
+## Notes
+
+- Webhooks require HTTPS endpoints in production
+- The signing secret is generated automatically when you create a subscription
+- Use `webhookSubscriptions.regenerateSecret` to rotate the signing secret
+- See [API Reference](/api-reference) for complete endpoint documentation
