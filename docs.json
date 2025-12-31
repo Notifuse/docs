@@ -81,6 +81,11 @@
         "tab": "API Reference",
         "groups": [
           {
+            "group": "Authentication",
+            "openapi": "openapi.json",
+            "pages": ["POST /api/user.rootSignin"]
+          },
+          {
             "group": "Transactional",
             "openapi": "openapi.json",
             "pages": ["POST /api/transactional.send"]

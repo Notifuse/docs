@@ -334,3 +334,27 @@ cat dev-cert.key.pem | base64 > key_base64.txt
 - **Priority**: Environment variables always take precedence over database settings when both are present.
 
 **For Production Deployments**: We recommend using environment variables for sensitive configuration (SMTP credentials, SECRET_KEY) and the Setup Wizard or admin interface for non-sensitive settings (API endpoint, etc.).
+
+## Programmatic Authentication
+
+For CI/CD pipelines and automated deployments, the root user can authenticate programmatically using HMAC-SHA256 signature, bypassing magic link authentication.
+
+```bash
+#!/bin/bash
+# Configuration
+NOTIFUSE_URL="https://your-notifuse-instance.com"
+SECRET_KEY="your-secret-key"
+ROOT_EMAIL="admin@example.com"
+TIMESTAMP=$(date +%s)
+
+# Generate HMAC signature
+MESSAGE="${ROOT_EMAIL}:${TIMESTAMP}"
+SIGNATURE=$(echo -n "$MESSAGE" | openssl dgst -sha256 -hmac "$SECRET_KEY" | awk '{print $2}')
+
+# Authenticate and get JWT token
+curl -X POST "${NOTIFUSE_URL}/api/user.rootSignin" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"${ROOT_EMAIL}\",\"timestamp\":${TIMESTAMP},\"signature\":\"${SIGNATURE}\"}"
+```
+
+The endpoint returns a JWT token for subsequent API requests. Timestamps must be within 60 seconds of server time, and requests are rate limited to 5 attempts per 5 minutes.
