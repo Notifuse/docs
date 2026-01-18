@@ -1,30 +1,319 @@
 ---
 title: SMTP
-description: 'Configure SMTP as your email provider in Notifuse.'
+description: 'Configure SMTP as your email provider in Notifuse with Basic Auth or OAuth2.'
 ---
 
-SMTP integration allows you to connect any SMTP-compatible email service to Notifuse.
-
-<img className="block" src="/assets/screenshots/smtp_form.png" alt="SMTP Integration Form" />
+SMTP integration allows you to connect any SMTP-compatible email service to Notifuse, supporting both traditional password authentication and modern OAuth2 for Microsoft 365 and Gmail.
 
 ## Configuration
 
 Navigate to **Settings** → **Integrations** → **Add Integration** → **SMTP**.
 
-<img className="block" src="/assets/screenshots/smtp_settings.png" alt="SMTP Settings" />
-
-### Form Fields
+### Basic Settings
 
 | Field                | Description                              | Example                |
 | -------------------- | ---------------------------------------- | ---------------------- |
 | **Integration Name** | Display name for this SMTP configuration | `Company SMTP`         |
-| **SMTP Host**        | SMTP server hostname or IP address       | `smtp.gmail.com`       |
+| **SMTP Host**        | SMTP server hostname                     | `smtp.gmail.com`       |
 | **SMTP Port**        | SMTP server port number                  | `587`                  |
-| **Use TLS**          | Enable TLS encryption (toggle)           | `On` (recommended)     |
-| **SMTP Username**    | Authentication username                  | `your-email@gmail.com` |
-| **SMTP Password**    | Authentication password                  | `your-app-password`    |
+| **Use TLS**          | Enable TLS encryption (recommended)      | `On`                   |
 
-### Senders List
+### Authentication Type
+
+Notifuse supports two authentication methods:
+
+| Type           | Description                                      | Use Case                                    |
+| -------------- | ------------------------------------------------ | ------------------------------------------- |
+| **Basic Auth** | Traditional username/password authentication     | Most SMTP servers, app passwords            |
+| **OAuth2**     | Modern token-based authentication                | Microsoft 365, Gmail (required since 2024)  |
+
+---
+
+## Basic Authentication
+
+For traditional SMTP servers or services that support app passwords.
+
+| Field             | Description               | Example                |
+| ----------------- | ------------------------- | ---------------------- |
+| **SMTP Username** | Authentication username   | `your-email@gmail.com` |
+| **SMTP Password** | Authentication password   | `your-app-password`    |
+
+---
+
+## OAuth2 Authentication
+
+OAuth2 is required for Microsoft 365 and Gmail since they have deprecated basic authentication.
+
+### Microsoft 365 OAuth2
+
+<img src="/assets/microsoft-365-icon.svg" alt="Microsoft 365" width="40" style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} />
+
+Microsoft 365 uses the **Client Credentials Flow** for server-to-server authentication.
+
+#### Prerequisites
+
+- Microsoft 365 Business account (not personal Outlook.com)
+- Azure AD admin access
+- Exchange Online admin access
+
+#### Step 1: Register Azure AD Application
+
+1. Go to [Azure Portal](https://portal.azure.com) → **Azure Active Directory** → **App registrations**
+2. Click **New registration**
+3. Enter a name (e.g., "Notifuse SMTP")
+4. Select **Accounts in this organizational directory only** (Single tenant)
+5. Click **Register**
+6. Note the **Application (client) ID** and **Directory (tenant) ID**
+
+#### Step 2: Create Client Secret
+
+1. In your app registration, go to **Certificates & secrets**
+2. Click **New client secret**
+3. Add a description and select expiry period
+4. Click **Add**
+5. **Copy the secret value immediately** (it won't be shown again)
+
+#### Step 3: Add API Permission
+
+1. Go to **API permissions** → **Add a permission**
+2. Select **APIs my organization uses**
+3. Search for **Office 365 Exchange Online**
+4. Select **Application permissions**
+5. Check **SMTP.SendAsApp**
+6. Click **Add permissions**
+7. Click **Grant admin consent for [Your Organization]**
+
+#### Step 4: Register Service Principal in Exchange Online
+
+This step is **critical** and often missed. Connect to Exchange Online PowerShell:
+
+```powershell
+# Install module if needed
+Install-Module -Name ExchangeOnlineManagement
+
+# Connect to Exchange Online
+Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com
+
+# Register the service principal
+New-ServicePrincipal -AppId <Application-Client-ID> -ObjectId <Object-ID>
+```
+
+<Warning>
+**Common Mistake:** The `ObjectId` must be from **Enterprise Applications**, NOT from App Registrations.
+
+To find the correct Object ID:
+1. Go to Azure Portal → **Microsoft Entra ID** → **Enterprise Applications**
+2. Search for your app name
+3. Copy the **Object ID** from the Overview page
+</Warning>
+
+#### Step 5: Grant Mailbox Permission
+
+Grant the service principal permission to send as a specific mailbox:
+
+```powershell
+# Grant full access to the mailbox
+Add-MailboxPermission -Identity "sender@yourdomain.com" -User <Object-ID> -AccessRights FullAccess
+
+# Grant send-as permission
+Add-RecipientPermission -Identity "sender@yourdomain.com" -Trustee <Object-ID> -AccessRights SendAs
+```
+
+#### Step 6: Enable SMTP AUTH on the Mailbox
+
+SMTP AUTH must be enabled on the sending mailbox. This can be done via Microsoft 365 Admin Center or PowerShell:
+
+**Option A: Microsoft 365 Admin Center**
+1. Go to **Users** → **Active users**
+2. Select the sender user
+3. Click **Mail** tab → **Manage email apps**
+4. Check **Authenticated SMTP**
+5. Click **Save changes**
+
+**Option B: PowerShell**
+```powershell
+# Enable SMTP AUTH for the mailbox
+Set-CASMailbox -Identity "sender@yourdomain.com" -SmtpClientAuthenticationDisabled $false
+```
+
+<Warning>
+If **Security Defaults** is enabled in your Microsoft Entra tenant, SMTP AUTH is blocked organization-wide. You may need to disable Security Defaults or use Conditional Access policies instead.
+</Warning>
+
+#### Step 7: Configure in Notifuse
+
+| Field               | Value                                      |
+| ------------------- | ------------------------------------------ |
+| **SMTP Host**       | `smtp.office365.com`                       |
+| **SMTP Port**       | `587`                                      |
+| **Use TLS**         | `On`                                       |
+| **Auth Type**       | `OAuth2`                                   |
+| **OAuth2 Provider** | `Microsoft`                                |
+| **Username**        | Sender email (e.g., `sender@yourdomain.com`) |
+| **Tenant ID**       | Your Azure AD Directory (tenant) ID        |
+| **Client ID**       | Application (client) ID from Azure         |
+| **Client Secret**   | Secret value from Step 2                   |
+
+<Warning>
+The **Username** must match the mailbox you granted permissions to in Step 5.
+</Warning>
+
+---
+
+### Gmail OAuth2
+
+<img src="/assets/gmail-icon.svg" alt="Gmail" width="40" style={{display: 'inline', verticalAlign: 'middle', marginRight: '8px'}} />
+
+Gmail uses the **Refresh Token Flow** for authentication.
+
+#### Prerequisites
+
+- Google account (personal Gmail or Google Workspace)
+- Google Cloud Console access
+- Terminal with `curl` installed
+
+#### Step 1: Create Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select an existing one
+3. Enable the **Gmail API**:
+   - Go to **APIs & Services** → **Library**
+   - Search for "Gmail API" and enable it
+
+#### Step 2: Configure OAuth Consent Screen
+
+1. Go to **APIs & Services** → **OAuth consent screen**
+2. Select **External** user type (or Internal for Workspace)
+3. Fill in app information:
+   - App name: "Notifuse" (or your choice)
+   - User support email: Your email
+   - Developer contact: Your email
+4. Click **Save and Continue**
+5. On the **Scopes** page, click **Add or Remove Scopes**
+6. Add scope: `https://mail.google.com/`
+7. Click **Save and Continue**
+8. On **Test users** page, add your Gmail address
+9. Click **Save and Continue** to complete the wizard
+
+#### Step 3: Publish Your App (Required for Long-Lived Tokens)
+
+<Warning>
+**Critical**: Apps in "Testing" mode have refresh tokens that expire after **7 days**. To get permanent refresh tokens, you must publish your app.
+</Warning>
+
+1. Go to **APIs & Services** → **OAuth consent screen**
+2. Click **Publish App**
+3. Confirm by clicking **Confirm**
+
+Your app status will change from "Testing" to "In production".
+
+<Note>
+**No Google Verification Needed for Personal Use**
+
+Publishing your app does NOT require Google verification if:
+- You have fewer than 100 users
+- You're using it for personal/internal purposes
+
+You may see an "unverified app" warning when authorizing - simply click **Advanced** → **Go to [App Name] (unsafe)** to proceed.
+</Note>
+
+#### Step 4: Create OAuth Credentials
+
+1. Go to **APIs & Services** → **Credentials**
+2. Click **Create Credentials** → **OAuth client ID**
+3. Select **Web application**
+4. Name it (e.g., "Notifuse SMTP")
+5. Under **Authorized redirect URIs**, click **Add URI**
+6. Enter: `http://localhost`
+7. Click **Create**
+8. A dialog will show your **Client ID** and **Client Secret** - save both
+
+#### Step 5: Get Authorization Code
+
+Open this URL in your browser, replacing `YOUR_CLIENT_ID` with your actual Client ID:
+
+```
+https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&scope=https://mail.google.com/&response_type=code&access_type=offline&prompt=consent
+```
+
+**Important URL parameters:**
+- `scope=https://mail.google.com/` - Required for SMTP access
+- `access_type=offline` - Required to receive a refresh token
+- `prompt=consent` - Forces Google to return a new refresh token
+
+After signing in and granting permission, your browser will redirect to something like:
+
+```
+http://localhost/?code=4/0AQSTgQF...LONG_CODE...&scope=https://mail.google.com/
+```
+
+Copy the entire `code` value (everything between `code=` and `&scope`).
+
+<Tip>
+If the code contains `%2F`, replace it with `/` before using it.
+</Tip>
+
+#### Step 6: Exchange Code for Refresh Token
+
+Run this curl command in your terminal, replacing the placeholders:
+
+```bash
+curl -X POST https://oauth2.googleapis.com/token \
+  -d "code=YOUR_AUTHORIZATION_CODE" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "redirect_uri=http://localhost" \
+  -d "grant_type=authorization_code"
+```
+
+Successful response:
+
+```json
+{
+  "access_token": "ya29.a0AfH6SMBx...",
+  "expires_in": 3599,
+  "refresh_token": "1//0eHusbKw...",
+  "scope": "https://mail.google.com/",
+  "token_type": "Bearer"
+}
+```
+
+<Warning>
+**Save your `refresh_token` immediately!** Google only returns the refresh token on the first authorization. If you lose it, you'll need to revoke access and re-authorize.
+</Warning>
+
+#### Step 7: Configure in Notifuse
+
+| Field               | Value                                      |
+| ------------------- | ------------------------------------------ |
+| **SMTP Host**       | `smtp.gmail.com`                           |
+| **SMTP Port**       | `587`                                      |
+| **Use TLS**         | `On`                                       |
+| **Auth Type**       | `OAuth2`                                   |
+| **OAuth2 Provider** | `Google`                                   |
+| **Username**        | Your Gmail address                         |
+| **Client ID**       | Client ID from Step 4                      |
+| **Client Secret**   | Client Secret from Step 4                  |
+| **Refresh Token**   | Refresh token from Step 6                  |
+
+#### Refresh Token Lifetime
+
+With a **published app**, your refresh token will remain valid indefinitely, unless:
+
+| Condition | Result |
+| --------- | ------ |
+| Token unused for **6 months** | Token expires |
+| You change your **Google password** | Token is revoked |
+| You exceed **50 refresh tokens** per client | Oldest token is automatically revoked |
+| You manually revoke access at [myaccount.google.com/permissions](https://myaccount.google.com/permissions) | Token is revoked |
+
+<Note>
+If your token becomes invalid, repeat Steps 5-6 to generate a new refresh token.
+</Note>
+
+---
+
+## Senders List
 
 Add sender addresses that can be used with this SMTP integration:
 
@@ -35,37 +324,79 @@ Add sender addresses that can be used with this SMTP integration:
 
 Click **Add Sender** to add multiple sender addresses.
 
-### Usage Types
+---
+
+## Usage Types
 
 Configure how this SMTP integration will be used:
 
-| Option                    | Description                                           | Examples                                                    |
-| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
-| **Use for Transactional** | System-generated emails triggered by user actions     | Password resets, order confirmations, account notifications |
-| **Use for Marketing**     | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns   |
+| Option                    | Description                                           |
+| ------------------------- | ----------------------------------------------------- |
+| **Use for Transactional** | Password resets, order confirmations, notifications   |
+| **Use for Marketing**     | Newsletters, promotional campaigns, announcements     |
 
 You can enable both options to use the same SMTP configuration for all email types.
 
-### Limitations
+---
+
+## Limitations
 
 SMTP integrations have the following limitations:
 
 - **No delivery webhooks**: SMTP does not provide real-time delivery status updates
-- **No spam notifications**: No automatic notifications when emails are marked as spam
-- **No complaint tracking**: No webhooks for unsubscribe requests or abuse complaints
+- **No bounce notifications**: No automatic notifications when emails bounce
+- **No complaint tracking**: No webhooks for spam reports or abuse complaints
 
-**Note**: Notifuse automatically adds open and click tracking to all emails, regardless of the email provider used.
+<Info>
+Notifuse automatically adds **open and click tracking** to all emails, regardless of the email provider used.
+</Info>
 
-For delivery webhooks and advanced provider features, consider using dedicated email service providers like Mailgun, SendGrid, or Postmark.
+For delivery webhooks and advanced features, consider using dedicated email service providers like [Mailgun](/integrations/mailgun), [Postmark](/integrations/postmark), or [SparkPost](/integrations/sparkpost).
 
-## Common Providers
+---
 
-| Provider | Host                    | Port  | TLS |
-| -------- | ----------------------- | ----- | --- |
-| Gmail    | `smtp.gmail.com`        | `587` | Yes |
-| Outlook  | `smtp-mail.outlook.com` | `587` | Yes |
-| Yahoo    | `smtp.mail.yahoo.com`   | `587` | Yes |
+## Common SMTP Servers
+
+| Provider        | Host                      | Port  | TLS | Auth Type         |
+| --------------- | ------------------------- | ----- | --- | ----------------- |
+| Gmail           | `smtp.gmail.com`          | `587` | Yes | OAuth2 (required) |
+| Microsoft 365   | `smtp.office365.com`      | `587` | Yes | OAuth2 (required) |
+| Amazon SES      | `email-smtp.region.amazonaws.com` | `587` | Yes | Basic Auth |
+| SendGrid        | `smtp.sendgrid.net`       | `587` | Yes | Basic Auth        |
+| Mailgun         | `smtp.mailgun.org`        | `587` | Yes | Basic Auth        |
+
+<Note>
+Gmail and Microsoft 365 have deprecated basic authentication. You must use OAuth2 for these providers.
+</Note>
+
+---
+
+## Troubleshooting
+
+### Microsoft 365: "535 5.7.3 Authentication unsuccessful"
+
+This error usually means:
+1. Service principal not registered in Exchange Online (Step 4)
+2. Mailbox permissions not granted (Step 5)
+3. Username doesn't match the permitted mailbox
+
+### Gmail: "unauthorized_client"
+
+This error means:
+1. Refresh token was generated with different Client ID/Secret
+2. Regenerate the refresh token using your current credentials
+
+### Gmail: "invalid_grant"
+
+This error means:
+1. Refresh token has expired (7 days in Testing mode)
+2. User changed their Google password
+3. Token was revoked or exceeded the 50-token limit
+
+**Solution**: Generate a new refresh token following Step 4.
+
+---
 
 ## Testing
 
-Click **Test Integration** to verify your configuration.
+Click **Test Integration** to send a test email and verify your configuration.
