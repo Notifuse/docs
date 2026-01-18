@@ -1,0 +1,87 @@
+---
+title: Anthropic
+description: 'Configure Anthropic Claude AI to power blog content creation and email generation in Notifuse.'
+---
+
+<img src="/assets/integrations/anthropic.png" alt="Anthropic" style={{ height: '24px' }} />
+
+The Anthropic integration enables AI-powered features across Notifuse using Claude, Anthropic's advanced AI assistant. This integration powers the AI agent for blog content creation and email generation.
+
+## Configuration
+
+Navigate to **Settings** → **Integrations** → **Add Integration** → **Anthropic**.
+
+### Form Fields
+
+| Field       | Description                              | Example                           |
+| ----------- | ---------------------------------------- | --------------------------------- |
+| **API Key** | Your Anthropic API key                   | `sk-ant-api03-...`                |
+| **Model**   | Select the Claude model to use           | `claude-sonnet-4-5-20250929`      |
+
+### Available Models
+
+| Model                        | Description                                              | $ Pricing (per MTok)   |
+| ---------------------------- | -------------------------------------------------------- | -------------------- |
+| **Claude Opus 4.5**          | Most capable model for complex reasoning and creative tasks | $5 input / $25 output |
+| **Claude Sonnet 4.5**        | Balanced performance and cost for most use cases         | $3 input / $15 output |
+| **Claude Haiku 4.5**         | Fast and cost-effective for simpler tasks                | $1 input / $5 output  |
+
+## Features Enabled
+
+Once configured, the Anthropic integration enables the following AI-powered features:
+
+### Blog AI Agent
+
+The AI agent can assist with blog content creation:
+
+| Feature               | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| **Write blog posts**  | Generate complete blog articles based on topics or brief descriptions |
+| **SEO optimization**  | Automatically generate SEO-friendly meta titles, descriptions, and keywords |
+| **Content editing**   | Improve, expand, or summarize existing content                     |
+
+### Email Editor AI
+
+Generate emails automatically using AI:
+
+| Feature                 | Description                                              |
+| ----------------------- | -------------------------------------------------------- |
+| **Email generation**    | Create email content from prompts or descriptions        |
+| **Subject lines**       | Generate compelling subject lines for better open rates  |
+| **Content variations**  | Create multiple versions for A/B testing                 |
+
+## Enhanced with Firecrawl
+
+The Anthropic AI agent can be enhanced by adding the [Firecrawl integration](/integrations/firecrawl). This gives the AI agent web access capabilities:
+
+| Capability              | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| **Web research**        | Search the web for current information and trends      |
+| **URL scraping**        | Extract content from specific web pages for reference  |
+| **Competitive analysis**| Research competitor content and strategies             |
+| **Fact verification**   | Verify claims against current web sources              |
+
+When Firecrawl is configured, the following tools become available to the AI agent:
+
+| Tool           | Description                                        |
+| -------------- | -------------------------------------------------- |
+| `scrape_url`   | Scrapes a URL and returns its content as markdown  |
+| `search_web`   | Searches the web and returns relevant URLs         |
+
+## Prerequisites
+
+Before configuring Anthropic:
+
+1. **Anthropic Account**: Create an account at [console.anthropic.com](https://console.anthropic.com)
+2. **API Key**: Generate an API key from the Anthropic console
+3. **Credits**: Ensure your account has sufficient API credits
+
+## Usage Notes
+
+<Note>
+API calls to Claude count toward your Anthropic account usage. Monitor your usage in the Anthropic console to manage costs.
+</Note>
+
+<Tip>
+For most use cases, **Claude Sonnet 4.5** offers the best balance of capability and cost. Use **Opus 4.5** for complex creative tasks and **Haiku 4.5** for simple, high-volume operations.
+</Tip>

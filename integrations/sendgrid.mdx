@@ -1,0 +1,76 @@
+---
+title: SendGrid
+description: 'Configure SendGrid as your email provider in Notifuse.'
+---
+
+SendGrid integration allows you to use SendGrid for sending emails through Notifuse.
+
+## Configuration
+
+Navigate to **Settings** → **Integrations** → **Add Integration** → **SendGrid**.
+
+<img className="block" src="/assets/screenshots/sendgrid_settings.png" alt="SendGrid Settings" />
+
+### Form Fields
+
+| Field       | Description                            | Example                                        |
+| ----------- | -------------------------------------- | ---------------------------------------------- |
+| **API Key** | SendGrid API key with send permissions | `SG.xxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
+
+### Senders List
+
+Add sender addresses that have been verified in your SendGrid account:
+
+| Field     | Description                 | Example                  |
+| --------- | --------------------------- | ------------------------ |
+| **Name**  | Display name for the sender | `Support Team`           |
+| **Email** | Sender email address        | `support@yourdomain.com` |
+
+**Important**: Senders must be verified through SendGrid's Sender Authentication before they can be used.
+
+### Usage Types
+
+Configure how this SendGrid integration will be used:
+
+| Option                    | Description                                           | Examples                                                    |
+| ------------------------- | ----------------------------------------------------- | ----------------------------------------------------------- |
+| **Use for Transactional** | System-generated emails triggered by user actions     | Password resets, order confirmations, account notifications |
+| **Use for Marketing**     | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns   |
+
+You can enable both options to use the same SendGrid configuration for all email types.
+
+### Webhooks
+
+Notifuse automatically registers the following SendGrid webhooks:
+
+| Webhook Type    | Description                     | Purpose                          |
+| --------------- | ------------------------------- | -------------------------------- |
+| **Delivered**   | Email successfully delivered    | Track successful deliveries      |
+| **Bounce**      | Email bounced                   | Monitor bounces                  |
+| **Dropped**     | Email dropped before delivery   | Track delivery failures          |
+| **Spam Report** | Recipient filed abuse complaint | Handle abuse reports             |
+| **Deferred**    | Email delivery deferred         | Track temporary delivery issues  |
+
+These webhooks provide real-time feedback on email performance and delivery status.
+
+## Prerequisites
+
+Before configuring SendGrid:
+
+1. **SendGrid Account**: Active SendGrid account
+2. **Verified Senders**: Email addresses or domains verified through SendGrid's Sender Authentication
+3. **API Key**: SendGrid API key with **Mail Send** permissions (starts with `SG.`)
+
+## Creating an API Key
+
+1. Log in to your SendGrid account
+2. Navigate to **Settings** → **API Keys**
+3. Click **Create API Key**
+4. Select **Restricted Access** and enable:
+   - **Mail Send** → Full Access
+   - **Tracking** → Full Access (for webhooks)
+5. Copy the generated API key (it starts with `SG.`)
+
+## Testing
+
+Click **Test Integration** to verify your configuration.

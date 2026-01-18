@@ -62,7 +62,11 @@
           },
           {
             "group": "Integrations",
-            "pages": ["integrations/supabase"]
+            "pages": [
+              "integrations/anthropic",
+              "integrations/firecrawl",
+              "integrations/supabase"
+            ]
           },
           {
             "group": "Email Providers",
@@ -70,6 +74,7 @@
               "integrations/mailgun",
               "integrations/amazon-ses",
               "integrations/postmark",
+              "integrations/sendgrid",
               "integrations/sparkpost",
               "integrations/mailjet",
               "integrations/smtp"

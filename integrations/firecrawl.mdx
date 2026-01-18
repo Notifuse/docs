@@ -1,0 +1,79 @@
+---
+title: Firecrawl
+description: 'Configure Firecrawl to give the AI agent web access for research and content generation.'
+---
+
+<img src="/assets/integrations/firecrawl.svg" alt="Firecrawl" style={{ height: '24px' }} />
+
+Firecrawl provides web scraping and search capabilities that enhance the AI agent's ability to access and process web content. When combined with the [Anthropic integration](/integrations/anthropic), it gives the AI agent web access for research and content generation.
+
+## Configuration
+
+Navigate to **Settings** → **Integrations** → **Add Integration** → **Firecrawl**.
+
+### Form Fields
+
+| Field          | Description                                              | Example                      |
+| -------------- | -------------------------------------------------------- | ---------------------------- |
+| **API Key**    | Your Firecrawl API key                                   | `fc-...`                     |
+| **Base URL**   | Custom API endpoint (optional)                           | `https://api.firecrawl.dev`  |
+
+<Note>
+Leave the Base URL blank to use the default Firecrawl API (`api.firecrawl.dev`). Only specify a custom URL if you're using a self-hosted Firecrawl instance.
+</Note>
+
+## Available Tools
+
+When Firecrawl is configured, the following tools become available to the AI agent:
+
+| Tool           | Description                                                    |
+| -------------- | -------------------------------------------------------------- |
+| `scrape_url`   | Scrapes a URL and returns its content as clean markdown        |
+| `search_web`   | Searches the web and returns relevant URLs with snippets       |
+
+## How It Enhances the AI Agent
+
+When both Firecrawl and [Anthropic](/integrations/anthropic) integrations are configured, the AI agent gains powerful web capabilities:
+
+### Web Research
+
+| Capability              | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| **Search the web**      | Find current information, news, and trends relevant to your content |
+| **Extract content**     | Pull text from specific URLs for reference or inspiration |
+| **Competitive research**| Analyze competitor websites and content                |
+
+### Blog Content Creation
+
+With web access, the AI can:
+
+- Research topics thoroughly before writing
+- Include up-to-date information and statistics
+- Reference and link to authoritative sources
+- Verify facts against current web content
+
+### Email Marketing
+
+Enhance email content with:
+
+- Current industry trends and news
+- Product information from your website
+- Competitive positioning insights
+
+## Prerequisites
+
+Before configuring Firecrawl:
+
+1. **Firecrawl Account**: Create an account at [firecrawl.dev](https://firecrawl.dev)
+2. **API Key**: Generate an API key from the Firecrawl dashboard
+3. **Credits**: Ensure your account has sufficient API credits
+
+## Usage Notes
+
+<Warning>
+Each web search or URL scrape counts toward your Firecrawl API quota. Monitor your usage in the Firecrawl dashboard to manage costs.
+</Warning>
+
+<Tip>
+The AI agent will automatically use these tools when web access is needed. For best results, ensure your Firecrawl plan has sufficient credits for your expected usage.
+</Tip>
