@@ -1,21 +1,23 @@
 ---
 title: Broadcast campaigns
-description: 'Broadcast campaigns in Notifuse are mass email marketing initiatives that allow you to send targeted messages to your contact lists. They provide powerful features for audience targeting, A/B testing, UTM tracking, and flexible scheduling options to deliver the right message to the right people at the right time.'
+description: 'Broadcast campaigns in Notifuse are mass email marketing initiatives that allow you to send targeted messages to a contact list. They provide powerful features for audience targeting with segment filters, A/B testing, UTM tracking, and flexible scheduling options to deliver the right message to the right people at the right time.'
 ---
 
 <img src="/assets/screenshots/broadcast.png" alt="Broadcasts screenshot" />
 
 ## Audience Targeting
 
-Broadcast campaigns offer flexible audience targeting through both contact lists and dynamic segments, allowing you to reach the right people with precision.
+Broadcast campaigns offer flexible audience targeting through a contact list combined with optional dynamic segments, allowing you to reach the right people with precision.
 
-### Send to Multiple Lists
+### Select a List
 
-- **Multiple Selection**: Choose multiple contact lists for a single campaign
-- **Duplicate Prevention**: Automatically skips duplicate email addresses across lists
-- **Unified Audience**: Combines all selected lists into one targeted campaign
+Each broadcast targets exactly one contact list:
 
-**Example**: Send a product announcement to both "Newsletter Subscribers" and "VIP Customers" lists while ensuring each contact receives only one email, even if they're on both lists.
+- **Single List**: Choose one contact list as your base audience
+- **Clear Attribution**: Message history and unsubscribes are tracked per list
+- **Simple Model**: No duplicate handling needed since each contact appears once per list
+
+**Example**: Send a product announcement to your "Newsletter Subscribers" list.
 
 ### Segment Filters
 
@@ -34,7 +36,7 @@ Apply dynamic segment filters to further refine your broadcast audience based on
 - **Geographic Campaigns**: Use "All Contacts" + segment filter for `country = "US"` AND `state = "California"`
 - **Purchase Behavior**: Target segments with `orders_count >= 3` to reward loyal customers
 
-**Important**: When both lists and segment filters are applied, only contacts that belong to the selected lists AND match the segment criteria will receive the broadcast.
+**Important**: When both a list and segment filters are applied, only contacts that belong to the selected list AND match the segment criteria will receive the broadcast.
 
 ## A/B Testing
 
@@ -130,7 +132,7 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 ## Campaign Workflow
 
 1. **Create Campaign**: Set name, description, and goals
-2. **Select Audience**: Choose target contact lists and apply segment filters (duplicates automatically removed)
+2. **Select Audience**: Choose a target contact list and apply optional segment filters
 3. **Choose Template**: Select and customize your email template
 4. **Configure A/B Testing**: Set up variations and winner selection criteria (optional)
 5. **Review Settings**: Confirm audience size, UTM parameters, and schedule
@@ -179,7 +181,7 @@ Circuit breaker activation typically occurs due to:
 
 ## Best Practices
 
-- **List Segmentation**: Use multiple targeted lists rather than one large list
+- **List Segmentation**: Use segment filters to target specific subsets of your list
 - **A/B Testing**: Always test subject lines and content for better engagement
 - **UTM Consistency**: Use consistent campaign naming for better analytics tracking
 - **Schedule Strategically**: Time your sends for maximum audience engagement
