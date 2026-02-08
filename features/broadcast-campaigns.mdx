@@ -108,6 +108,181 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 - **Campaign Attribution**: Understand which emails drive website traffic and conversions
 - **ROI Measurement**: Calculate campaign effectiveness and return on investment
 
+## Data Feeds
+
+Data feeds allow you to fetch external data from your APIs and use it in your email templates. This enables dynamic, personalized content that goes beyond stored contact properties.
+
+### Global Data Feed
+
+The global data feed fetches data once before the broadcast starts and makes it available to all recipients.
+
+#### Configuration
+
+- **Enable Toggle**: Turn on to activate the global data feed
+- **Feed URL**: The HTTPS endpoint that returns JSON data
+- **Custom Headers**: Add authentication or custom headers (e.g., `Authorization: Bearer token123`)
+
+#### How It Works
+
+1. When the broadcast starts, Notifuse sends a POST request to your configured URL
+2. The request body includes broadcast, list, and workspace information:
+```json
+{
+  "broadcast": {
+    "id": "abc123",
+    "name": "Summer Sale"
+  },
+  "list": {
+    "id": "list456",
+    "name": "Newsletter Subscribers"
+  },
+  "workspace": {
+    "id": "ws789",
+    "name": "My Company"
+  }
+}
+```
+3. Your API should return a JSON object with the data you want to use
+4. The data is cached and available in templates as the `global_feed` variable
+
+#### Template Usage
+
+Access global feed data in your templates using the `global_feed` variable:
+
+```liquid
+{% if global_feed.promotion %}
+  <h2>{{ global_feed.promotion.title }}</h2>
+  <p>{{ global_feed.promotion.description }}</p>
+  <a href="{{ global_feed.promotion.url }}">Shop Now</a>
+{% endif %}
+```
+
+#### Use Cases
+
+- **Dynamic Promotions**: Fetch current sale information, discount codes, or featured products
+- **Real-time Content**: Display live inventory counts, pricing, or availability
+- **Centralized Data**: Pull content from a CMS or marketing platform
+
+### Per-Recipient Data Feed
+
+The per-recipient data feed fetches personalized data for each individual recipient before sending their email.
+
+#### Configuration
+
+- **Enable Toggle**: Turn on to activate the per-recipient data feed
+- **Feed URL**: The HTTPS endpoint that returns JSON data (must use HTTPS)
+- **Custom Headers**: Add authentication or custom headers
+
+#### How It Works
+
+1. Before sending each email, Notifuse sends a POST request to your configured URL
+2. The request body includes contact, broadcast, list, and workspace information:
+```json
+{
+  "contact": {
+    "email": "john@example.com",
+    "external_id": "user_789",
+    "timezone": "America/New_York",
+    "language": "en",
+    "first_name": "John",
+    "last_name": "Doe",
+    "full_name": "John Doe",
+    "phone": "+1234567890",
+    "address_line_1": "123 Main St",
+    "address_line_2": "Apt 4B",
+    "country": "US",
+    "postcode": "10001",
+    "state": "NY",
+    "job_title": "Engineer",
+    "custom_string_1": "value",
+    "custom_number_1": 42,
+    "custom_datetime_1": "2024-06-15T00:00:00Z",
+    "custom_json_1": {"key": "value"},
+    "created_at": "2024-01-15T10:30:00Z",
+    "updated_at": "2024-06-01T14:00:00Z"
+  },
+  "broadcast": {
+    "id": "abc123",
+    "name": "Summer Sale"
+  },
+  "list": {
+    "id": "list456",
+    "name": "Newsletter Subscribers"
+  },
+  "workspace": {
+    "id": "ws789",
+    "name": "My Company"
+  }
+}
+```
+
+All contact fields are included when populated. Empty fields are omitted. Custom fields (`custom_string_1` through `custom_string_5`, `custom_number_1` through `custom_number_5`, `custom_datetime_1` through `custom_datetime_5`, `custom_json_1` through `custom_json_5`) are included when set on the contact.
+
+3. Your API should return a JSON object with personalized data for that contact
+4. The data is available in templates as the `recipient_feed` variable
+
+#### Template Usage
+
+Access per-recipient feed data using the `recipient_feed` variable:
+
+```liquid
+{% if recipient_feed.recommendations %}
+  <h3>Recommended for You</h3>
+  {% for product in recipient_feed.recommendations %}
+    <div>
+      <img src="{{ product.image }}" alt="{{ product.name }}" />
+      <p>{{ product.name }} - ${{ product.price }}</p>
+    </div>
+  {% endfor %}
+{% endif %}
+```
+
+#### Use Cases
+
+- **Product Recommendations**: Fetch personalized product suggestions based on purchase history
+- **Account Information**: Display current subscription status, points balance, or loyalty tier
+- **Dynamic Content**: Show content based on user preferences stored in your system
+
+### Error Handling
+
+#### Automatic Retry
+
+If a per-recipient feed request fails, Notifuse automatically retries:
+
+- **Retry Attempts**: 2 retries before marking as failed
+- **Retry Delay**: 5 seconds between attempts
+- **Graceful Degradation**: If all retries fail, the broadcast pauses automatically
+
+#### Circuit Breaker
+
+To protect your broadcast from cascading failures:
+
+- **Failure Detection**: If feed requests consistently fail, the broadcast pauses
+- **Manual Resume**: After fixing the issue, manually resume the broadcast from the UI
+- **Skipped Recipients**: Failed recipients are marked in Message History Logs
+
+### Performance Considerations
+
+#### Global Feed
+
+- **Single Request**: Only one API call per broadcast, regardless of audience size
+- **Cached Data**: Data is fetched once and reused for all recipients
+- **Recommended**: Use for data that's the same for all recipients
+
+#### Per-Recipient Feed
+
+- **Request Per Recipient**: One API call for each recipient in your audience
+- **Processing Impact**: Can significantly slow down broadcast processing for large audiences
+- **API Rate Limits**: Ensure your API can handle the request volume
+- **Recommended**: Use only when truly personalized data is required
+
+#### Best Practices
+
+- **Fast API Responses**: Keep your feed endpoints fast (under 2 seconds)
+- **Reliable Infrastructure**: Ensure high availability for your feed endpoints
+- **Fallback Content**: Design templates to gracefully handle missing feed data
+- **Test Before Sending**: Use the "Test" button to verify feed responses before launching
+
 ## Scheduling Options
 
 ### Manual Sending
@@ -135,9 +310,10 @@ https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campai
 2. **Select Audience**: Choose a target contact list and apply optional segment filters
 3. **Choose Template**: Select and customize your email template
 4. **Configure A/B Testing**: Set up variations and winner selection criteria (optional)
-5. **Review Settings**: Confirm audience size, UTM parameters, and schedule
-6. **Send or Schedule**: Deploy immediately or schedule for later delivery
-7. **Monitor Results**: Track delivery, opens, clicks, and conversions
+5. **Configure Data Feeds**: Set up global or per-recipient data feeds (optional)
+6. **Review Settings**: Confirm audience size, UTM parameters, and schedule
+7. **Send or Schedule**: Deploy immediately or schedule for later delivery
+8. **Monitor Results**: Track delivery, opens, clicks, and conversions
 
 ## Transmission Failure Handling
 
@@ -184,6 +360,7 @@ Circuit breaker activation typically occurs due to:
 - **List Segmentation**: Use segment filters to target specific subsets of your list
 - **A/B Testing**: Always test subject lines and content for better engagement
 - **UTM Consistency**: Use consistent campaign naming for better analytics tracking
+- **Data Feeds**: Use global feeds for shared data; reserve per-recipient feeds for truly personalized content
 - **Schedule Strategically**: Time your sends for maximum audience engagement
 - **Monitor Performance**: Review metrics to improve future campaigns
 - **Provider Monitoring**: Keep an eye on your email provider status and limits
