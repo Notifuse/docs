@@ -330,6 +330,90 @@ cat dev-cert.key.pem | base64 > key_base64.txt
 
 **⚠️ Warning**: Self-signed certificates are for development only. Never use them in production!
 
+## OIDC SSO Configuration
+
+Notifuse supports **OpenID Connect (OIDC) Single Sign-On** so your team can authenticate through an external Identity Provider (IdP) such as Keycloak, Okta, Auth0, Azure AD, or Google Workspace.
+
+When OIDC is enabled, a **Sign in with SSO** button appears on the login page. Users who authenticate through the IdP are automatically matched (or provisioned) in Notifuse by email address.
+
+### Environment Variables
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `OIDC_ENABLED` | Enable OIDC SSO (`true` or `false`) | `false` |
+| `OIDC_ISSUER_URL` | IdP issuer URL (e.g., `https://keycloak.example.com/realms/myorg`) | - |
+| `OIDC_CLIENT_ID` | OAuth2 client ID registered with your IdP | - |
+| `OIDC_CLIENT_SECRET` | OAuth2 client secret (stored encrypted with `SECRET_KEY`) | - |
+| `OIDC_AUTO_PROVISION` | Automatically create Notifuse accounts for new IdP users (`true` or `false`) | `false` |
+| `OIDC_ALLOW_MAGIC_CODE` | Allow magic code (email) login alongside SSO (`true` or `false`) | `true` |
+| `OIDC_GROUPS_CLAIM` | ID token claim name containing user groups | `groups` |
+
+<Warning>
+  `OIDC_CLIENT_SECRET` is encrypted at rest using your `SECRET_KEY`. Never change your `SECRET_KEY` after
+  configuring OIDC, or the client secret will become unreadable.
+</Warning>
+
+### Minimal Setup
+
+Add these environment variables to your `.env` file or `compose.yaml`:
+
+```bash
+OIDC_ENABLED=true
+OIDC_ISSUER_URL=https://your-idp.example.com/realms/your-realm
+OIDC_CLIENT_ID=notifuse
+OIDC_CLIENT_SECRET=your-client-secret
+```
+
+Then configure a redirect URI in your IdP:
+
+```
+https://your-notifuse-instance.com/api/auth/oidc/callback
+```
+
+### IdP Configuration
+
+Your Identity Provider needs to be configured with:
+
+1. **Client type**: Confidential (server-side)
+2. **Redirect URI**: `https://<your-notifuse-api-endpoint>/api/auth/oidc/callback`
+3. **Scopes**: `openid email profile` (add `groups` if using group mappings)
+4. **Grant type**: Authorization Code
+
+### Auto-Provisioning
+
+When `OIDC_AUTO_PROVISION=true`, users who don't have a Notifuse account are automatically created on first SSO login. Their name and email are populated from the ID token claims (`email`, `name`, `preferred_username`).
+
+When disabled (default), only users who already have a Notifuse account matching the IdP email can log in via SSO.
+
+### Group-Based Permissions
+
+Notifuse can synchronize workspace roles and permissions from IdP group claims. This is configured through the `oidc_group_mappings` key in the system settings database table (JSON array).
+
+Each mapping specifies:
+
+- **`oidc_group`** — The group name from the IdP
+- **`role`** — Notifuse role: `owner` or `member`
+- **`all_workspaces`** — Whether the user is added to all workspaces
+- **`permissions`** — Granular Notifuse permissions object
+
+If your IdP uses a non-standard claim name for groups (e.g., `roles` or `memberOf`), set `OIDC_GROUPS_CLAIM` to the correct claim name.
+
+### Enforcing SSO-Only Login
+
+To require all users to log in through your IdP and disable magic code (email) authentication:
+
+```bash
+OIDC_ENABLED=true
+OIDC_ALLOW_MAGIC_CODE=false
+```
+
+When `OIDC_ALLOW_MAGIC_CODE=false`, the `/api/user.signin` and `/api/user.verify` endpoints return `403 Forbidden`, and the magic code login form is hidden in the UI.
+
+<Note>
+  The root administrator can always authenticate using [Programmatic Authentication](#programmatic-authentication)
+  regardless of OIDC settings, ensuring you never lose access to your instance.
+</Note>
+
 ## Configuration Management
 
 **Setup Wizard vs Environment Variables**
