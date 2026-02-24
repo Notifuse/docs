@@ -6211,6 +6211,35 @@
             "additionalProperties": true,
             "description": "Channel-specific third-party settings"
           },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Per-locale translation key-value maps. Keys are dot-separated paths (e.g., \"welcome.heading\"). Values are strings that may contain {{ placeholder }} syntax for named arguments. Outer keys are locale codes (e.g., \"en\", \"fr\", \"pt-BR\").",
+            "example": {
+              "en": {
+                "welcome": {
+                  "heading": "Welcome!",
+                  "greeting": "Hello {{ name }}!"
+                }
+              },
+              "fr": {
+                "welcome": {
+                  "heading": "Bienvenue !",
+                  "greeting": "Bonjour {{ name }} !"
+                }
+              }
+            }
+          },
+          "default_language": {
+            "type": "string",
+            "nullable": true,
+            "description": "Override the workspace default language for this template. When null, inherits from workspace settings.",
+            "example": "en",
+            "maxLength": 10
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -6378,6 +6407,20 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Channel-specific settings"
+          },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Per-locale translation key-value maps"
+          },
+          "default_language": {
+            "type": "string",
+            "nullable": true,
+            "description": "Override the workspace default language for this template",
+            "maxLength": 10
           }
         }
       },
@@ -6453,6 +6496,20 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Channel-specific settings"
+          },
+          "translations": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "description": "Per-locale translation key-value maps"
+          },
+          "default_language": {
+            "type": "string",
+            "nullable": true,
+            "description": "Override the workspace default language for this template",
+            "maxLength": 10
           }
         }
       },
@@ -6517,6 +6574,11 @@
               "web"
             ],
             "description": "Channel filter for block visibility"
+          },
+          "translations": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Merged translations map for a specific locale, used by the Liquid t filter during compilation"
           }
         }
       },
