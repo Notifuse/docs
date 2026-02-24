@@ -54,6 +54,23 @@ Configure email routing with flexible options:
 - **BCC**: Include blind carbon copy recipients
 - **Attachments**: Attach files to emails (PDFs, images, documents, etc.)
 
+### Multi-Language Support
+
+If your templates use [translation keys](/features/template-translations), Notifuse automatically selects the right language based on `contact.language`. No API changes are needed — just make sure your contacts have a `language` field set:
+
+```json
+{
+  "notification": {
+    "contact": {
+      "email": "user@example.com",
+      "language": "fr"
+    }
+  }
+}
+```
+
+The contact's language is resolved through a [fallback chain](/features/template-translations#locale-resolution): exact match → base language → template default → workspace default.
+
 ## API Endpoint
 
 Send transactional emails using a simple POST request:
