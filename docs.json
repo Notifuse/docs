@@ -41,6 +41,7 @@
               "features/contacts",
               "features/lists",
               "features/templates",
+              "features/template-translations",
               "features/broadcast-campaigns",
               "features/transactional-api",
               "features/custom-events",
@@ -150,6 +151,15 @@
               "POST /api/templates.update",
               "POST /api/templates.delete",
               "POST /api/templates.compile"
+            ]
+          },
+          {
+            "group": "Workspace Translations",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /api/workspace_translations.list",
+              "POST /api/workspace_translations.upsert",
+              "POST /api/workspace_translations.delete"
             ]
           },
           {
