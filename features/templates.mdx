@@ -131,3 +131,14 @@ When designing templates, you have access to this data structure:
   "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
 }
 ```
+
+## Translations
+
+Templates support built-in internationalization using the Liquid `t` filter. Instead of duplicating templates per language, define translation keys and provide per-locale values:
+
+```liquid
+{{ "welcome.heading" | t }}
+{{ "welcome.greeting" | t: name: contact.first_name }}
+```
+
+Notifuse automatically selects the right language based on the contact's `language` field. For the full guide, see [Template Translations](/features/template-translations).

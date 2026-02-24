@@ -1,0 +1,195 @@
+---
+title: Template Translations
+description: 'Send emails in your contacts'' preferred language using translation keys. Define translations per template or share them across your workspace, and Notifuse automatically selects the right language at send time.'
+---
+
+## Overview
+
+Template translations let you send email content in each contact's preferred language without duplicating templates. Instead of creating separate templates per language, you write a single template using **translation keys** and provide translations for each supported locale.
+
+When an email is sent, Notifuse automatically resolves the correct locale based on the contact's `language` field and renders the template with the matching translations.
+
+## The `t` Filter
+
+Use the Liquid `t` filter to reference translation keys in your templates:
+
+### Simple Key Lookup
+
+```liquid
+{{ "welcome.heading" | t }}
+```
+
+If the contact's language is `fr`, this renders the French translation for the key `welcome.heading`.
+
+### Placeholders
+
+Pass dynamic values into translation strings using named arguments:
+
+```liquid
+{{ "welcome.greeting" | t: name: contact.first_name }}
+```
+
+With the translation string `"Hello {{ name }}!"` and a contact named Sarah, this renders: **Hello Sarah!**
+
+### Subject Lines
+
+The `t` filter works in email subject lines too:
+
+```liquid
+{{ "welcome.subject" | t }}
+```
+
+### Full Example
+
+**Template:**
+
+```liquid
+{{ "welcome.heading" | t }}
+
+{{ "welcome.greeting" | t: name: contact.first_name }}
+
+{{ "welcome.body" | t }}
+
+{{ "cta.button" | t }}
+```
+
+**English translations:**
+
+```json
+{
+  "welcome": {
+    "heading": "Welcome!",
+    "greeting": "Hello {{ name }}!",
+    "body": "Thanks for joining us."
+  },
+  "cta": {
+    "button": "Get Started"
+  }
+}
+```
+
+**French translations:**
+
+```json
+{
+  "welcome": {
+    "heading": "Bienvenue !",
+    "greeting": "Bonjour {{ name }} !",
+    "body": "Merci de nous avoir rejoints."
+  },
+  "cta": {
+    "button": "Commencer"
+  }
+}
+```
+
+## Translation Keys
+
+Keys use **dot-separated paths** that map to a nested JSON structure. This keeps translations organized:
+
+| Key | JSON Path |
+|-----|-----------|
+| `welcome.heading` | `{ "welcome": { "heading": "..." } }` |
+| `welcome.greeting` | `{ "welcome": { "greeting": "..." } }` |
+| `cta.button` | `{ "cta": { "button": "..." } }` |
+| `footer.unsubscribe` | `{ "footer": { "unsubscribe": "..." } }` |
+
+If a key is missing for the resolved locale, the template renders `[Missing translation: key.name]` so you can spot untranslated strings.
+
+## Per-Template Translations
+
+Each template has its own `translations` field — a JSON object keyed by locale code, containing the nested key-value translations for that locale.
+
+### Managing Translations in the Editor
+
+The template editor includes a **Translations panel** where you can:
+
+- Add, edit, and remove translation keys
+- Provide values for each supported language
+- See which keys are missing translations (shown with a warning indicator)
+- Preview the template in different languages
+
+### Import / Export
+
+You can bulk-manage translations using JSON files:
+
+- **Export**: Downloads one JSON file per locale (e.g., `en.json`, `fr.json`)
+- **Import**: Upload a JSON file for a specific locale. New keys are added, existing keys are overwritten, absent keys are left untouched.
+
+The JSON format matches the nested key structure:
+
+```json
+{
+  "welcome": {
+    "heading": "Welcome!",
+    "greeting": "Hello {{ name }}!"
+  },
+  "cta": {
+    "button": "Get Started"
+  }
+}
+```
+
+## Workspace Translations
+
+Workspace translations are a **shared translation catalog** available to all templates in a workspace. They act as a fallback — if a template doesn't define a key, the workspace translation is used instead.
+
+This is useful for strings that appear across many templates:
+
+- Footer text (`footer.unsubscribe`, `footer.company_name`)
+- Common CTAs (`cta.learn_more`, `cta.contact_us`)
+- Legal text (`legal.privacy`, `legal.terms`)
+
+Workspace translations are managed via the API:
+
+- `GET /api/workspace_translations.list` — List all workspace translations
+- `POST /api/workspace_translations.upsert` — Create or update translations for a locale
+- `POST /api/workspace_translations.delete` — Delete translations for a locale
+
+See the [API Reference](/api-reference) for full endpoint documentation.
+
+### Resolution Priority
+
+When a template uses `{{ "key" | t }}`, the system looks for the key in this order:
+
+1. **Template translations** for the resolved locale
+2. **Workspace translations** for the resolved locale
+
+Template translations always take priority. A template key `welcome.heading` shadows a workspace key `welcome.heading`, but a workspace key `footer.unsubscribe` is accessible if the template doesn't define it.
+
+## Locale Resolution
+
+When an email is sent, Notifuse determines which locale to use with this fallback chain:
+
+| Priority | Source | Example |
+|----------|--------|---------|
+| 1 | Contact's `language` (exact match) | `pt-BR` → uses `pt-BR` translations |
+| 2 | Contact's `language` (base language) | `pt-BR` → falls back to `pt` if no `pt-BR` |
+| 3 | Template's `default_language` | If set, overrides the workspace default |
+| 4 | Workspace's default language | Configured in workspace settings (e.g., `en`) |
+
+**Examples:**
+
+- Contact has `language: "fr"` → French translations are used
+- Contact has `language: "pt-BR"`, no `pt-BR` translations exist, but `pt` does → Portuguese translations are used
+- Contact has no `language` set → Falls back to the template default, then the workspace default
+- Template has `default_language: "de"` → German is used as the fallback instead of the workspace default
+
+### Setting the Template Default Language
+
+Each template can optionally set a `default_language` that overrides the workspace default. This is useful when a template is primarily written in a specific language that differs from the workspace default.
+
+## Workspace Language Settings
+
+Configure language defaults in your workspace settings:
+
+- **Default Language**: The fallback language used when a contact has no `language` field set (e.g., `en`)
+- **Supported Languages**: The list of languages your workspace supports (e.g., `["en", "fr", "de", "es"]`). This determines which locale columns appear in the translations panel.
+
+## Best Practices
+
+- **Start with your default language**: Always provide complete translations for your workspace's default language first. This ensures every contact sees content, even if their language isn't supported yet.
+- **Use workspace translations for shared strings**: Footer text, legal disclaimers, and common CTAs should live in workspace translations to avoid duplication across templates.
+- **Keep key names consistent**: Use a predictable naming convention like `section.element` (e.g., `welcome.heading`, `cta.button`, `footer.unsubscribe`).
+- **Set `contact.language` on your contacts**: The i18n system relies on the contact's `language` field. Set it via the API, CSV import, or let the [Notification Center](/features/notification-center) auto-detect it.
+- **Test with preview**: Use the template editor's language preview selector to check how your email looks in each supported language before sending.

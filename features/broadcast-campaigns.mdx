@@ -355,6 +355,14 @@ Circuit breaker activation typically occurs due to:
 3. **Resume the broadcast** manually from the campaign interface
 4. **Monitor closely** to ensure successful delivery continues
 
+## Multi-Language Support
+
+If your broadcast template uses [translation keys](/features/template-translations), each recipient automatically receives the email in their preferred language based on their `language` field.
+
+The template and workspace translations are loaded once per broadcast. For each recipient, only the locale resolution changes — selecting the right translation set based on the contact's language. This means multi-language broadcasts have no significant performance overhead.
+
+See [Template Translations](/features/template-translations) for how to set up translation keys and manage per-locale content.
+
 ## Best Practices
 
 - **List Segmentation**: Use segment filters to target specific subsets of your list
