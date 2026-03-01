@@ -49,6 +49,8 @@ When you send a transactional email, Notifuse automatically:
 
 Configure email routing with flexible options:
 
+- **From Name**: Override the default sender display name
+- **Subject**: Override the template subject line (supports Liquid templating)
 - **Reply-To**: Set custom reply-to addresses
 - **CC**: Add carbon copy recipients
 - **BCC**: Include blind carbon copy recipients
@@ -84,6 +86,8 @@ curl -X POST \
       "source": "web_app"
     },
     "email_options": {
+      "from_name": "Support Team",
+      "subject": "Reset your password, {{ contact.first_name }}",
       "reply_to": "support@yourcompany.com",
       "cc": ["admin@yourcompany.com"],
       "bcc": ["logs@yourcompany.com"],
@@ -114,12 +118,14 @@ curl -X POST \
 
 ### Email Options
 
-| Parameter     | Type   | Description                                               |
-| ------------- | ------ | --------------------------------------------------------- |
-| `reply_to`    | string | Set custom reply-to email address                         |
-| `cc`          | array  | List of carbon copy recipients                            |
-| `bcc`         | array  | List of blind carbon copy recipients                      |
-| `attachments` | array  | File attachments (max 20 files, 3MB per file, 10MB total) |
+| Parameter     | Type   | Description                                                            |
+| ------------- | ------ | ---------------------------------------------------------------------- |
+| `from_name`   | string | Override default sender display name                                   |
+| `subject`     | string | Override template subject line (supports Liquid templating, max 255)   |
+| `reply_to`    | string | Set custom reply-to email address                                      |
+| `cc`          | array  | List of carbon copy recipients                                         |
+| `bcc`         | array  | List of blind carbon copy recipients                                   |
+| `attachments` | array  | File attachments (max 20 files, 3MB per file, 10MB total)              |
 
 ## Data vs Metadata
 
