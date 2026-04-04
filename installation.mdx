@@ -176,12 +176,12 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
 | `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |
 |                                     |
-| **SMTP Relay Configuration**        |
-| `SMTP_RELAY_ENABLED`                | Enable SMTP relay server for transactional emails (e.g., `true` or `false`)               | `false`                              |
-| `SMTP_RELAY_PORT`                   | SMTP relay port (e.g., `587` for STARTTLS)                                                | `587`                                |
-| `SMTP_RELAY_DOMAIN`                 | Public domain name for SMTP relay (e.g., `smtp.yourdomain.com`)                           | `localhost`                          |
-| `SMTP_RELAY_TLS_CERT_BASE64`        | Base64-encoded TLS certificate for SMTP relay                                             | -                                    |
-| `SMTP_RELAY_TLS_KEY_BASE64`         | Base64-encoded TLS private key for SMTP relay                                             | -                                    |
+| **SMTP Bridge Configuration**        |
+| `SMTP_BRIDGE_ENABLED`                | Enable SMTP bridge server for transactional emails (e.g., `true` or `false`)               | `false`                              |
+| `SMTP_BRIDGE_PORT`                   | SMTP bridge port (e.g., `587` for STARTTLS)                                                | `587`                                |
+| `SMTP_BRIDGE_DOMAIN`                 | Public domain name for SMTP bridge (e.g., `smtp.yourdomain.com`)                           | `localhost`                          |
+| `SMTP_BRIDGE_TLS_CERT_BASE64`        | Base64-encoded TLS certificate for SMTP bridge                                             | -                                    |
+| `SMTP_BRIDGE_TLS_KEY_BASE64`         | Base64-encoded TLS private key for SMTP bridge                                             | -                                    |
 |                                     |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
@@ -199,11 +199,11 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `TRACING_METRICS_EXPORTER`          | Metrics exporter: stackdriver/prometheus/datadog/none (e.g., `prometheus`)                | `none`                               |
 | `TRACING_PROMETHEUS_PORT`           | Prometheus metrics port (e.g., `9464`)                                                    | `9464`                               |
 
-## SMTP Relay Configuration
+## SMTP Bridge Configuration
 
-The SMTP Relay feature allows you to connect SaaS applications that only provide SMTP integration (like Supabase Auth, Firebase, Auth0, etc.) to Notifuse. This gives you full control over email designs and branding using Notifuse's MJML editor, instead of being stuck with default SaaS templates.
+The SMTP Bridge feature allows you to connect SaaS applications that only provide SMTP integration (like Supabase Auth, Firebase, Auth0, etc.) to Notifuse. This gives you full control over email designs and branding using Notifuse's MJML editor, instead of being stuck with default SaaS templates.
 
-See [SMTP Relay usage documentation](/concepts/transactional-api#smtp-relay) for examples of how to send emails once configured.
+See [SMTP Bridge usage documentation](/concepts/transactional-api#smtp-bridge) for examples of how to send emails once configured.
 
 ### Production Setup with Let's Encrypt
 
@@ -296,11 +296,11 @@ sudo cat /etc/letsencrypt/live/smtp.yourdomain.com/privkey.pem | base64 > key_ba
 Copy the base64-encoded values to your `.env` file:
 
 ```bash
-SMTP_RELAY_ENABLED=true
-SMTP_RELAY_DOMAIN=smtp.yourdomain.com
-SMTP_RELAY_PORT=587
-SMTP_RELAY_TLS_CERT_BASE64="<paste-cert-base64-here>"
-SMTP_RELAY_TLS_KEY_BASE64="<paste-key-base64-here>"
+SMTP_BRIDGE_ENABLED=true
+SMTP_BRIDGE_DOMAIN=smtp.yourdomain.com
+SMTP_BRIDGE_PORT=587
+SMTP_BRIDGE_TLS_CERT_BASE64="<paste-cert-base64-here>"
+SMTP_BRIDGE_TLS_KEY_BASE64="<paste-key-base64-here>"
 ```
 
 <Note>
