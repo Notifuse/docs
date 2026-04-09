@@ -67,6 +67,30 @@ When you activate double opt-in for a list:
 - **Timing**: Triggered immediately when a contact's status changes to "unsubscribed"
 - **Content**: Confirmation of unsubscription, feedback request, or alternative communication options
 
+## Re-subscription Handling
+
+When a contact attempts to subscribe to a list they have previously interacted with, Notifuse handles the request based on their current status:
+
+| Current Status   | Behavior                                                                 |
+| ---------------- | ------------------------------------------------------------------------ |
+| **Active**       | No-op. Contact is already subscribed. Returns success silently.          |
+| **Pending**      | No status change. Re-sends the double opt-in confirmation email.         |
+| **Unsubscribed** | Allowed. Status is set to **"pending"** and a confirmation email is sent, even if the list uses single opt-in. |
+| **Bounced**      | Blocked. Status is not changed and no email is sent.                     |
+| **Complained**   | Blocked. Status is not changed and no email is sent.                     |
+
+### Why bounced and complained contacts are blocked
+
+Re-sending emails to addresses that have previously hard-bounced or filed spam complaints damages sender reputation and can trigger domain blacklisting. These contacts are permanently suppressed at both the application and database level.
+
+### Bulk import behavior
+
+When contacts are imported via CSV or the API with `subscribe_to_lists`, the same protections apply at the database level. Contacts with **unsubscribed**, **bounced**, or **complained** status will not have their list status overwritten. This prevents accidental reactivation of opted-out contacts through bulk operations.
+
+### Privacy by design
+
+Public subscribe endpoints always return HTTP 200 regardless of the contact's internal status. This prevents email enumeration attacks where an attacker could probe the endpoint to determine whether a specific email address is subscribed.
+
 ## Best Practices
 
 1. **Status Management**: Regularly review contact statuses to maintain list health
