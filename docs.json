@@ -11,7 +11,8 @@
     { "source": "/concepts/file-manager", "destination": "/features/file-manager" },
     { "source": "/concepts/logs", "destination": "/features/logs" },
     { "source": "/concepts/admins-api-keys", "destination": "/features/admins-api-keys" },
-    { "source": "/concepts/notification-center", "destination": "/features/notification-center" }
+    { "source": "/concepts/notification-center", "destination": "/features/notification-center" },
+    { "source": "/installation", "destination": "/self-hosting/installation" }
   ],
   "theme": "mint",
   "name": "Notifuse Documentation",
@@ -32,7 +33,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["index", "installation"]
+            "pages": ["index"]
           },
           {
             "group": "Features",
@@ -46,7 +47,7 @@
               "features/custom-events",
               "features/automations",
               {
-                "group": "Blog ✨",
+                "group": "Blog",
                 "pages": ["blog/setup", "blog/theme", "blog/posts"]
               },
               "features/file-manager",
@@ -64,6 +65,7 @@
             "group": "Integrations",
             "pages": [
               "integrations/anthropic",
+              "integrations/openai",
               "integrations/firecrawl",
               "integrations/supabase"
             ]
@@ -79,6 +81,15 @@
               "integrations/mailjet",
               "integrations/smtp"
             ]
+          }
+        ]
+      },
+      {
+        "tab": "Self-hosting",
+        "groups": [
+          {
+            "group": "Self-hosting",
+            "pages": ["self-hosting/installation"]
           }
         ]
       },
@@ -169,6 +180,10 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Cloud",
+        "href": "https://cloud.notifuse.com"
       }
     ]
   },
@@ -190,8 +205,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Live Demo",
-      "href": "https://demo.notifuse.com/console/signin?email=demo@notifuse.com"
+      "label": "Try Notifuse Cloud",
+      "href": "https://cloud.notifuse.com"
     }
   },
   "footer": {

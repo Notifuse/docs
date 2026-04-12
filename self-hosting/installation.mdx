@@ -1,7 +1,11 @@
 ---
-title: Installation
+title: Self-hosted Installation
 description: 'How to self-host Notifuse'
 ---
+
+<Tip>
+**Looking for a managed solution?** [Notifuse Cloud](https://cloud.notifuse.com) takes care of hosting, security, backups, updates, and maintenance for you — starting from **$16/month**.
+</Tip>
 
 ## Getting started
 
@@ -18,24 +22,6 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
    - Configure your API endpoint
    - Set up SMTP settings
 4. Start using Notifuse!
-
-### One-click Deployments
-
-Deploy Notifuse instantly with these one-click deployment options:
-
-[<img src="/assets/pikapods-button.svg" alt="Run on PikaPods" width="147" noZoom />](https://www.pikapods.com/pods?run=notifuse)
-
-[<img src="/assets/repocloud-button.png" alt="Deploy on RepoCloud" width="147" noZoom />](https://repocloud.io/details/Notifuse/?ref=67eysha)
-
-[<img src="/assets/sealos-button.svg" alt="Deploy on Sealos" width="147" noZoom />](https://sealos.io/products/app-store/notifuse)
-
-[<img src="/assets/northflank-button.svg" alt="Deploy on Northflank" width="147" noZoom />](https://northflank.com/stacks/deploy-notifuse)
-
-These deployment platforms will automatically set up Notifuse with all required dependencies. After deployment, you'll be guided through the Setup Wizard to complete your configuration.
-
----
-
-You also have the following options to deploy Notifuse:
 
 ### Option 1: Docker Compose (Recommended for testing)
 
@@ -364,3 +350,16 @@ curl -X POST "${NOTIFUSE_URL}/api/user.rootSignin" \
 ```
 
 The endpoint returns a JWT token for subsequent API requests. Timestamps must be within 60 seconds of server time, and requests are rate limited to 5 attempts per 5 minutes.
+
+## Third-party Hosting Platforms
+
+Notifuse is also available on the following third-party platforms.
+
+<Warning>
+These platforms are not officially supported and often run outdated versions of Notifuse. For the latest version, automatic updates, and official support, use [Notifuse Cloud](https://cloud.notifuse.com).
+</Warning>
+
+- [PikaPods](https://www.pikapods.com/pods?run=notifuse)
+- [RepoCloud](https://repocloud.io/details/Notifuse/?ref=67eysha)
+- [Sealos](https://sealos.io/products/app-store/notifuse)
+- [Northflank](https://northflank.com/stacks/deploy-notifuse)
