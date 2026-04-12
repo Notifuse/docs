@@ -28,14 +28,15 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
 This option includes an embedded PostgreSQL database for easy testing and development:
 
 ```bash
-# Clone the repository or download compose.yaml
-curl -O https://raw.githubusercontent.com/notifuse/notifuse/main/compose.yaml
+# Clone the repository (the compose.yaml builds from the included Dockerfile)
+git clone https://github.com/notifuse/notifuse.git
+cd notifuse
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
 ```
 
-This will start Notifuse on port `8080` with a PostgreSQL database.
+This will start Notifuse on port `8081` with a PostgreSQL database.
 
 On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables) in a `.env` file or directly in the `compose.yaml`.
 
