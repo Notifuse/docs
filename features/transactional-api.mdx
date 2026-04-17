@@ -254,7 +254,7 @@ Notifuse includes a built-in SMTP bridge server that allows you to send transact
 
 ### How It Works
 
-The SMTP bridge server accepts emails via SMTP with TLS encryption on port 587. The email body must contain a JSON payload matching the Transactional API format. Authentication is done using your workspace API credentials.
+The SMTP bridge server accepts emails via SMTP on port 587 (STARTTLS) or 465 (implicit TLS). The email body must contain a JSON payload matching the Transactional API format. Authentication is done using your workspace API credentials.
 
 ### Sending Emails via SMTP
 
@@ -262,7 +262,7 @@ The SMTP bridge server accepts emails via SMTP with TLS encryption on port 587. 
 
 - **Username**: Your workspace API email (the email associated with your API key)
 - **Password**: Your workspace API key
-- **Security**: STARTTLS (port 587)
+- **Security**: STARTTLS (port 587) or implicit TLS / SMTPS (port 465), depending on your `SMTP_BRIDGE_TLS` setting
 - **Server**: Your configured SMTP bridge host (e.g., `smtp.yourdomain.com`)
 
 #### Email Format

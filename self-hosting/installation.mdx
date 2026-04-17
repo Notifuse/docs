@@ -165,10 +165,11 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 |                                     |
 | **SMTP Bridge Configuration**        |
 | `SMTP_BRIDGE_ENABLED`                | Enable SMTP bridge server for transactional emails (e.g., `true` or `false`)               | `false`                              |
-| `SMTP_BRIDGE_PORT`                   | SMTP bridge port (e.g., `587` for STARTTLS)                                                | `587`                                |
+| `SMTP_BRIDGE_PORT`                   | SMTP bridge port (e.g., `587` for STARTTLS, `465` for implicit TLS)                        | `587`                                |
 | `SMTP_BRIDGE_DOMAIN`                 | Public domain name for SMTP bridge (e.g., `smtp.yourdomain.com`)                           | `localhost`                          |
-| `SMTP_BRIDGE_TLS_CERT_BASE64`        | Base64-encoded TLS certificate for SMTP bridge                                             | -                                    |
-| `SMTP_BRIDGE_TLS_KEY_BASE64`         | Base64-encoded TLS private key for SMTP bridge                                             | -                                    |
+| `SMTP_BRIDGE_TLS`                    | TLS posture: `starttls`, `implicit`, or `off` (see below). Auto-resolves when unset.       | auto                                 |
+| `SMTP_BRIDGE_TLS_CERT_BASE64`        | Base64-encoded TLS certificate (required for `starttls` and `implicit`)                    | -                                    |
+| `SMTP_BRIDGE_TLS_KEY_BASE64`         | Base64-encoded TLS private key (required for `starttls` and `implicit`)                    | -                                    |
 |                                     |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
@@ -191,6 +192,22 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 The SMTP Bridge feature allows you to connect SaaS applications that only provide SMTP integration (like Supabase Auth, Firebase, Auth0, etc.) to Notifuse. This gives you full control over email designs and branding using Notifuse's MJML editor, instead of being stuck with default SaaS templates.
 
 See [SMTP Bridge usage documentation](/concepts/transactional-api#smtp-bridge) for examples of how to send emails once configured.
+
+### TLS Modes
+
+The bridge supports three TLS postures via `SMTP_BRIDGE_TLS`:
+
+| Mode       | Description                                                                                           | Typical port |
+| ---------- | ----------------------------------------------------------------------------------------------------- | ------------ |
+| `starttls` | Listens plaintext; clients must upgrade via `STARTTLS` before `AUTH`. Default when certs are provided.| `587`        |
+| `implicit` | TLS-from-byte-1 (SMTPS). Required for clients that only speak implicit TLS.                           | `465`        |
+| `off`      | No TLS. Only safe when fronted by a TLS-terminating reverse proxy (HAProxy, Caddy layer4, stunnel, nginx Mail, Postfix) on a trusted network. | any          |
+
+When `SMTP_BRIDGE_TLS` is unset, Notifuse picks `starttls` if both cert and key are provided, otherwise `off` in development.
+
+<Warning>
+  In production (`ENVIRONMENT=production`), the bridge refuses to start without TLS configured. You must either provide `SMTP_BRIDGE_TLS_CERT_BASE64` and `SMTP_BRIDGE_TLS_KEY_BASE64`, or explicitly set `SMTP_BRIDGE_TLS=off` if you're running behind a TLS-terminating reverse proxy.
+</Warning>
 
 ### Production Setup with Let's Encrypt
 
@@ -286,6 +303,7 @@ Copy the base64-encoded values to your `.env` file:
 SMTP_BRIDGE_ENABLED=true
 SMTP_BRIDGE_DOMAIN=smtp.yourdomain.com
 SMTP_BRIDGE_PORT=587
+SMTP_BRIDGE_TLS=starttls
 SMTP_BRIDGE_TLS_CERT_BASE64="<paste-cert-base64-here>"
 SMTP_BRIDGE_TLS_KEY_BASE64="<paste-key-base64-here>"
 ```
