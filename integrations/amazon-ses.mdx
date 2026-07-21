@@ -55,6 +55,27 @@ Notifuse automatically subscribes to the following SES webhooks:
 
 These webhooks provide real-time feedback on email performance and delivery status.
 
+## Inbound replies (stop-on-reply)
+
+To use **[Exit on reply](/features/automations#exit-on-reply)** in automations, SES must forward inbound replies back to Notifuse. SES delivers received mail differently from sending it, so this is a one-time setup with two parts:
+
+1. **Point your domain's MX records at SES.** Add an MX record on your sending domain pointing at the SES inbound endpoint for your region—`inbound-smtp.<region>.amazonaws.com` (for example `inbound-smtp.us-east-1.amazonaws.com`), at priority `10`. Without it, replies never reach SES. SES has no API for DNS, so this step is manual.
+2. **Register the inbound route.** Click **Register Webhooks** on the SES integration (**Settings → Integrations**). Alongside the delivery, bounce, and complaint event webhooks, Notifuse provisions an SNS topic (HTTPS-subscribed to Notifuse, signed with SignatureVersion 2) and an SES **receipt rule** with an SNS action. The rule is added **into your account's active receipt rule set** when one exists—it only forwards a copy and has no *stop* action, so it won't disrupt an existing setup (such as Amazon WorkMail). A dedicated `notifuse-inbound` rule set is created and activated **only** if no rule set is currently active.
+
+<Note>
+  SES email receiving is only available in a subset of AWS regions (for example `us-east-1`, `us-west-2`, `eu-west-1`). If your integration's region doesn't support receiving, inbound registration reports as unavailable. See the AWS [Email Receiving endpoints](https://docs.aws.amazon.com/general/latest/gr/ses.html) list.
+
+  The inbound SNS topic, receipt rule, and subscription require IAM permissions beyond sending: `sns:CreateTopic`, `sns:SetTopicAttributes`, `sns:Subscribe`, `ses:DescribeActiveReceiptRuleSet`, `ses:CreateReceiptRuleSet`, `ses:CreateReceiptRule`, `ses:SetActiveReceiptRuleSet`, `ses:DeleteReceiptRule`, and `ses:ListIdentities`. The receipt rule is scoped to your account's verified identities (both domain and email-address identities); if none are verified, inbound registration is refused rather than forwarding all account mail.
+
+  Replies are matched to the original send by their `Message-ID`. SES overwrites the `Message-ID` header at send time, so Notifuse captures the value SES returns and matches it host-independently—no separate inbound signing key is required. Each inbound SNS notification is **RSA signature-verified** and **bound to the provisioned topic** (a message from any other SNS topic, even with a valid AWS signature, is rejected) before it is trusted, and the endpoint is rate-limited.
+</Note>
+
+<Warning>
+  **Manual setups must record the SNS topic ARN.** Because inbound messages are authenticated against the provisioned topic, an integration with no bound topic ARN rejects all inbound mail. The **Register Webhooks** action records it automatically. If you wire SES inbound by hand (your own SNS topic + receipt rule), set the topic ARN on the SES integration's `inbound_topic_arn` setting, otherwise replies won't be accepted.
+</Warning>
+
+Once both parts are in place, a contact's reply to an automation email will exit their journey whenever that automation has **Exit on reply** enabled. Bounces and out-of-office auto-replies are filtered out and never count as a reply.
+
 ## Prerequisites
 
 Before configuring Amazon SES:

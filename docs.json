@@ -66,6 +66,7 @@
             "pages": [
               "integrations/anthropic",
               "integrations/openai",
+              "integrations/gemini",
               "integrations/firecrawl",
               "integrations/supabase"
             ]
@@ -89,7 +90,7 @@
         "groups": [
           {
             "group": "Self-hosting",
-            "pages": ["self-hosting/installation"]
+            "pages": ["self-hosting/installation", "self-hosting/sso"]
           }
         ]
       },

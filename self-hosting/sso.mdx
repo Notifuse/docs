@@ -1,0 +1,147 @@
+---
+title: Single Sign-On (OIDC)
+description: 'Let users sign in to Notifuse with your identity provider (Google Workspace, Keycloak, Okta, …) using OpenID Connect, alongside magic-code login.'
+---
+
+Notifuse supports **Single Sign-On (SSO)** via [OpenID Connect](https://openid.net/connect/) (OIDC), so your team can sign in with an external identity provider (IdP) such as Google Workspace, Keycloak, Okta, Microsoft Entra ID, Authentik, or Dex.
+
+SSO runs **alongside** the built-in magic-code login — it does not replace it. When SSO is enabled, the sign-in page shows an additional **"Sign in with SSO"** button next to the email form; either method signs the user into the same account.
+
+<Note>
+  SSO is **off by default**. Existing deployments that don't configure it see no change — the sign-in page stays exactly as before, with only the magic-code form.
+</Note>
+
+## How it works
+
+Notifuse acts as an OIDC *Relying Party* using the **Authorization Code flow with PKCE**:
+
+1. The user clicks **Sign in with SSO** → Notifuse redirects them to your IdP.
+2. The user authenticates at the IdP (with whatever MFA/policies you enforce there).
+3. The IdP redirects back to `…/api/user.oidc.callback`; Notifuse verifies the ID token server-side (signature, issuer, audience, nonce, expiry) and signs the user in.
+
+The IdP's tokens are exchanged and verified entirely on the server — only Notifuse's own session token ever reaches the browser. PKCE is always enabled, and the client secret is **never** exposed to the frontend.
+
+<Note>
+  **Login is not the same as workspace access.** A successful SSO login authenticates the *user*; it does not grant access to any workspace. SSO users still need a workspace invitation (or to be a `ROOT_EMAIL`) before they can do anything. See [Provisioning](#provisioning) below.
+</Note>
+
+## Configuration
+
+OIDC can be configured three ways, in this precedence order:
+
+1. **Environment variables** (`OIDC_*`) — recommended for production; these always win.
+2. **Setup Wizard** — an optional **SSO** step on first launch.
+3. **Settings → SSO** — an admin drawer in the console after install.
+
+When a value is set via an environment variable, the matching field is shown as read-only in the wizard/settings UI. Saving OIDC settings from the UI triggers a graceful server restart to reload the configuration (the same behavior as SMTP settings). The client secret is **encrypted at rest** in the database.
+
+### Environment variables
+
+| Variable                 | Description                                                                                                                                                            | Default                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `OIDC_ENABLED`           | Master switch. When `false`/unset, SSO is disabled and the button is hidden.                                                                                          | `false`                                |
+| `OIDC_ISSUER_URL`        | Your IdP's issuer URL (must be **https**). Notifuse discovers the rest from `<issuer>/.well-known/openid-configuration`. Required when enabled.                       | -                                      |
+| `OIDC_CLIENT_ID`         | OAuth2 client ID from your IdP. Required when enabled.                                                                                                                | -                                      |
+| `OIDC_CLIENT_SECRET`     | OAuth2 client secret (confidential client). Encrypted at rest; never sent to the browser. Required when enabled.                                                      | -                                      |
+| `OIDC_REDIRECT_URI`      | The callback URL registered at your IdP. If empty, derived as `<API_ENDPOINT>/api/user.oidc.callback`.                                                                | derived from `API_ENDPOINT`            |
+| `OIDC_SCOPES`            | Space-separated scopes. `openid` is always included; `email` is required and `profile` supplies the optional display name.                                            | `openid email profile`                 |
+| `OIDC_BUTTON_LABEL`      | Text shown on the sign-in button.                                                                                                                                     | `Sign in with SSO`                     |
+| `OIDC_AUTO_CREATE_USERS` | Just-in-time provisioning. When `true`, requires `OIDC_ALLOWED_DOMAINS`. See [Provisioning](#provisioning).                                                            | `false`                                |
+| `OIDC_ALLOWED_DOMAINS`   | Comma/semicolon/space-separated email-domain allowlist that gates auto-creation. **Mandatory** when `OIDC_AUTO_CREATE_USERS=true` (the server refuses to boot otherwise). | -                                      |
+
+<Warning>
+  When `OIDC_ENABLED=true`, the server validates the configuration at startup and **fails fast** on an invalid one (missing issuer/client/secret, a non-https issuer, or auto-create with no allowlist). The same validation runs before the Settings drawer saves, so a bad config is rejected with an error rather than persisted.
+</Warning>
+
+## Provisioning
+
+By default, SSO is **invited-users-only**: a user can sign in with SSO only if they already have a Notifuse account (created via the setup root, a workspace invitation, or the API). An SSO login for an unknown email is rejected with a "no account — ask to be invited" message. This preserves Notifuse's no-self-signup model.
+
+To let new users be created automatically on first SSO login, set:
+
+```bash
+OIDC_AUTO_CREATE_USERS=true
+OIDC_ALLOWED_DOMAINS=yourcompany.com
+```
+
+With auto-create on, an account is created on first login **only** when the IdP asserts a verified email **and** its domain is in `OIDC_ALLOWED_DOMAINS`. Even then, the new user has no workspace access until invited.
+
+<Note>
+  Users are matched by the durable `(issuer, subject)` pair from the IdP, not by email — so a user keeps the same account even if their email changes at the IdP. Email is used only to link an SSO identity to an existing invited account on first login. A `ROOT_EMAIL` account can never be auto-linked to an external identity (a safeguard against platform-admin takeover).
+</Note>
+
+## Identity provider setup
+
+The callback/redirect URL to register at every provider is:
+
+```
+https://<your-notifuse-domain>/api/user.oidc.callback
+```
+
+<Warning>
+  The redirect URI must match **byte-for-byte** between your IdP and Notifuse. If you run behind a reverse proxy that rewrites the scheme or host, set `OIDC_REDIRECT_URI` explicitly to the externally-visible URL — otherwise the IdP returns a `redirect_uri_mismatch` error.
+</Warning>
+
+### Google Workspace
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials), go to **APIs & Services → Credentials → Create credentials → OAuth client ID**.
+2. Choose **Web application**.
+3. Under **Authorized redirect URIs**, add `https://<your-notifuse-domain>/api/user.oidc.callback`.
+4. Copy the **Client ID** and **Client secret**.
+5. Configure Notifuse:
+
+```bash
+OIDC_ENABLED=true
+OIDC_ISSUER_URL=https://accounts.google.com
+OIDC_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+OIDC_CLIENT_SECRET=your-client-secret
+# Restrict to your organization's domain:
+OIDC_ALLOWED_DOMAINS=yourcompany.com
+```
+
+<Note>
+  Personal `@gmail.com` accounts and your Workspace accounts share the `accounts.google.com` issuer. Use `OIDC_ALLOWED_DOMAINS` (or keep the default invited-only mode) to restrict sign-in to your organization.
+</Note>
+
+### Keycloak
+
+1. In your realm, create a client: **Client type** OpenID Connect, **Client authentication** ON (confidential), **Standard flow** enabled.
+2. Set **Valid redirect URIs** to `https://<your-notifuse-domain>/api/user.oidc.callback`.
+3. Copy the secret from the client's **Credentials** tab.
+4. Configure Notifuse:
+
+```bash
+OIDC_ENABLED=true
+OIDC_ISSUER_URL=https://keycloak.example.com/realms/<your-realm>
+OIDC_CLIENT_ID=notifuse
+OIDC_CLIENT_SECRET=your-client-secret
+```
+
+<Tip>
+  The default Keycloak client scopes already emit `email`, `email_verified`, `name`, and `sub`. If someone has stripped the email mapper from your client, SSO logins will be rejected (no email claim) — re-add the built-in `email` scope.
+</Tip>
+
+### Other providers
+
+Any OpenID-Connect–certified provider works the same way — set `OIDC_ISSUER_URL` to the provider's issuer, register the redirect URI, and supply the client ID/secret. This includes Okta, Microsoft Entra ID (Azure AD), Authentik, and Dex.
+
+## Security notes
+
+- Only two non-secret values reach the browser: `window.OIDC_ENABLED` and the button label. The client ID, client secret, and issuer URL are never exposed in the page.
+- ID tokens are verified with the issuer's published keys (auto-rotated via JWKS); signature, issuer, audience, nonce, and expiry are all checked, and only asymmetric algorithms (RS256/ES256) are accepted.
+- The flow's CSRF/nonce/PKCE state is held in a short-lived, encrypted, `HttpOnly` cookie.
+- OIDC HTTP calls (discovery, key fetch, token exchange) are time-bounded, so a slow or unreachable issuer cannot stall the sign-in path; magic-code login is unaffected.
+
+## Troubleshooting
+
+| Symptom                                                              | Cause & fix                                                                                                                                  |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **"Single sign-on is temporarily unavailable"** after clicking SSO   | Notifuse can't reach or discover the issuer. Verify `OIDC_ISSUER_URL` is correct, reachable from the server, and serves a discovery document. Notifuse retries automatically once the issuer is back. |
+| **"No Notifuse account is linked… ask to be invited"**               | Invited-only mode (the default) and this email has no account. Invite the user to a workspace, or enable `OIDC_AUTO_CREATE_USERS` with an allowlist. |
+| **`redirect_uri_mismatch` / `invalid_redirect_uri` at the IdP**      | The redirect URI registered at the IdP doesn't exactly match what Notifuse sends. Register `…/api/user.oidc.callback`, and set `OIDC_REDIRECT_URI` if you're behind a proxy that rewrites scheme/host. |
+| **The server won't start after enabling OIDC**                       | Configuration validation failed. Check that `OIDC_ISSUER_URL` is https and `OIDC_CLIENT_ID`/`OIDC_CLIENT_SECRET` are set, and that `OIDC_ALLOWED_DOMAINS` is non-empty when `OIDC_AUTO_CREATE_USERS=true`. |
+| **A user can sign in but can't access any workspace**                | Expected — login is not authorization. Invite the user to the relevant workspace (or add them to `ROOT_EMAIL`).                              |
+
+<Note>
+  Running multiple Notifuse replicas behind a load balancer? The one-time code used to complete the SSO handoff is held per-instance, so enable **sticky sessions** for SSO to work reliably across replicas. Single-instance deployments need no extra configuration.
+</Note>

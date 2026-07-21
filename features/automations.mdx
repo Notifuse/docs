@@ -204,6 +204,41 @@ The visual flow editor provides a drag-and-drop canvas for building automation w
 3. **Connect Nodes**: Drag connections between nodes
 4. **Configure**: Click a node to open its configuration panel
 
+## Exit on Reply
+
+When a contact **replies** to an email an automation sent, you usually want to stop the rest of the sequence—continuing to send scheduled emails to someone who already responded is a poor experience. Enable **Exit on reply** on an automation to handle this automatically.
+
+### Enabling it
+
+Toggle **Exit on reply** in the automation's settings when creating or editing it. Once enabled, a genuine reply to any email that automation sent will exit the contact's journey (recorded with the `replied` exit reason).
+
+<Warning>
+**Exit on reply requires inbound email setup at your email provider.** Replies are delivered back to Notifuse by the provider's inbound-parsing feature. This is currently supported for **Mailgun** (see [Mailgun → Inbound replies](/integrations/mailgun#inbound-replies-stop-on-reply)) and **Amazon SES** (see [Amazon SES → Inbound replies](/integrations/amazon-ses#inbound-replies-stop-on-reply))—each needs a one-time setup. On other providers the toggle has no effect until inbound ingestion is configured.
+</Warning>
+
+### How replies are matched
+
+A reply is matched to the exact email it responds to using the standard threading headers (`In-Reply-To` / `References`) against the `Message-ID` Notifuse set when it sent the email. Because the match is precise:
+
+- Only the **specific automation** the contact replied to exits. If a contact is enrolled in several automations, replying to one does **not** exit the others.
+- Replies that can't be matched to a known send are ignored—no journey is exited.
+
+### What counts as a reply
+
+Not every inbound message is treated as a reply:
+
+| Message type | Effect |
+|--------------|--------|
+| A genuine human reply | Exits the journey (when **Exit on reply** is enabled) |
+| Out-of-office / vacation auto-responder | Recorded on the timeline, but never exits |
+| Bounce / delivery-status report | Dropped |
+
+Matched replies appear on the contact timeline as `email.replied` (or `email.auto_reply` for auto-responders).
+
+<Note>
+The stop holds even when the next email is mid-delay or already queued for sending, so a contact who replies won't receive the next scheduled email.
+</Note>
+
 ## Contact Journeys
 
 Each contact's progress through an automation is tracked as a "journey" with full execution history.
@@ -226,6 +261,7 @@ When a contact exits early, the reason is recorded:
 | `completed` | Normal completion at terminal node |
 | `filter_rejected` | Failed filter condition with no alternate path |
 | `unsubscribed` | Contact unsubscribed from the automation's list |
+| `replied` | Contact replied to one of the automation's emails (requires **Exit on reply**) |
 | `automation_paused` | Automation was paused while contact was active |
 | `manual` | Manually removed by admin |
 

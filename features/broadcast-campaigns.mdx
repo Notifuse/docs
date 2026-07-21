@@ -283,6 +283,17 @@ To protect your broadcast from cascading failures:
 - **Fallback Content**: Design templates to gracefully handle missing feed data
 - **Test Before Sending**: Use the "Test" button to verify feed responses before launching
 
+### Security
+
+Data feed URLs are fetched by the Notifuse server, so they are protected against [server-side request forgery (SSRF)](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery):
+
+- **Private addresses are blocked**: By default, the server refuses to connect to private, loopback, link-local, and other reserved IP ranges — including the cloud instance metadata endpoint. This applies whether a feed points at such an address directly or via a hostname that resolves to one, and redirects are re-validated to prevent DNS rebinding.
+- **Write access required**: Adding, testing, or refreshing a data feed requires the `broadcasts` **write** permission — the same access needed to create a broadcast. Members with read-only access cannot trigger feed requests.
+
+<Note>
+  **Self-hosting:** if you intentionally serve data feeds from services on your own internal network, you can allow private addresses by setting `BROADCAST_DATA_FEED_ALLOW_PRIVATE_HOSTS=true`. This disables SSRF protection for data-feed requests, so only enable it in trusted environments. See [Environment Variables](/self-hosting/installation#optional-variables).
+</Note>
+
 ## Scheduling Options
 
 ### Manual Sending

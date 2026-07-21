@@ -16,8 +16,8 @@ Contacts in Notifuse are comprehensive customer profiles that store subscriber i
 
 | Field                                      | Type     | Description                                |
 | ------------------------------------------ | -------- | ------------------------------------------ |
-| `email`                                    | String   | Contact's email address (**Required**)     |
-| `external_id`                              | String   | Your system's unique identifier            |
+| `email`                                    | String   | Contact's email address — the contact's unique identifier (**Required**) |
+| `external_id`                              | String   | Optional reference to the contact in your own system. Not unique — see [Contact Identity](#contact-identity-and-upsert-behavior) |
 | `first_name`                               | String   | Contact's first name                       |
 | `last_name`                                | String   | Contact's last name                        |
 | `phone`                                    | String   | Phone number                               |
@@ -38,13 +38,40 @@ Contacts in Notifuse are comprehensive customer profiles that store subscriber i
 
 ## Contact Management
 
-### Upsert Behavior
+### Contact Identity and Upsert Behavior
 
-Contacts use upsert logic based on email address:
+The **email address is the unique identifier of a contact**: it is the primary key in the database, and every upsert operation (`contacts.upsert`, `contacts.import`, and the contact embedded in `transactional.send`) matches contacts by email address only:
 
 - **New emails**: Automatically creates a new contact
 - **Existing emails**: Updates the existing contact with provided fields
 - **Null values**: Setting any field to `null` removes that value from the contact
+
+`external_id` is an optional reference to the contact in your own system (for example, your application's user ID). It is stored, searchable, and returned by the API, but it is **not a unique key**:
+
+- It is never used to match contacts during upserts.
+- Notifuse does not prevent several contacts from sharing the same `external_id`.
+- If several contacts share the same `external_id`, `contacts.getByExternalID` returns only one of them (which one is not defined).
+
+### Changing a Contact's Email Address
+
+Because the email address is the contact's identity, upserting the same `external_id` with a new email address **creates a second contact** — it does not update the email of the existing one. When a user changes their email address in your system:
+
+1. Fetch the old contact with `contacts.getByEmail` to retrieve its profile and its list subscriptions with their statuses.
+2. Upsert a contact with the **new** email address, sending the full profile (upserts merge fields, so include every field you want to keep, such as `external_id`, names, and custom fields).
+3. Re-create the list subscriptions on the new contact with `lists.subscribe`.
+4. Delete the contact with the **old** email address using `contacts.delete`.
+
+<Warning>
+  Preserve opt-out statuses when re-creating subscriptions. If the old contact had unsubscribed,
+  bounced, or complained on a list, do **not** re-subscribe the new email address to that list:
+  the new contact starts with a clean slate, and blindly re-subscribing silently resets an
+  opt-out — a consent violation (GDPR / CAN-SPAM) that can hurt your sender reputation.
+</Warning>
+
+Also keep in mind:
+
+- **Message history and segment memberships** are keyed to the email address. They stay attached to the old email address and are not transferred to the new contact.
+- **Active automations**: deleting the old contact drops it from any automation it is currently progressing through; the new contact does not resume its position.
 
 ### List Subscriptions
 
@@ -145,6 +172,6 @@ The import process includes automatic progress saving, which means if your impor
 ## Key Features
 
 - **Flexible Schema**: Predefined fields cover most use cases while custom fields provide extensibility
-- **Automatic Deduplication**: Email-based upserts prevent duplicate contacts
+- **Automatic Deduplication**: Email-based upserts prevent duplicate contacts for the same email address
 - **Multi-List Support**: Single contact can belong to multiple mailing lists
 - **Data Removal**: Explicit null handling for field cleanup

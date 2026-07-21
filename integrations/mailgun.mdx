@@ -53,6 +53,19 @@ Notifuse automatically registers the following Mailgun webhooks:
 
 These webhooks provide real-time feedback on email performance and delivery status.
 
+## Inbound replies (stop-on-reply)
+
+To use **[Exit on reply](/features/automations#exit-on-reply)** in automations, Mailgun must forward inbound replies back to Notifuse. This is a one-time setup with two parts:
+
+1. **Point your domain's MX records at Mailgun.** Add Mailgun's inbound MX records to your sending domain's DNS—typically `mxa.mailgun.org` and `mxb.mailgun.org`, both at priority `10`. Without these, replies never reach Mailgun. Mailgun has no API for DNS, so this step is manual.
+2. **Register the inbound route.** Click **Register Webhooks** on the Mailgun integration (**Settings → Integrations**). Alongside the delivery, bounce, and complaint webhooks, Notifuse creates a Mailgun **Route** that forwards inbound mail for your domain to Notifuse. The route is non-preemptive—it forwards a copy and lets any other Mailgun routes you've configured keep running, so it won't disrupt an existing inbound setup.
+
+<Note>
+  Replies are matched to the original send by their `Message-ID` (an unguessable value Notifuse sets at send time), so no separate inbound signing key is required. The inbound endpoint is rate-limited.
+</Note>
+
+Once both parts are in place, a contact's reply to an automation email will exit their journey whenever that automation has **Exit on reply** enabled. Bounces and out-of-office auto-replies are filtered out and never count as a reply.
+
 ## Prerequisites
 
 Before configuring Mailgun:

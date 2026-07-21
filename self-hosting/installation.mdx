@@ -123,7 +123,7 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 
 | Variable          | Description                                                      |
 | ----------------- | ---------------------------------------------------------------- |
-| `ROOT_EMAIL`      | Root administrator email (e.g., `admin@yourcompany.com`)         |
+| `ROOT_EMAIL`      | Root administrator email (e.g., `admin@yourcompany.com`). Accepts multiple comma/semicolon-separated emails to grant root to several administrators (e.g., `alice@yourcompany.com,bob@yourcompany.com`); matching is case-sensitive. |
 | `API_ENDPOINT`    | Public API endpoint URL (e.g., `https://emails.yourcompany.com`) |
 | `SMTP_HOST`       | SMTP server host (e.g., `smtp.gmail.com`)                        |
 | `SMTP_PORT`       | SMTP server port (e.g., `587` or `465`)                          |
@@ -132,6 +132,17 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `SMTP_FROM_EMAIL` | From email address (e.g., `noreply@yourcompany.com`)             |
 | `SMTP_FROM_NAME`  | From name (e.g., `Your Company Name`)                            |
 | `SMTP_EHLO_HOSTNAME` | Custom EHLO hostname for SMTP connections (e.g., `mail.yourdomain.com`). Defaults to SMTP host value when empty. Useful when SMTP servers reject `EHLO localhost`. |
+
+<Note>
+  **Multiple root users**: `ROOT_EMAIL` can hold more than one email
+  (comma/semicolon-separated), so a shared instance can have several
+  administrators with root privileges — creating workspaces, accessing System
+  Settings, and authenticating programmatically. A user account is created for
+  each listed email on startup, so every root can sign in immediately. Matching
+  is case-sensitive, and a single email behaves exactly as before. The Setup
+  Wizard establishes the first (primary) root; additional roots can be added
+  there as a list or via the `ROOT_EMAIL` environment variable.
+</Note>
 
 ### Optional Variables
 
@@ -159,6 +170,9 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `TASK_SCHEDULER_INTERVAL`           | Task execution interval in seconds (e.g., `30`)                                           | `30`                                 |
 | `TASK_SCHEDULER_MAX_TASKS`          | Maximum concurrent tasks (e.g., `10`)                                                     | `10`                                 |
 |                                     |
+| **Broadcast Configuration**         |
+| `BROADCAST_DATA_FEED_ALLOW_PRIVATE_HOSTS` | Allow broadcast [data feeds](/features/broadcast-campaigns) to fetch from private, loopback, and link-local addresses. This **disables SSRF protection** for data-feed requests — only enable it in trusted deployments that intentionally fetch feeds from your internal network (e.g., `true`). | `false` |
+|                                     |
 | **Privacy Settings**                |
 | `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
 | `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |
@@ -170,6 +184,17 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | `SMTP_BRIDGE_TLS`                    | TLS posture: `starttls`, `implicit`, or `off` (see below). Auto-resolves when unset.       | auto                                 |
 | `SMTP_BRIDGE_TLS_CERT_BASE64`        | Base64-encoded TLS certificate (required for `starttls` and `implicit`)                    | -                                    |
 | `SMTP_BRIDGE_TLS_KEY_BASE64`         | Base64-encoded TLS private key (required for `starttls` and `implicit`)                    | -                                    |
+|                                     |
+| **Single Sign-On (OIDC)** — see [SSO guide](/self-hosting/sso) | | |
+| `OIDC_ENABLED`                      | Enable Single Sign-On via OpenID Connect (e.g., `true` or `false`)                        | `false`                              |
+| `OIDC_ISSUER_URL`                   | IdP issuer URL, must be https (e.g., `https://accounts.google.com`)                       | -                                    |
+| `OIDC_CLIENT_ID`                    | OAuth2 client ID from your identity provider                                              | -                                    |
+| `OIDC_CLIENT_SECRET`                | OAuth2 client secret (encrypted at rest; never sent to the browser)                       | -                                    |
+| `OIDC_REDIRECT_URI`                 | Callback URL registered at the IdP. Derived from `API_ENDPOINT` when empty.               | `<API_ENDPOINT>/api/user.oidc.callback` |
+| `OIDC_SCOPES`                       | Space-separated scopes (`openid` always included)                                         | `openid email profile`               |
+| `OIDC_BUTTON_LABEL`                 | Sign-in button label                                                                      | `Sign in with SSO`                   |
+| `OIDC_AUTO_CREATE_USERS`            | Auto-create accounts on first SSO login (requires `OIDC_ALLOWED_DOMAINS`)                 | `false`                              |
+| `OIDC_ALLOWED_DOMAINS`              | Comma/semicolon-separated email-domain allowlist gating auto-creation                     | -                                    |
 |                                     |
 | **Tracing Configuration**           |
 | `TRACING_ENABLED`                   | Enable tracing (e.g., `true`)                                                             | `false`                              |
@@ -348,7 +373,7 @@ cat dev-cert.key.pem | base64 > key_base64.txt
 
 ## Programmatic Authentication
 
-For CI/CD pipelines and automated deployments, the root user can authenticate programmatically using HMAC-SHA256 signature, bypassing magic link authentication.
+For CI/CD pipelines and automated deployments, a root user can authenticate programmatically using HMAC-SHA256 signature, bypassing magic link authentication. When `ROOT_EMAIL` lists multiple addresses, use any one of them as `ROOT_EMAIL` below — the signed email must exactly match one of the configured root emails.
 
 ```bash
 #!/bin/bash
