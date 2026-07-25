@@ -180,6 +180,7 @@ Send files with your transactional emails such as invoices, receipts, tickets, o
 | `content`      | string | Yes      | Base64-encoded file content                                        |
 | `content_type` | string | No       | MIME type (e.g., "application/pdf"), auto-detected if not provided |
 | `disposition`  | string | No       | "attachment" (default) or "inline"                                 |
+| `content_id`   | string | No       | Content-ID for inline attachments, referenced from the HTML body as `<img src="cid:...">`. Only allowed when `disposition` is "inline". Defaults to the filename when omitted. |
 
 ### Example with PDF Invoice
 
@@ -235,6 +236,40 @@ Send files with your transactional emails such as invoices, receipts, tickets, o
 }
 ```
 
+### Inline Images (Content-ID)
+
+Embed per-recipient images — such as QR codes or personalized graphics — directly inside the email body instead of hosting them at a URL. Set `disposition` to `"inline"` and give the attachment a `content_id`, then reference it from your template's HTML as `<img src="cid:...">`:
+
+```json
+{
+  "email_options": {
+    "attachments": [
+      {
+        "filename": "check-in-qr.png",
+        "content": "iVBORw0KGgoAAAANSUhEU...",
+        "content_type": "image/png",
+        "disposition": "inline",
+        "content_id": "checkInQr"
+      }
+    ]
+  }
+}
+```
+
+And in the email template:
+
+```html
+<img src="cid:checkInQr" alt="Your check-in QR code" />
+```
+
+Notes:
+
+- `content_id` may only contain letters, digits, and the characters `.` `_` `-` `@` (max 255 characters), and is only accepted when `disposition` is `"inline"`.
+- When `content_id` is omitted, the filename is used as the Content-ID, so `<img src="cid:check-in-qr.png">` also works.
+- Inline images are delivered inside a `multipart/related` MIME part alongside the HTML body, so email clients embed them rather than showing them as downloadable attachments.
+- Because the image travels inside the message body, it is never fetched or logged by link proxies or image-caching services — suitable for per-recipient secrets like QR codes.
+- On Mailgun, the `content_id` also becomes the delivered part's filename, so prefer a `content_id` with a file extension (e.g. `checkInQr.png`) when sending through Mailgun.
+
 ### Common Use Cases
 
 - **Order Confirmations**: Attach invoices and receipts
@@ -242,6 +277,7 @@ Send files with your transactional emails such as invoices, receipts, tickets, o
 - **Legal Documents**: Attach contracts and agreements
 - **Reports**: Attach analytics reports and summaries
 - **Certificates**: Attach completion certificates and badges
+- **Event Tickets**: Embed per-recipient QR codes as inline images
 
 ## SMTP Bridge
 
