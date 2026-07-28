@@ -31,3 +31,12 @@ This feature allows you to maintain brand consistency and build trust with your 
 - **Separate Databases**: Contacts, campaigns, and data are isolated
 - **Individual Settings**: Each workspace has its own email providers and configurations
 - **Custom Branding**: Each workspace can use its own domain for all recipient-facing URLs
+
+## Language Settings
+
+Each workspace can configure language defaults that apply to all templates:
+
+- **Default Language**: The fallback language used when a contact has no `language` field set (e.g., `en`). All templates will use this as their final fallback.
+- **Supported Languages**: The list of languages your workspace supports (e.g., English, French, German). This determines which locale columns appear in the template translations panel.
+
+These settings work with [Template Translations](/features/template-translations) to automatically send emails in each contact's preferred language.
