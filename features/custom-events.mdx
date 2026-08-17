@@ -133,6 +133,10 @@ Event names must be lowercase using letters, numbers, dots, underscores, hyphens
 - `form_submit`
 - `user-signup`
 
+<Note>
+Goals recorded by [Web Analytics](/web-analytics/goals) reach the contact timeline through a narrower rule: ASCII letters, numbers, dots and slashes only, with everything else — hyphens and accented characters included — replaced by an underscore. A web goal named `user-signup` arrives as `user_signup`. If you send the same event through both paths, pick a name that survives each.
+</Note>
+
 ## Handling Refunds
 
 Use negative `goal_value` for refunds to keep accurate LTV calculations:

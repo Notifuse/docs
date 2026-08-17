@@ -114,9 +114,25 @@ Add segment conditions to filter which contacts enter the automation. For exampl
 - Trigger on `list.subscribed` but only for contacts where `country = "US"`
 - Trigger on `contact.updated` but only when `custom_number_1 > 100`
 
+Set them in the trigger panel under **Entry conditions**, or through the API with the `conditions` field.
+They use the same condition builder as segments and the Filter node.
+
+A contact who does not match is never enrolled — which differs from placing a Filter node after the
+trigger. With **Once per contact**, a contact enrolled and then sent down a Filter node's "No" path has
+used up their single enrollment and cannot enter later; an entry condition leaves it available.
+
+<Note>
+A condition counting timeline activity includes the event that fired the trigger. "Has opened at least
+3 emails" on an `email.opened` trigger therefore enrols on the third open, not the fourth. When several
+events are recorded in the same operation — a bulk import, for instance — all of them are visible to
+each other's conditions.
+</Note>
+
 ## Node Types
 
 Nodes are the building blocks of automation workflows. They're divided into action nodes (linear flow) and branching nodes (multi-path).
+
+Every node also takes an optional **description**—a short note of your own, set at the top of the node's configuration panel. It appears under the node's title on the canvas and in Flow Stats, so a sequence of Email and Delay nodes explains its intent without opening each one. It has no effect on execution.
 
 ### Action Nodes
 

@@ -15,11 +15,14 @@ Navigate to **Settings** → **Integrations** → **Add Integration** → **Amaz
 
 ### Form Fields
 
-| Field              | Description                         | Example                                    |
-| ------------------ | ----------------------------------- | ------------------------------------------ |
-| **AWS Region**     | AWS region dropdown select          | `us-east-1`                                |
-| **AWS Access Key** | AWS access key with SES permissions | `AKIAIOSFODNN7EXAMPLE`                     |
-| **AWS Secret Key** | AWS secret access key               | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
+| Field                     | Description                                                                                      | Example                                    |
+| ------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| **AWS Region**            | AWS region dropdown select                                                                         | `us-east-1`                                |
+| **AWS Access Key**        | AWS access key with SES permissions                                                                | `AKIAIOSFODNN7EXAMPLE`                     |
+| **AWS Secret Key**        | AWS secret access key                                                                              | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
+| **SES tenant isolation**  | Optional. Give this integration its own reputation profile and suppression list — see [below](#reputation-isolation-ses-tenants) | Off                                        |
+| **Configuration set**     | Optional, under **Advanced**. Send through a configuration set you manage                          | `my-config-set`                            |
+| **SES tenant**            | Optional, under **Advanced**. Send through a tenant you manage                                     | `my-tenant`                                |
 
 ### Senders List
 
@@ -55,6 +58,71 @@ Notifuse automatically subscribes to the following SES webhooks:
 
 These webhooks provide real-time feedback on email performance and delivery status.
 
+## Reputation isolation (SES tenants)
+
+By default every workspace in an AWS account shares one sending reputation and **one suppression list**. A badly targeted campaign from one team can push the account's bounce or complaint rate over AWS's thresholds and pause sending for everyone, and a hard bounce recorded for one workspace suppresses that recipient for all the others.
+
+Turning on **SES tenant isolation** gives an integration its own [SES tenant](https://docs.aws.amazon.com/ses/latest/dg/tenants.html): its own reputation profile, its own bounce and complaint metrics, and its own suppression list. AWS can then pause a single tenant instead of the whole account.
+
+### Enabling it
+
+Open the integration (**Settings** → **Integrations**), switch **SES tenant isolation** on, and save. Notifuse confirms first — a tenant is a billable AWS resource — then provisions everything in your account:
+
+| Step                       | What Notifuse does                                                                                  |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Create the tenant**      | Named `notifuse-<integration ID>`, with `SuppressionScope: TENANT` for bounces and complaints         |
+| **Associate the config set** | Attaches the configuration set this integration sends through                                       |
+| **Associate identities**   | Attaches every verified identity that covers a sender — the exact address, its domain, or a parent domain |
+
+Saving again re-runs the same steps. That is deliberate: it is how a sender you add later gets associated, and how a partial run is retried.
+
+<Note>
+  **Tenant-level suppression is not the AWS default.** A tenant created by hand in the SES console inherits the account-level suppression list unless you set the suppression scope yourself — giving you reputation isolation and silently *not* suppression isolation. Notifuse sets it at creation, and corrects the scope if it finds a tenant of that name already exists.
+</Note>
+
+<Note>
+  Isolation is scoped to the **integration**, not the workspace. A workspace running separate marketing and transactional SES integrations gets two tenants, each with its own suppression list, so a bounce recorded by one is not suppressed by SES on the other. Notifuse's own per-workspace suppression still applies to both, so the practical exposure is a single extra send to an address SES already knows is bad.
+</Note>
+
+### What you'll see
+
+- **A sender with no verified identity** is reported by name after saving. Those sends would fail with or without tenants, so it is worth fixing.
+- **A missing IAM permission** is reported with the exact action and an `aws` CLI command to run. Notifuse does not switch the integration over to the tenant until its configuration set is associated: sending through a tenant whose configuration set is not attached makes SES reject **every** message, so a partial setup leaves sending exactly as it was.
+- The integration card shows the configuration set in use and whether reputation is `isolated` or `shared with the rest of this AWS account`.
+
+### Turning it off
+
+Switching **SES tenant isolation** off takes effect on the next send: messages stop being scoped to the tenant and go out under the account's shared reputation again. The tenant itself is left in AWS, so its suppression list and reputation history survive — switching back on resumes the same tenant rather than starting from zero.
+
+<Note>
+  A tenant that isolation was switched off for **keeps billing** until the integration is deleted. Turn it off to change how you send; delete the integration to stop the charge.
+</Note>
+
+<Warning>
+  **Deleting the integration deletes the tenant**, along with its suppression list and reputation history — those cannot be recreated. Removing only the webhooks leaves both in place, because sending still depends on them.
+</Warning>
+
+### Advanced: bring your own tenant or configuration set
+
+Under **Advanced**, both fields are optional and suggest the names that actually exist in your account (they fall back to plain text if your credentials cannot list them):
+
+| Field                 | Description                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Configuration set** | Send through a configuration set you manage instead of the `notifuse-<integration ID>` one. Notifuse attaches its event destination to it but never creates or deletes it. |
+| **SES tenant**        | Send through a tenant you manage yourself. Mutually exclusive with the switch above — Notifuse will not create, modify or delete it. |
+
+Choosing your own tenant means you are responsible for associating the sending identity **and** the configuration set with it; otherwise SES rejects every send:
+
+```bash
+aws sesv2 create-tenant-resource-association \
+  --tenant-name my-tenant \
+  --resource-arn arn:aws:ses:<region>:<account>:configuration-set/<name>
+```
+
+<Note>
+  Tenants exist only in the SES API v2, which is what Notifuse now sends through. They are also region-scoped, so a tenant lives in the same region as its integration.
+</Note>
+
 ## Inbound replies (stop-on-reply)
 
 To use **[Exit on reply](/features/automations#exit-on-reply)** in automations, SES must forward inbound replies back to Notifuse. SES delivers received mail differently from sending it, so this is a one-time setup with two parts:
@@ -82,8 +150,25 @@ Before configuring Amazon SES:
 
 1. **AWS Account**: Active AWS account with SES enabled
 2. **Verified Senders**: Email addresses or domains verified in AWS SES console
-3. **IAM Permissions**: AWS user with SES sending permissions
+3. **IAM Permissions**: AWS user with SES sending permissions — see below
 4. **Production Access**: Move out of sandbox mode for unrestricted sending
+
+### IAM permissions
+
+Only the first group is required. Everything else unlocks an optional feature and degrades cleanly when absent — a missing permission is reported with the action to add, never a silent failure.
+
+| Purpose                    | Actions                                                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Sending** (required)     | `ses:SendEmail`                                                                                                                            |
+| **Event webhooks**         | `ses:CreateConfigurationSet`, `ses:DescribeConfigurationSet`, `ses:ListConfigurationSets`, `ses:DeleteConfigurationSet`, `ses:CreateConfigurationSetEventDestination`, `ses:UpdateConfigurationSetEventDestination`, `ses:DeleteConfigurationSetEventDestination`, `sns:CreateTopic`, `sns:Subscribe`, `sns:GetTopicAttributes`, `sns:DeleteTopic` |
+| **Reputation isolation**   | `ses:CreateTenant`, `ses:GetTenant`, `ses:PutTenantSuppressionAttributes`, `ses:CreateTenantResourceAssociation`, `ses:ListEmailIdentities` |
+| **Name pickers and checks** | `ses:ListTenants`, `ses:ListTenantResources`                                                                                              |
+| **Clean removal**          | `ses:DeleteTenant`, `ses:DeleteTenantResourceAssociation`                                                                                  |
+| **Inbound replies**        | See the [stop-on-reply note](#inbound-replies-stop-on-reply) above                                                                          |
+
+<Warning>
+  Without the **clean removal** permissions, deleting an integration leaves its tenant behind in your AWS account — where it keeps billing until you remove it by hand.
+</Warning>
 
 ## Testing
 

@@ -5,7 +5,7 @@ description: 'Configure Google Gemini to power blog content creation and email g
 
 <img src="/assets/integrations/gemini.svg" alt="Google Gemini" style={{ height: '24px' }} />
 
-The Google Gemini integration enables AI-powered features across Notifuse using Google's Gemini models. This integration powers the AI agent for blog content creation and email generation.
+The Google Gemini integration enables AI-powered features across Notifuse using Google's Gemini models. This integration powers the [AI assistant](/features/ai-assistant) for blog content creation, email design and web analytics.
 
 ## Configuration
 
@@ -54,6 +54,16 @@ Generate emails automatically using AI:
 | **Subject lines**      | Generate compelling subject lines for better open rates |
 | **Content variations** | Create multiple versions for A/B testing                |
 
+### Web Analytics Assistant
+
+Answer questions about your website traffic with the [Web Analytics assistant](/web-analytics/ai-assistant):
+
+| Feature | Description |
+| ------- | ----------- |
+| **Ask about traffic** | Query sessions, pages, sources and goals in plain language |
+| **Period summaries** | A written analysis of what moved, against the comparison period |
+| **Drive the dashboard** | Change the period, apply filters, or open an Explore report |
+
 ## Enhanced with Firecrawl
 
 The Google Gemini AI agent can be enhanced by adding the [Firecrawl integration](/integrations/firecrawl). This gives the AI agent web access capabilities:
@@ -84,6 +94,10 @@ Before configuring Google Gemini:
 
 <Note>
 API calls to Gemini count toward your Google AI usage. Monitor your usage in [Google AI Studio](https://aistudio.google.com) to manage costs.
+</Note>
+
+<Note>
+The assistant panel shows a running cost for the Gemini models Notifuse has prices for. A model ID it does not recognise still works, but the conversation cost reads `$0.0000` — check Google AI Studio for what you actually spent.
 </Note>
 
 <Tip>

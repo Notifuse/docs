@@ -1,0 +1,87 @@
+---
+title: Annotations
+description: 'Mark the moments that explain a chart — a launch, a campaign, an outage.'
+---
+
+<img
+  src="/assets/screenshots/web_analytics/annotations.png"
+  alt="Annotations list mixing manual entries and automatic broadcast annotations, filtered by All, Manual or Broadcast"
+/>
+
+An annotation is a date you put on the record: the day you shipped, the morning the site went down, the hour a campaign went out. It appears as a labelled vertical line on your Web Analytics charts, so a spike or a dip has its explanation attached to it rather than living in someone's memory.
+
+Annotations belong to the workspace and are managed under **Web Analytics** → **Annotations**.
+
+## Adding an Annotation
+
+Click **Add** and fill in the form:
+
+| Field | Required | Notes |
+|---|---|---|
+| Date | Yes | The day being marked. |
+| Time | Yes | Defaults to 12:00, which is usually precise enough for a daily chart. |
+| Timezone | Yes | Starts on the timezone your charts are drawn in. |
+| Title | Yes | Up to 100 characters. This is what prints on the chart. |
+| Description | No | Up to 500 characters, shown in the chart tooltip and in the list. |
+| Color | No | Presets — green, red, amber, blue and the purple broadcasts use. Blue if you pick nothing. |
+
+<Note>
+The timezone is stored with the annotation so the moment redisplays exactly as it was typed. An outage entered as 9am in Tokyo keeps reading as 9am for a colleague in Paris, instead of being rewritten into their own morning.
+</Note>
+
+## Where They Appear
+
+On the **Dashboard** chart, and on the chart inside a goal's drawer on the **Goals** section.
+
+Each annotation is drawn as a dotted vertical line in its own color, with its title printed at the top of the plot area — truncated there if it is long. Hovering that point on the chart adds the annotation's title and description to the tooltip, under the metric values.
+
+The line lands on the bucket that contains the moment, so how precisely it sits depends on the granularity you are looking at. Annotations outside the period on screen are simply not drawn.
+
+<Note>
+Several annotations falling in the same bucket collapse to a single line, labelled with the first title and a `+N`. Hover it and the tooltip lists all of them in full.
+</Note>
+
+## Broadcast Annotations
+
+Broadcasts annotate themselves. When a broadcast starts sending, an annotation carrying its name is written automatically, tagged **Broadcast** in the list and drawn in purple on the charts. That is what lets you see a traffic bump and the campaign that caused it on the same chart.
+
+- It is written **only once the send genuinely begins** — after the workspace, provider and template checks have all passed. A broadcast that fails to load its templates mails nobody and is never annotated.
+- One annotation per broadcast, however many times its sending task resumes.
+- They are **always shown** on the charts. There is deliberately no setting to hide them.
+- The annotation is independent of the broadcast afterwards: deleting the broadcast leaves it standing, because the send did happen, and deleting the annotation does nothing to the broadcast.
+
+The **All / Manual / Broadcast** filter above the list narrows what you are reading on that page. It does not change what the charts draw.
+
+## Editing and Deleting
+
+Every annotation can be edited or deleted from the list, broadcast ones included — you may well want to reword an automatic title into something you will recognise in six months.
+
+Editing changes the moment and its timezone, the text and the color only. A broadcast annotation keeps its origin and its tag however you rewrite it, and an annotation you typed yourself can never become a broadcast one.
+
+Deleting is immediate and cannot be undone.
+
+## Managing Them Over the API
+
+Annotations have five endpoints, documented in the [API Reference](/api-reference):
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/annotations.list` | List, optionally filtered by `start`, `end` and `sources` |
+| `GET /api/annotations.get` | Fetch one by id |
+| `POST /api/annotations.create` | Create |
+| `POST /api/annotations.update` | Edit |
+| `POST /api/annotations.delete` | Delete |
+
+Access follows the existing Web Analytics permission: read for `list` and `get`, write for the rest.
+
+This is the natural place to hook your deploy pipeline or your status page, so releases and incidents land on the chart without anyone typing them.
+
+<Warning>
+The API creates **manual** annotations only — a caller cannot mint a broadcast one — and there is no idempotency key. A job that retries a create writes a second annotation. Deduplicate on your side, or clean up from the Annotations page.
+</Warning>
+
+## Notes
+
+- `list` returns the 100 most recent annotations by default, and at most 1,000. The Annotations page and the charts both ask for the maximum.
+- The Annotations page works even before the tracker is installed, unlike the rest of Web Analytics — a workspace that only sends broadcasts still collects broadcast annotations.
+- [API Reference](/api-reference)

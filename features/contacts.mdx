@@ -113,7 +113,7 @@ Example segments: VIP customers (spent $1000+), repeat buyers (3+ orders), at-ri
 
 #### Activity-Based Conditions
 
-Target contacts based on their engagement behavior with your emails:
+Target contacts based on their engagement behavior with your emails and your website:
 
 - **New message**: Contact received an email
 - **Open email**: Contact opened an email
@@ -121,6 +121,10 @@ Target contacts based on their engagement behavior with your emails:
 - **Bounce email**: Email bounced for this contact
 - **Complain email**: Contact marked an email as spam
 - **Unsubscribe from list**: Contact unsubscribed from a mailing list
+- **View web page**: Contact viewed a page on your website, filterable by path, time on page and scroll depth
+- **Visit website**: Contact made a visit, filterable by entry and exit page, pages viewed, duration, channel, campaign, device and country
+
+The two website conditions require [Web Analytics](/web-analytics/setup) and a visitor who has been [identified](/web-analytics/identifying-visitors).
 
 Activity conditions support additional parameters:
 
@@ -146,7 +150,7 @@ Common segmentation scenarios include:
 
 ### Technical Details
 
-The segmentation engine leverages contact timeline data introduced in version 7.0, which tracks all contact interactions including messages, webhook events, and profile mutations. Activity events include granular `kind` field types (e.g., `open_email`, `click_email`) enabling precise behavioral targeting. All timestamps are stored in UTC timezone and can be evaluated in user-specified timezones for date-based conditions.
+The segmentation engine leverages contact timeline data introduced in version 7.0, which tracks all contact interactions including messages, webhook events, and profile mutations. Activity events include granular `kind` field types (e.g., `email.opened`, `email.clicked`, `web.pageview`) enabling precise behavioral targeting. All timestamps are stored in UTC timezone and can be evaluated in user-specified timezones for date-based conditions.
 
 ## Importing Contacts from CSV
 

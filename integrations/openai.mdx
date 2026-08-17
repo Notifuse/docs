@@ -5,7 +5,7 @@ description: 'Configure OpenAI to power blog content creation and email generati
 
 <img src="/assets/integrations/openai.png" alt="OpenAI" style={{ height: '24px' }} />
 
-The OpenAI integration enables AI-powered features across Notifuse using GPT models. This integration powers the AI agent for blog content creation and email generation.
+The OpenAI integration enables AI-powered features across Notifuse using GPT models. This integration powers the [AI assistant](/features/ai-assistant) for blog content creation, email design and web analytics.
 
 ## Configuration
 
@@ -13,18 +13,32 @@ Navigate to **Settings** → **Integrations** → **Add Integration** → **Open
 
 ### Form Fields
 
-| Field       | Description                              | Example                           |
-| ----------- | ---------------------------------------- | --------------------------------- |
-| **API Key** | Your OpenAI API key                      | `sk-proj-...`                     |
-| **Model**   | Select the GPT model to use              | `gpt-4.1`                         |
+| Field                 | Description                                                                                     | Example                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- | --------------------------- |
+| **API Key**           | Your OpenAI API key                                                                             | `sk-proj-...`               |
+| **Model**             | The model ID to use — free text, so any current or future model works                           | `gpt-4.1`                   |
+| **Base URL**          | Optional. The API endpoint, for OpenAI-compatible providers. Leave empty for OpenAI itself      | `https://openrouter.ai/api/v1` |
+| **Reasoning effort**  | Optional. How much reasoning models think: None, Minimal, Low, Medium, High or Extra high        | `Default`                   |
 
-### Available Models
+### Choosing a model
 
-| Model                        | Description                                              | $ Pricing (per MTok)   |
-| ---------------------------- | -------------------------------------------------------- | -------------------- |
-| **GPT-4.1**                  | Most capable model for complex reasoning and creative tasks | $2 input / $8 output |
-| **GPT-4.1 mini**             | Balanced performance and cost for most use cases         | $0.40 input / $1.60 output |
-| **GPT-4.1 nano**             | Fast and cost-effective for simpler tasks                | $0.10 input / $0.40 output  |
+The Model field is free text rather than a fixed list, so you are never blocked from a model that shipped after your Notifuse version — type the ID exactly as your provider spells it.
+
+| Model             | Good for                                                    |
+| ----------------- | ----------------------------------------------------------- |
+| **GPT-4.1**       | The default. Reliable for MJML templates and long-form posts |
+| **GPT-5.4**       | Complex reasoning and the most demanding generations         |
+| **o4-mini**       | Cheaper reasoning for shorter, simpler tasks                 |
+
+See [OpenAI's pricing page](https://platform.openai.com/docs/pricing) for current rates.
+
+<Note>
+Leave **Reasoning effort** on Default for non-reasoning models such as GPT-4.1. Providers that do not support the setting ignore it. If generations come back cut off, lowering the effort gives the visible answer more of the output budget.
+</Note>
+
+<Note>
+The assistant panel shows a running cost for Anthropic and Gemini conversations, but not for OpenAI: with any model ID accepted — including every model on OpenRouter and any self-hosted runtime — Notifuse has no price list to compute it from. Track spend in your provider's dashboard.
+</Note>
 
 ## Features Enabled
 
@@ -50,6 +64,16 @@ Generate emails automatically using AI:
 | **Subject lines**       | Generate compelling subject lines for better open rates  |
 | **Content variations**  | Create multiple versions for A/B testing                 |
 
+### Web Analytics Assistant
+
+Answer questions about your website traffic with the [Web Analytics assistant](/web-analytics/ai-assistant):
+
+| Feature | Description |
+| ------- | ----------- |
+| **Ask about traffic** | Query sessions, pages, sources and goals in plain language |
+| **Period summaries** | A written analysis of what moved, against the comparison period |
+| **Drive the dashboard** | Change the period, apply filters, or open an Explore report |
+
 ## Enhanced with Firecrawl
 
 The OpenAI AI agent can be enhanced by adding the [Firecrawl integration](/integrations/firecrawl). This gives the AI agent web access capabilities:
@@ -72,17 +96,19 @@ When Firecrawl is configured, the following tools become available to the AI age
 
 [OpenRouter](https://openrouter.ai) is a unified API gateway that gives you access to hundreds of AI models (Google Gemini, Meta Llama, Mistral, DeepSeek, and more) through a single OpenAI-compatible endpoint.
 
-Since Notifuse's OpenAI integration uses the standard OpenAI SDK, you can point it to OpenRouter by setting the **Host** field:
+Since Notifuse's OpenAI integration uses the standard OpenAI SDK, you can point it to OpenRouter by setting the **Base URL** field:
 
 ### Form Fields for OpenRouter
 
 | Field       | Description                              | Value                             |
 | ----------- | ---------------------------------------- | --------------------------------- |
 | **API Key** | Your OpenRouter API key                  | `sk-or-v1-...`                    |
-| **Model**   | Any model available on OpenRouter        | `google/gemini-2.5-pro`           |
-| **Host**    | OpenRouter API base URL                  | `https://openrouter.ai/api/v1`   |
+| **Model**   | Any model available on OpenRouter        | `google/gemini-3-pro-preview`     |
+| **Base URL**| OpenRouter API base URL                  | `https://openrouter.ai/api/v1`    |
 
 This allows you to use any model supported by OpenRouter — including Google Gemini, Meta Llama, Mistral, DeepSeek, Qwen, and many others — directly from Notifuse's AI features.
+
+The same field covers any other OpenAI-compatible endpoint: Azure OpenAI, or a self-hosted runtime such as Ollama, vLLM or LiteLLM.
 
 <Tip>
 Browse available models at [openrouter.ai/models](https://openrouter.ai/models) to find the best fit for your use case and budget.
@@ -107,5 +133,5 @@ API calls to GPT models count toward your OpenAI account usage. Monitor your usa
 </Note>
 
 <Tip>
-For most use cases, **GPT-4.1 mini** offers the best balance of capability and cost. Use **GPT-4.1** for complex creative tasks and **GPT-4.1 nano** for simple, high-volume operations.
+For most use cases, **GPT-4.1** offers a good balance of capability and cost. Step up to a reasoning model for complex creative work, and down to a mini or nano variant for simple, high-volume operations.
 </Tip>

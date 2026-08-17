@@ -1,0 +1,125 @@
+---
+title: AI Assistant
+description: 'One assistant across the email builder, the blog editor and Web Analytics — writing content, editing templates, and answering questions about your traffic.'
+---
+
+{/* SCREENSHOT: assets/screenshots/ai_assistant_email.png — the assistant panel open beside the email builder, having just rebuilt a section */}
+
+Notifuse ships an AI assistant that works inside the tools you already use. It writes and edits blog posts, designs email templates block by block, and answers questions about your website traffic — and with [Firecrawl](/integrations/firecrawl) configured, it can search the web and read pages before it writes.
+
+It runs on **your own provider key**. Notifuse does not resell AI credits or route your prompts through a hosted service: your server calls Anthropic, OpenAI or Gemini directly, and that provider bills you.
+
+## Setting it up
+
+1. Go to **Settings** → **Integrations** → **Add Integration**.
+2. Pick an LLM provider — [Anthropic](/integrations/anthropic), [OpenAI](/integrations/openai) or [Gemini](/integrations/gemini) — and enter your API key and model.
+3. Optionally add [Firecrawl](/integrations/firecrawl) to give the assistant web access.
+
+<Note>
+Only workspace owners can add or edit integrations. API keys are encrypted before they are stored. Until an LLM integration exists, the assistant panel shows a link to the settings page instead of a chat box.
+</Note>
+
+## Where you'll find it
+
+| Surface | Where | What it does |
+| ------- | ----- | ------------ |
+| **AI Email Designer** | The email template editor, in visual mode | Builds and edits the email — blocks, layout, styles, subject line and preview text |
+| **AI Blog Assistant** | The blog post editor | Writes the article body, plus title, excerpt, SEO and Open Graph metadata |
+| **Web Analytics assistant** | Dashboard, Explore and Goals | Answers questions about your traffic, summarises a period, and drives the dashboard |
+
+Each one opens from a button in the editor it belongs to, and each already knows what is on screen — the current email tree, the current post, the current period and filters — so "make the header tighter" or "why did last week drop" need no further context from you.
+
+### Composing email templates
+
+The email assistant works on the same block tree as the visual editor, so anything it produces is editable by hand afterwards.
+
+| It can | Example |
+| ------ | ------- |
+| Build a template from scratch | "Design a product launch email with a hero, three feature columns and a CTA" |
+| Edit existing blocks | "Make the button green and full width on mobile" |
+| Add, delete, move and reorder blocks | "Move the testimonial above the pricing section" |
+| Set the subject line and preview text | "Write three subject lines for this and use the best one" |
+| Select a block so you can see it | It highlights what it just changed in the editor |
+
+After it edits the template, the MJML is compiled and any error is reported in the thread — a broken generation is never presented as a success.
+
+<Note>
+The email assistant is available in the visual editor. Switch the template to MJML code mode and the panel hides, since the assistant edits the block tree rather than raw source.
+</Note>
+
+### Composing blog posts
+
+{/* SCREENSHOT: assets/screenshots/ai_assistant_blog.png — the assistant panel open beside the blog post editor */}
+
+In the [blog post editor](/blog/posts), the assistant writes into the rich-text document itself — headings, lists, quotes, code blocks, links, images and YouTube embeds — rather than dropping a wall of plain text.
+
+| It can | Example |
+| ------ | ------- |
+| Write a full article | "Write a 1,200-word post about email deliverability for SaaS" |
+| Rework what's there | "Tighten the intro and add a summary table" |
+| Fill in metadata | "Write the excerpt and the SEO title and description" |
+| Illustrate the post | With Firecrawl, it searches for real image URLs instead of inventing placeholders |
+
+### Querying web analytics
+
+The [Web Analytics assistant](/web-analytics/ai-assistant) answers questions about your own traffic by running the same queries the dashboard runs, so an answer and the chart next to it cannot disagree. It also changes the period, applies filters and opens Explore reports for you.
+
+It is deliberately fenced: it never groups or filters by visitor email address, never reports per-session coordinates, and does not invent figures. See [the Web Analytics assistant page](/web-analytics/ai-assistant) for the full detail.
+
+## Web access with Firecrawl
+
+Add the [Firecrawl integration](/integrations/firecrawl) and two tools become available to the assistant everywhere it appears:
+
+| Tool | What it does |
+| ---- | ------------ |
+| `search_web` | Searches the web and returns relevant URLs with titles and snippets |
+| `scrape_url` | Fetches a page and returns its main content as clean markdown |
+
+That is what turns "write a post about X" into a researched post, and lets you say "read our pricing page and write the launch email from it". Each call runs on your Notifuse server and appears as a step in the conversation, so you can see what it read.
+
+<Warning>
+Every search and scrape counts against your Firecrawl quota, on top of the tokens the model spends reading the result.
+</Warning>
+
+## Choosing a provider
+
+| Provider | Model | Notes |
+| -------- | ----- | ----- |
+| **[Anthropic](/integrations/anthropic)** | Picked from a list of Claude models | The default choice for template and content generation |
+| **[OpenAI](/integrations/openai)** | Any model name you type | A **Base URL** field makes it work with any OpenAI-compatible API, and a **Reasoning effort** setting controls how much reasoning models think |
+| **[Gemini](/integrations/gemini)** | A Gemini model, or any model ID you type | |
+
+Because the OpenAI integration accepts a Base URL, it also covers [OpenRouter](https://openrouter.ai) — one key for hundreds of models from Google, Meta, Mistral, DeepSeek, Qwen and others — as well as Azure OpenAI and self-hosted runtimes such as Ollama, vLLM and LiteLLM. Point **Base URL** at `https://openrouter.ai/api/v1`, paste your `sk-or-v1-...` key, and type the model ID you want.
+
+<Tip>
+Configure more than one LLM integration and a selector appears at the bottom of the assistant panel, so you can switch model mid-task — a cheap one to draft, a stronger one to fix the layout.
+</Tip>
+
+<Warning>
+The assistant works by calling tools with structured arguments: MJML blocks, rich-text JSON, analytics queries. Capable models handle this well; small or heavily quantised models tend to produce malformed structures, call the wrong schema, or give up after a failed call. If results come back broken or vague, try a stronger model before assuming the feature is at fault.
+</Warning>
+
+## Cost
+
+For Anthropic and Gemini, the running cost of the conversation is shown at the bottom of the panel, split into input and output, and it resets when you start a new conversation. It is computed from the token counts your provider returns and the published price of the model you picked.
+
+The OpenAI integration accepts any model ID — including everything on OpenRouter and any self-hosted runtime — so there is no price list to compute against, and no cost is shown. Track that spend in your provider's dashboard.
+
+Costs land on your provider account, not on Notifuse. Tool use makes a conversation more expensive than a plain chat of the same length: each step is another request, and a scraped page or a query result is more input tokens to read.
+
+## Good to know
+
+| | |
+| --- | --- |
+| **Conversations are not saved** | The thread lives in your browser while the editor is open. **New conversation** clears it, and so does closing the editor. |
+| **Nothing is applied behind your back** | The assistant edits what is on screen; the post or template is saved when you save it, as usual. |
+| **One message, a bounded number of steps** | A single request runs a limited chain of tool calls before it must answer. Ask for a big job in a few messages rather than one. |
+| **Your data goes to your provider** | Whatever the assistant reads to answer — the email tree, the post, analytics rows, a scraped page — is sent to the model you configured. Choose the provider accordingly. |
+
+## Related
+
+- [Anthropic](/integrations/anthropic), [OpenAI](/integrations/openai), [Gemini](/integrations/gemini) — provider setup, models and pricing
+- [Firecrawl](/integrations/firecrawl) — web search and scraping
+- [Templates](/features/templates) — the email editor the assistant works in
+- [Blog posts](/blog/posts) — the post editor the assistant writes into
+- [Web Analytics assistant](/web-analytics/ai-assistant) — the analytics-specific behaviour and its limits

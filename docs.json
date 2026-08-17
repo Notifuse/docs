@@ -45,11 +45,24 @@
               "features/broadcast-campaigns",
               "features/transactional-api",
               "features/custom-events",
+              {
+                "group": "Web Analytics",
+                "pages": [
+                  "web-analytics/setup",
+                  "web-analytics/reports",
+                  "web-analytics/goals",
+                  "web-analytics/attribution",
+                  "web-analytics/identifying-visitors",
+                  "web-analytics/annotations",
+                  "web-analytics/ai-assistant"
+                ]
+              },
               "features/automations",
               {
                 "group": "Blog",
                 "pages": ["blog/setup", "blog/theme", "blog/posts"]
               },
+              "features/ai-assistant",
               "features/file-manager",
               "features/webhooks",
               "features/logs",
@@ -133,6 +146,22 @@
             "group": "Custom Events",
             "openapi": "openapi.json",
             "pages": ["POST /api/customEvents.import"]
+          },
+          {
+            "group": "Web Analytics",
+            "openapi": "openapi.json",
+            "pages": [
+              "POST /track",
+              "POST /api/workspaces.setWebAnalyticsSettings",
+              "POST /api/webAnalytics.backfillStart",
+              "POST /api/webAnalytics.backfillStatus",
+              "POST /api/webAnalytics.backfillCancel",
+              "GET /api/annotations.list",
+              "GET /api/annotations.get",
+              "POST /api/annotations.create",
+              "POST /api/annotations.update",
+              "POST /api/annotations.delete"
+            ]
           },
           {
             "group": "Broadcasts",

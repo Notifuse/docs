@@ -1,0 +1,119 @@
+---
+title: Identifying Visitors
+description: 'Tie a website visit to a contact, and use browsing behaviour in segments.'
+---
+
+{/* SCREENSHOT: assets/screenshots/web_analytics/contact_timeline_web.png — a contact timeline showing a web visit and its pageviews */}
+
+By default Web Analytics is anonymous: it counts visits without knowing who made them. Telling it who someone is connects their browsing to their contact record — their visits appear on the contact timeline, and their behaviour becomes available to segments.
+
+Because `/track` is a public endpoint, an address alone proves nothing. Identification is always signed.
+
+## identify()
+
+Call `identify` once you know who the visitor is, with the address and a signature computed **on your server**.
+
+```javascript
+NotifuseAnalytics.identify('alice@example.com', '<hmac from your server>')
+```
+
+Both arguments are required: calling `identify` without them rejects rather than failing quietly, as does an address over 255 characters or a signature over 64 bytes. A *wrongly signed* address is the silent case — the server discards the identity and still records the visit, anonymously.
+
+### Computing the signature
+
+The signature is an HMAC-SHA256, hex-encoded, over the string `wa_identify:` followed by the email address, keyed with your workspace secret key.
+
+<CodeGroup>
+
+```javascript Node.js
+import { createHmac } from 'crypto'
+
+function webIdentifyHmac(email, workspaceSecretKey) {
+  return createHmac('sha256', workspaceSecretKey)
+    .update('wa_identify:' + email)
+    .digest('hex')
+}
+```
+
+```go Go
+func webIdentifyHMAC(email, workspaceSecretKey string) string {
+	mac := hmac.New(sha256.New, []byte(workspaceSecretKey))
+	mac.Write([]byte("wa_identify:" + email))
+	return hex.EncodeToString(mac.Sum(nil))
+}
+```
+
+</CodeGroup>
+
+Sign the address exactly as you pass it to `identify` — the signature is checked before the address is normalised, so `Alice@Example.com` must be signed as `Alice@Example.com`.
+
+<Warning>
+Never compute this in the browser. The signature exists because anyone can post to the tracking endpoint; a secret key shipped to the page defeats it entirely.
+
+The `wa_identify:` prefix is deliberate. It keeps this signature from being interchangeable with the one in your unsubscribe links — so a signature lifted from a forwarded email cannot identify a visitor, and one lifted from your page cannot change someone's subscriptions.
+</Warning>
+
+`clearIdentity()` stops later beats from carrying the identity. It does not anonymise what was already recorded.
+
+## Identifying from Email Links
+
+Notifuse can add a signed identity to the links of tracked emails, so a recipient who clicks one is recognised on landing without any code on your site.
+
+This is off by default. Turn on **Identify recipients who click a tracked email link** under **Settings** → **Web Analytics**.
+
+<Note>
+Unlike `identify()`, which your own server calls with your own secret, this credential is minted by Notifuse for every recipient of every tracked send — which is why it is a separate decision rather than something that follows from enabling web analytics.
+</Note>
+
+The identity is an encrypted `nf_id` parameter that expires 7 days after it is minted. It is added only to links whose host is in your allowed domains, so third-party links in the same email never carry it. The tracker reads it on landing and strips it from the URL.
+
+A send never carries one when the notification has tracking explicitly disabled, or — on the transactional API — when the message has any CC or BCC recipient, since the identity would otherwise be handed to someone who is not the contact.
+
+<Warning>
+Turning off **click tracking** does not remove the identity. With no redirect to wrap, the parameter is written straight onto your own link. Tracking must be disabled for the notification, or email-link identification turned off, to suppress it.
+
+Turning the setting off also only stops *new* credentials being minted. An `nf_id` already sitting in a visitor's browser keeps identifying them until it expires, up to 7 days later.
+</Warning>
+
+## What Identification Records
+
+Once a visitor is identified, that visit and everything already recorded in it is attributed to the contact:
+
+- **On the analytics rows**: the contact's address, so Contact Email becomes a dimension and Identified Contacts becomes a measure.
+- **On the contact timeline**: one entry per page they viewed and one summarising the visit, plus any goals as custom events.
+
+If the address is not a contact yet, one is created — carrying the language and timezone the visit reported, plus the country resolved from the visitor's IP when geolocation is on. A value Notifuse cannot store, such as an unsupported language or an unrecognised timezone, is simply left off. An existing contact is never modified by a visit, and a contact created this way joins no list.
+
+## Segments
+
+Web behaviour is available as Activity conditions on a segment:
+
+| Condition | Filter on |
+|---|---|
+| **View web page** | Path, time on page, scroll depth, page number in visit, entry type |
+| **Visit website** | Entry page, exit page, pages viewed, visit duration, scroll depth, goals reached, goal value, referrer domain, UTM source / medium / campaign, channel, channel group, device, browser, operating system, country |
+
+So "viewed `/pricing` at least twice in the last 30 days" or "visited from a newsletter campaign and reached at least one goal" are ordinary segment conditions. See [Contacts](/features/contacts) for how conditions combine.
+
+<Note>
+Navigation never triggers an automation. Pageviews and visits are recorded and segmentable, but only **goals** reach automations — through the `custom_event` trigger, under the goal's normalised name. Goals carry a declared type, so they are also reachable through the Custom Events Goal condition; see [Goals](/web-analytics/goals#using-web-goals-in-segments).
+</Note>
+
+## Privacy
+
+- No cookie is set, and no identifier follows a visitor between sites.
+- IP addresses are used to resolve a location and are never stored.
+- An anonymous visit stays anonymous. Nothing links it retroactively to a contact identified in a later session.
+- Deleting a contact removes their address everywhere it was stored: the analytics rows, their timeline entries, and the custom events created from their web goals. The traffic survives as anonymous, so historical totals do not change.
+
+<Warning>
+A visitor whose browser still holds a credential is re-identified — and re-created as a contact — by their next visit, even after you delete them. To stop it for good, stop calling `identify()` for that address, and turn off email-link identification if the credential came from a link. An `nf_id` minted before you turned the setting off keeps working until it expires.
+</Warning>
+
+## Notes
+
+- Identification is rate limited per address and per source IP. Creating a *new* contact from an identification is additionally rate limited per workspace.
+- Exceeding a limit costs the identity on that beat, never the visit.
+- Each projection pass writes at most 100 pageviews per visit, keeping the most recent. A long visit projected over several passes can leave more than 100 pageview entries on the timeline.
+- Goals older than 24 hours are not added to a timeline, so a replayed offline visit does not fire automations a day late.
+- [API Reference](/api-reference)

@@ -5,7 +5,7 @@ description: 'Configure Anthropic Claude AI to power blog content creation and e
 
 <img src="/assets/integrations/anthropic.png" alt="Anthropic" style={{ height: '24px' }} />
 
-The Anthropic integration enables AI-powered features across Notifuse using Claude, Anthropic's advanced AI assistant. This integration powers the AI agent for blog content creation and email generation.
+The Anthropic integration enables AI-powered features across Notifuse using Claude, Anthropic's advanced AI assistant. This integration powers the [AI assistant](/features/ai-assistant) for blog content creation, email design and web analytics.
 
 ## Configuration
 
@@ -16,15 +16,19 @@ Navigate to **Settings** → **Integrations** → **Add Integration** → **Anth
 | Field       | Description                              | Example                           |
 | ----------- | ---------------------------------------- | --------------------------------- |
 | **API Key** | Your Anthropic API key                   | `sk-ant-api03-...`                |
-| **Model**   | Select the Claude model to use           | `claude-sonnet-4-5-20250929`      |
+| **Model**   | Select the Claude model to use           | `claude-sonnet-4-6`               |
 
 ### Available Models
 
-| Model                        | Description                                              | $ Pricing (per MTok)   |
-| ---------------------------- | -------------------------------------------------------- | -------------------- |
-| **Claude Opus 4.5**          | Most capable model for complex reasoning and creative tasks | $5 input / $25 output |
-| **Claude Sonnet 4.5**        | Balanced performance and cost for most use cases         | $3 input / $15 output |
-| **Claude Haiku 4.5**         | Fast and cost-effective for simpler tasks                | $1 input / $5 output  |
+| Model                 | Model ID                    | Description                                                 | $ Pricing (per MTok)  |
+| --------------------- | --------------------------- | ----------------------------------------------------------- | --------------------- |
+| **Claude Opus 4.6**   | `claude-opus-4-6`           | Most capable model for complex reasoning and creative tasks | $5 input / $25 output |
+| **Claude Sonnet 4.6** | `claude-sonnet-4-6`         | Balanced performance and cost for most use cases            | $3 input / $15 output |
+| **Claude Haiku 4.5**  | `claude-haiku-4-5-20251001` | Fast and cost-effective for simpler tasks                   | $1 input / $5 output  |
+
+<Note>
+The assistant shows the running cost of a conversation from these prices. See [Anthropic's pricing page](https://claude.com/pricing) for the authoritative rates.
+</Note>
 
 ## Features Enabled
 
@@ -49,6 +53,16 @@ Generate emails automatically using AI:
 | **Email generation**    | Create email content from prompts or descriptions        |
 | **Subject lines**       | Generate compelling subject lines for better open rates  |
 | **Content variations**  | Create multiple versions for A/B testing                 |
+
+### Web Analytics Assistant
+
+Answer questions about your website traffic with the [Web Analytics assistant](/web-analytics/ai-assistant):
+
+| Feature | Description |
+| ------- | ----------- |
+| **Ask about traffic** | Query sessions, pages, sources and goals in plain language |
+| **Period summaries** | A written analysis of what moved, against the comparison period |
+| **Drive the dashboard** | Change the period, apply filters, or open an Explore report |
 
 ## Enhanced with Firecrawl
 
@@ -83,5 +97,5 @@ API calls to Claude count toward your Anthropic account usage. Monitor your usag
 </Note>
 
 <Tip>
-For most use cases, **Claude Sonnet 4.5** offers the best balance of capability and cost. Use **Opus 4.5** for complex creative tasks and **Haiku 4.5** for simple, high-volume operations.
+For most use cases, **Claude Sonnet 4.6** offers the best balance of capability and cost. Use **Opus 4.6** for complex creative tasks and **Haiku 4.5** for simple, high-volume operations.
 </Tip>
