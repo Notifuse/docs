@@ -7,8 +7,10 @@ description: 'Connect Notifuse to Zapier: trigger Zaps from contact, list and se
   Step 3 tells the reader to find Notifuse in Zapier's app directory, which only works once the
   app is published there. While the listing is still pending, a reader who has not been sent an
   invite link finds nothing — keep that in mind before linking this page from onboarding email.
-  Everything else on this page describes shipped behaviour: the Settings → Zapier screen is live
-  and ungated, and it is what Step 1 documents.
+  Everything else on this page describes shipped behaviour: Zapier is a connector under
+  Settings → Integrations, in the same catalogue as the email providers, and Step 1 documents
+  that screen. There is no longer a Settings → Zapier screen — it was removed when the
+  integration moved — so any reference to one, here or elsewhere, is stale.
 */}
 
 Zapier connects Notifuse to thousands of other applications without writing any code. Notifuse offers both halves of a Zap:
@@ -18,27 +20,31 @@ Zapier connects Notifuse to thousands of other applications without writing any 
 
 ## Before You Start
 
-You need two things from Notifuse — an **API key** and your **API URL** — and **Settings** → **Zapier** hands you both on one screen.
+You need two things from Notifuse — an **API key** and your **API URL** — and connecting Zapier under **Settings** → **Integrations** hands you both.
 
 You also need **HTTPS**. Zapier only talks to endpoints served over HTTPS with a certificate issued by a public certificate authority, so a self-hosted instance has to be reachable from the public internet.
 
-## Step 1 — Create the Key from Settings → Zapier
+## Step 1 — Connect Zapier
 
-Open **Settings** → **Zapier** in the workspace you want Zapier to work in, and click **Create a Zapier API key**. Only the workspace owner can create an API key.
+Open **Settings** → **Integrations** in the workspace you want Zapier to work in. Zapier sits at the bottom of the list of available connectors; on a workspace that already has an integration of any kind, that list is not shown and Zapier is under the **Add Integration** button instead. Either way, choose **Zapier**. Only the workspace owner can connect it.
 
-The screen creates the key with exactly the permissions this integration needs and nothing else: **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — a key minted here cannot read your message history or send email, so a leaked token costs you this integration and no more.
+You are asked for one thing: a **label**. It names the connection in Notifuse, and nothing else depends on what you type — a workspace can hold several Zapier connections, so use the label to say what each one is for. "Zapier" is filled in for you and is fine if you only need one.
 
-The token is displayed **once**, when the key is created. Copy it before you leave the screen — it cannot be retrieved afterwards. The same screen prints the **API URL** you will need in Step 2, with a copy button beside it.
+Click **Connect Zapier**. Notifuse mints an API key with exactly the permissions this integration needs and nothing else: **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — the grant is chosen for you, and a key minted here cannot read your message history or send email, so a leaked token costs you this integration and no more.
 
-The screen also fills in a name for the key, something like `zapier_1a2f`. Names are unique across your whole Notifuse installation, not just this workspace, which is why the suggested one carries a suffix. If you change it to a name that is already taken, the screen says so — pick another.
+The token is displayed **once**, in the panel that replaces the form. Copy it before you press **Done** — it cannot be retrieved afterwards, and no screen in Notifuse can show it to you again. The same panel prints the **API URL** you will need in Step 2, with a copy button beside it.
 
 <Note>
-  **Or create the key by hand.** **Settings** → **Team** → **Create API Key** works too, and it is where you grant the permissions yourself — see the table below for what to tick. Team is also where you widen or narrow an existing key later, whichever screen created it: the change takes effect on the key's next request and **the token does not change**, so there is nothing to re-enter in Zapier. Give Zapier its own key rather than reusing an existing one. See [Admins & API Keys](/features/admins-api-keys) for the full permission reference.
+  **The key's address is derived from your label, not typed by you.** Notifuse builds it as `zapier-<label>-<random>`, lowercasing your label and replacing anything that is not a letter, digit or underscore with a dash — or just `zapier-<random>` if you kept the default. API key addresses are unique across your whole Notifuse installation rather than per workspace, which is what the random part is for: two workspaces can both connect a "Marketing" Zapier without clashing, and you never have to pick a name that is still free. The connect panel names the address it landed on, and the connection's card shows it afterwards — that is how you match a card to its row in **Settings** → **Team**.
+</Note>
+
+<Note>
+  **Or create the key by hand.** **Settings** → **Team** → **Create API Key** works too, and it is where you grant the permissions yourself — see the table below for what to tick. A key built that way is an ordinary API key: it is attached to no connection, so no card appears under **Settings** → **Integrations**, and removing its row from **Settings** → **Team** is the only thing that revokes it. Give Zapier its own key rather than reusing an existing one. See [Admins & API Keys](/features/admins-api-keys) for the full permission reference.
 </Note>
 
 ### What the Key Can Do
 
-This is a reference, not a checklist: **Settings** → **Zapier** grants all of it for you. Read it to know what the token in Zapier's hands can reach — or to know what to tick if you are building the key by hand from **Settings** → **Team**, or narrowing one afterwards.
+This is a reference, not a checklist: connecting Zapier grants all of it for you. Read it to know what the token in Zapier's hands can reach — or to know what to tick if you are building the key by hand from **Settings** → **Team**, or narrowing one afterwards.
 
 | What you want to use | Permissions the key needs |
 | -------------------- | ------------------------- |
@@ -63,10 +69,10 @@ This is a reference, not a checklist: **Settings** → **Zapier** grants all of 
 
 ## Step 2 — Your API URL
 
-Zapier's connection form has an **API URL** field, and **Settings** → **Zapier** prints the value to put in it.
+Zapier's connection form has an **API URL** field, and the **Connect Zapier** panel prints the value to put in it — both before you connect and beside the token afterwards.
 
 - **Notifuse Cloud**: the field arrives pre-filled with the Cloud API, `https://v3.notifuse.com`. Leave it as it is.
-- **Self-hosted**: paste the address the **Settings** → **Zapier** screen prints — the same address you open the Notifuse console at, scheme and domain only, with nothing after the domain and no trailing slash. Do not clear the field: an empty API URL means Notifuse Cloud, not "this instance".
+- **Self-hosted**: paste the address the panel prints — the same address you open the Notifuse console at, scheme and domain only, with nothing after the domain and no trailing slash. Do not clear the field: an empty API URL means Notifuse Cloud, not "this instance".
 
 Your instance must be reachable from the public internet, over HTTPS, with a certificate from a public certificate authority. Let's Encrypt is fine.
 
@@ -81,8 +87,17 @@ In Zapier, create a Zap, search for **Notifuse**, and choose a trigger or action
 Every Notifuse trigger and action then asks which **workspace** to use, from a dropdown.
 
 <Note>
-  **One connection per workspace.** A Notifuse API key belongs to exactly one workspace, so the workspace dropdown will only ever offer that one and selects it for you. If you run several workspaces, open **Settings** → **Zapier** in each one, create a key there, and add a separate Zapier connection for each — Zapier labels connections with the workspace name and the host they live on, so they are easy to tell apart. Since key names are unique across the whole installation, no two of those keys can share a name — the suffix in the name each screen suggests is there to keep them apart.
+  **A Zapier connection covers one workspace.** A Notifuse API key belongs to exactly one workspace, so the workspace dropdown will only ever offer that one and selects it for you. If you run several workspaces, connect Zapier from **Settings** → **Integrations** in each one and add a separate Zapier connection for each — Zapier labels connections with the workspace name and the host they live on, so they are easy to tell apart.
 </Note>
+
+## Managing the Connection Afterwards
+
+The connection appears as a card under **Settings** → **Integrations**, showing your label, the address of the key it minted, and when it was connected. Two things you can do to it, and they are not equivalent:
+
+- **Renaming it** changes the label on the card and nothing else. The key keeps the address it was minted under, so the card's name and the address can disagree afterwards — the card shows both for exactly that reason. Nothing has to be re-entered in Zapier.
+- **Deleting it revokes the key.** Every Zap using that key stops working the moment you confirm, and there is no way back: a revoked key cannot be restored, and reconnecting mints a different one you must paste into Zapier. Deleting the workspace revokes its Zapier keys the same way.
+
+**Settings** → **Team** is where a key's permissions change. Widen or narrow the Zapier key there — the change takes effect on its next request and **the token does not change**, so there is nothing to re-enter in Zapier. Removing the key's row from Team also revokes it, exactly as deleting the card does, but leaves the card behind pointing at a key that no longer exists.
 
 ## Triggers
 
@@ -157,14 +172,14 @@ Three more cases where the action reports success without adding a new subscribe
 
 ### The connection test fails
 
-- Check the API URL: it must start with `https://` and contain no path after the domain. **Settings** → **Zapier** prints the exact value.
+- Check the API URL: it must start with `https://` and contain no path after the domain. The connect panel printed the exact value, and reopening the card only offers the label — so if you no longer have it, take the scheme and domain of the address you open the Notifuse console at and drop everything after the domain.
 - Open `https://your-domain/api/workspaces.list` in a browser. An authentication error is the expected answer and proves the address is reachable; a timeout, a connection error or a certificate warning means Zapier cannot reach it either.
 - Check the certificate is issued by a public certificate authority, not a self-signed or internal one.
-- If the key was deleted in Notifuse, the connection stops working immediately. Zapier reports it as an authentication failure and offers to reconnect the account: create a new key and paste it in.
+- If the key was revoked in Notifuse — by deleting the Zapier connection, or by removing its row from **Settings** → **Team** — the connection stops working immediately. Zapier reports it as an authentication failure and offers to reconnect the account: connect Zapier again and paste the new token in.
 
 ### A step fails with a permission error
 
-The message names the missing permission. Add it to the key from **Settings** → **Team**; the change takes effect on the next request and the token stays the same.
+The message names the missing permission. Add it to the key from **Settings** → **Team**; the change takes effect on the next request and the token stays the same. Do not connect Zapier a second time to fix this — a fresh connection mints a key with the same standard grant, and the step fails in the same place.
 
 ### A Zap stopped receiving events
 

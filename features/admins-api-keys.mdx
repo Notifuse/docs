@@ -31,7 +31,7 @@ Change a member's permissions from the Team page at any time. The change applies
 
 A key created without any permission choice has full workspace access — which is also how keys created before scoped permissions existed keep behaving, until you narrow them. A key created with every permission switched off can still authenticate, and still reaches the handful of endpoints no permission gates: `/api/workspaces.list` returns the workspace record the key belongs to — its settings, custom field labels and the reusable template blocks stored on it — with provider credentials redacted. Everything on the table below is closed to it.
 
-Give each integration its own key with the narrowest set of permissions that makes it work. A key that only sends transactional email needs nothing but Transactional write — see [Transactional API](/features/transactional-api). You do not have to work the scope out for [Zapier](/integrations/zapier): **Settings** → **Zapier** creates a key already scoped to Webhook Subscriptions, Contacts and Lists read and write, plus Segments read.
+Give each integration its own key with the narrowest set of permissions that makes it work. A key that only sends transactional email needs nothing but Transactional write — see [Transactional API](/features/transactional-api). You do not have to work the scope out for [Zapier](/integrations/zapier): connecting it from **Settings** → **Integrations** creates a key already scoped to Webhook Subscriptions, Contacts and Lists read and write, plus Segments read.
 
 The prefix you choose becomes the key's API email address, which is also the SMTP bridge username. It accepts lowercase letters, digits, hyphens and underscores, up to 64 characters, and each prefix can be used once per Notifuse installation.
 
@@ -59,6 +59,8 @@ Two consequences worth knowing before an incident rather than during one:
 
 - **Narrowing a key is not revoking it.** A key stripped of every permission still authenticates and still holds whatever access is not permission-gated. Treat it as a way to contain a key, not to kill it.
 - **You cannot tell which key leaked.** Keys carry no last-used timestamp and no per-key request log, so if you suspect a token has been exposed but do not have the token itself, nothing in Notifuse identifies which of your keys it is. With several keys in play, the only sound response is to remove all of them, create replacements, and update every integration.
+
+Removing the key from the Team page is not always where you do it: deleting a [Zapier](/integrations/zapier) connection from **Settings** → **Integrations** removes the key it minted, and deleting a workspace removes them all. Removing a Zapier connection's key from Team works too and revokes it just the same, but leaves the connection's card behind pointing at a key that no longer exists.
 
 For that reason, keep the number of keys small, give each one a prefix that names the system holding it, and prefer narrow keys — so that a leak costs you one integration rather than the workspace.
 
