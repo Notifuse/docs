@@ -1,6 +1,6 @@
 ---
 title: Admins & API Keys
-description: 'Manage workspace access through admin invitations and API key creation. Control who can access your workspace and generate secure API tokens for integrations with full workspace permissions.'
+description: 'Invite admins and create API keys scoped to exactly the parts of your workspace they need. Choose the permissions a key carries, change them at any time, and understand what each permission really allows.'
 ---
 
 <img src="/assets/screenshots/api_key.png" alt="Admins screenshot" />
@@ -10,29 +10,139 @@ description: 'Manage workspace access through admin invitations and API key crea
 ### Inviting Admins
 
 - **Owner Only**: Only the workspace owner can invite new admins
-- **Full Access**: Invited admins receive complete workspace permissions
+- **Scoped Access**: You pick the permissions the invitation carries, and you can change them later
 - **Email Invitation**: Send invitations via email address
 
-### Admin Permissions
+The owner holds every permission and cannot be restricted. Everyone else — human admins and API keys alike — holds a set of permissions you choose.
 
-Admins have full access to all workspace features:
+### Permissions
 
-- Contact and list management
-- Template creation and editing
-- Campaign management
-- API key generation
-- Workspace settings and integrations
+A permission is a pair of switches on one area of the workspace: **read** and **write**. Write does not imply read, and both are off unless you grant them. A section appears in the console sidebar when the member holds either switch on the matching area.
+
+Change a member's permissions from the Team page at any time. The change applies to their very next request.
 
 ## API Key Management
 
 ### Creating API Keys
 
-- **Admin Access**: Any admin can create API keys
-- **Full Permissions**: API keys inherit complete workspace access
-- **One-Time Display**: Tokens are shown only once during creation
+- **Owner Only**: Only the workspace owner can create an API key
+- **Scoped Access**: Choose the permissions the key carries when you create it, or grant everything
+- **One-Time Display**: The token is shown only once, when the key is created
+
+A key created without any permission choice has full workspace access — which is also how keys created before scoped permissions existed keep behaving, until you narrow them. A key created with every permission switched off can still authenticate, and still reaches the handful of endpoints no permission gates: `/api/workspaces.list` returns the workspace record the key belongs to — its settings, custom field labels and the reusable template blocks stored on it — with provider credentials redacted. Everything on the table below is closed to it.
+
+Give each integration its own key with the narrowest set of permissions that makes it work. A key that only sends transactional email needs nothing but Transactional write — see [Transactional API](/features/transactional-api). You do not have to work the scope out for [Zapier](/integrations/zapier): **Settings** → **Zapier** creates a key already scoped to Webhook Subscriptions, Contacts and Lists read and write, plus Segments read.
+
+The prefix you choose becomes the key's API email address, which is also the SMTP bridge username. It accepts lowercase letters, digits, hyphens and underscores, up to 64 characters, and each prefix can be used once per Notifuse installation.
+
+### Changing a Key's Scope
+
+You can widen or narrow an existing key at any time from the Team page. The change takes effect immediately, on the key's next request. **The token does not change**, so there is nothing to re-issue and no integration to update — you do not have to touch the application holding the key.
 
 ### Security
 
-- **Secure Storage**: Copy and store tokens immediately after creation
-- **No Recovery**: Lost tokens cannot be retrieved - create new ones
+- **Secure Storage**: Copy and store the token immediately after creation
+- **No Recovery**: Lost tokens cannot be retrieved — create a new key
 - **HTTPS Required**: All API calls must use secure connections
+
+When a key is refused, the API answers `403` and names the area it was missing — as `contacts`, `webhook_subscriptions` and so on — along with the missing switch. A quota `403` carries neither, so the two are easy to tell apart.
+
+## Revoking a Key
+
+<Warning>
+  Removing the key is the only way to revoke it, and it is destructive: the token stays valid until
+  the key is removed, and a removed key cannot be restored or re-issued. Every integration using it
+  stops working the moment you remove it.
+</Warning>
+
+Two consequences worth knowing before an incident rather than during one:
+
+- **Narrowing a key is not revoking it.** A key stripped of every permission still authenticates and still holds whatever access is not permission-gated. Treat it as a way to contain a key, not to kill it.
+- **You cannot tell which key leaked.** Keys carry no last-used timestamp and no per-key request log, so if you suspect a token has been exposed but do not have the token itself, nothing in Notifuse identifies which of your keys it is. With several keys in play, the only sound response is to remove all of them, create replacements, and update every integration.
+
+For that reason, keep the number of keys small, give each one a prefix that names the system holding it, and prefer narrow keys — so that a leak costs you one integration rather than the workspace.
+
+## What Each Permission Allows
+
+<Note>
+  When a release introduces a new permission, existing members and API keys are granted it on
+  upgrade. A key you deliberately narrowed therefore widens with the new area, and stays widened
+  until you narrow it again. Re-check your scoped keys after each upgrade. A key with *every*
+  permission switched off is the one exception: the upgrade leaves it alone.
+</Note>
+
+In the console, click a permission's name in the matrix to expand the exact list of endpoints it gates and what each one does. The table below is the summary.
+
+| Permission | Read allows | Write allows |
+| ---------- | ----------- | ------------ |
+| **Contacts** | View contacts and their full profiles, their timeline, and the custom events recorded against them. Also required to list the addresses inside a list or a segment, and to set `cc` or `bcc` on a transactional send | Create and update contacts, **delete** them, **overwrite every field in bulk** through a CSV or API import, and record custom events |
+| **Segments** | View segments and their definitions, and the state of their build tasks. Previewing a segment, or listing the contacts it matches, needs Contacts read as well | Create, edit, delete and rebuild segments, and run, reset or delete their build tasks |
+| **Lists** | View lists, their settings and their subscriber counts. Listing the members of a list needs Contacts read as well | Create, edit and delete lists, and **subscribe an address to any list, public or not — creating or overwriting that contact's record in the same call**. Changing or removing an existing subscription needs Contacts write as well |
+| **Templates** | View templates in every language and the reusable template blocks, and compile a template with test data | Create, edit and delete templates and reusable blocks. Editing a block changes every template that embeds it |
+| **Blog** | View categories, posts including unpublished drafts, and theme versions including their scripts | Create, edit, delete, publish and unpublish posts and categories; **publish a theme**; and change the blog settings, including switching the blog on or off |
+| **Broadcasts** | View broadcasts, their configuration and their A/B test results, and the state of their send tasks. Delivery statistics are Message History read, not this | Create and edit broadcasts, refresh and test data feeds, and schedule, **send to the entire audience**, pause, resume, cancel and delete a broadcast, pick the A/B winner, and run or reset the underlying send task |
+| **Transactional** | View transactional notification definitions | Create, edit and delete them, and send real email — over the API, over the SMTP bridge, as a template test, and as a provider credentials test. See [the send rules](#transactional-sending-and-contacts) below |
+| **Automations** | View automations, their complete node configuration including webhook node URLs and bearer secrets, and one named contact's journey through a flow | Create, edit and delete automations, and activate or pause them |
+| **Message History** | View sent messages with their recipient addresses and rendered data, and a broadcast's delivered, open, click, bounce and per-link counts | **Nothing — this verb gates nothing today** |
+| **Web Analytics** | View site analytics, the annotations drawn on those charts, and backfill progress | Create, edit and delete annotations, start and cancel the historical backfill, and change the web analytics settings — allowed domains, filters, custom dimension labels and email-link identification |
+| **Webhook Subscriptions** | List subscriptions and open one, and read the delivery log including each event payload and the endpoint's response. The signing secret is hidden from everyone but the owner | Create, edit, delete, enable and disable subscriptions, and fire a test delivery |
+| **Webhook Events** | View the raw callbacks your email providers send back, including recipient addresses and provider diagnostics | **Nothing — this verb gates nothing today** |
+| **LLM** | **Nothing — this verb gates nothing today** | Use the AI assistant |
+| **Workspace** | Read the workspace record and its settings, and see the whole team — members, owners, API keys and pending invitations. Without it the team list is degraded to your own row rather than refused | Rename the workspace's custom contact field labels, and run, reset or delete an integration sync task. **Nothing else** — see below |
+
+Two endpoint families are shared, and answer to whichever permission matches what you ask for: `/api/analytics.query` checks the permission of each schema you query, and `/api/tasks.*` checks the permission of the task type — Segments for segment builds, Broadcasts for sends, Web Analytics for backfills, Workspace for integration syncs.
+
+### Verbs That Gate Nothing Today
+
+Three switches have no endpoint behind them as the API stands: **LLM read**, **Message History write** and **Webhook Events write**. The console shows all three granted and locked, and you cannot turn them off. That is deliberate: storing one as "off" would be permanent, because filling in a missing permission only ever adds what a grant lacks, so nothing would widen it if a later release gives the verb something real to gate.
+
+Granting them confers nothing. Their neighbours do the work: the AI assistant answers to LLM write, message history is read-only because rows are written by the sending pipeline, and inbound provider callbacks arrive on routes that carry no session and consult no permission at all.
+
+### Workspace Write Is Narrower Than It Sounds
+
+The only workspace setting the **Workspace** permission lets you change is the custom contact field labels. It does **not** cover:
+
+- **Renaming the workspace, changing its general settings, or deleting it** — owner-only.
+- **Creating, updating or deleting an integration** — owner-only. Granting Workspace write does not confer it, and an owner has it without.
+- **Blog settings**, which answer to Blog write.
+- **Web analytics settings**, which answer to Web Analytics write.
+
+So handing someone the blog or the site analytics also hands them the workspace-level configuration of that feature — including the switch that turns the feature itself on or off.
+
+## Owner-Only Actions
+
+No permission grants these. They stay with the workspace owner whatever a member or key holds:
+
+- Renaming the workspace, changing its general settings, and deleting it
+- Creating, updating and deleting integrations, and the Amazon SES configuration endpoints
+- Registering webhooks with an email provider, because it uses the provider credentials stored in your integration
+- Regenerating a webhook subscription's signing secret — and reading it, which is redacted for everyone else
+- Inviting a member, removing a member, and setting a member's permissions
+- Creating an API key
+- Transferring ownership of the workspace
+
+## Permissions That Reach Further Than Their Name
+
+Read these before granting them to a key you do not fully control.
+
+- **Contacts write deletes and overwrites in bulk.** It covers `/api/contacts.delete`, and it covers `/api/contacts.import`, which overwrites every field each row carries — a single call can rewrite your whole contact database. It is not "can add contacts". Contacts read is likewise not confined to profiles: it covers the contact timeline and custom events.
+- **Lists write is an implicit Contacts write.** Subscribing an address through `/api/lists.subscribe` creates or overwrites that contact's whole record, with every field the request carries, **without needing Contacts write** — so a key holding only Lists write can still rewrite contact data. The same call can subscribe someone to a list that is not public. Grant Lists write only where you would grant Contacts write.
+- **Broadcasts write sends.** The same switch that lets someone draft a campaign lets them push it to your entire audience — through `/api/broadcasts.schedule`, and again by triggering or resetting the underlying send task.
+- **Automations write reads contacts, changes lists and sends mail.** A webhook node posts the complete contact record to any URL the automation names, and nothing checks permissions while an automation runs; its other nodes add and remove contacts from lists and send email. So this switch reaches contact data, list membership and sending with no Contacts, Lists or Transactional grant at all.
+- **Automations read exposes secrets.** The webhook node configuration it returns includes the bearer tokens configured on those nodes.
+- **Blog write runs JavaScript on your domain.** It includes publishing a theme, and a theme carries its own `scripts.js`, served to every visitor of your blog's custom domain. It also switches the blog feature on and off.
+- **Templates covers reusable blocks.** Editing one block changes every template that embeds it. Blocks are stored with the workspace's own settings, so their content also comes back from the workspace record.
+- **Web Analytics covers annotations.** Annotations have no permission of their own, so this grant is also the right to write on the shared timeline everyone reads. Note that the public tracking collector is governed by nothing at all: it accepts data without authentication, and no permission changes that.
+- **Webhook Subscriptions write receives contact and email data.** A subscription chooses the events it carries, so the holder can subscribe to contact and email events and have that data delivered to a URL of their choosing. Read opens the delivery log, which carries the payloads themselves. See [Webhooks](/features/webhooks).
+- **Segments read plus Contacts read is a query tool.** `/api/segments.preview` accepts any definition sent to it, not just a saved segment, so the pair can ask counting questions about contact attributes, list membership, custom events and timeline — one count at a time, on any condition. Segments read alone cannot.
+- **Message History read is contact data.** The log carries recipient addresses and the data each message was rendered with.
+- **LLM write spends.** AI assistant requests go to your configured AI provider on your workspace's billing, and are not capped per key. With a Firecrawl integration configured, it also lets the assistant scrape and search the web through your credentials.
+
+### Transactional Sending and Contacts
+
+**Transactional write on its own is enough to send.** That makes a genuine send-only key practical, and the rules are the same over the API and the [SMTP bridge](/features/transactional-api):
+
+- **Without Contacts write**, the send still creates the recipient contact when it does not exist, but stores nothing beyond the email address, and never modifies an existing contact.
+- **Without Contacts read**, a send that sets `cc` or `bcc` is refused — the subject line is rendered against each recipient's whole record. On the SMTP bridge those come from the message's `Cc:` and `Bcc:` headers.
+
+Note that Transactional write sends real mail from three separate endpoints, including `/api/email.testProvider`, which only claims to test a provider.

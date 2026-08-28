@@ -152,6 +152,14 @@ Common segmentation scenarios include:
 
 The segmentation engine leverages contact timeline data introduced in version 7.0, which tracks all contact interactions including messages, webhook events, and profile mutations. Activity events include granular `kind` field types (e.g., `email.opened`, `email.clicked`, `web.pageview`) enabling precise behavioral targeting. All timestamps are stored in UTC timezone and can be evaluated in user-specified timezones for date-based conditions.
 
+### Segment Permissions
+
+Segments have their own **Segments** permission: **read** lists segments and opens one, **write** creates, edits, deletes and rebuilds them, and runs, resets or deletes their background build tasks.
+
+Previewing a segment while you build it, and listing the contacts a segment currently matches, additionally require the **Contacts** read permission — both answer questions about your contacts rather than about the segment definition. A member holding Segments read alone can work with segment definitions, but not see who is in them.
+
+Preview accepts any definition sent to it, not just a saved segment. Someone holding Segments read together with Contacts read can therefore ask counting questions about any contact attribute, list membership, custom event or timeline entry, one count at a time.
+
 ## Importing Contacts from CSV
 
 <img
@@ -172,6 +180,27 @@ During the import process, you can select one or multiple mailing lists to add y
 ### Progress Tracking and Recovery
 
 The import process includes automatic progress saving, which means if your import is interrupted due to network issues or browser closure, you can resume from where you left off. This is particularly valuable when importing large CSV files with thousands of contacts, ensuring no data is lost during the process.
+
+### Import Permissions
+
+Importing needs the **Contacts** write permission. Selecting one or more mailing lists during the import needs **Lists** write as well.
+
+Bear in mind what an import does: every field a row carries overwrites the stored value on the matching contact. A single import can rewrite your whole contact database, so treat Contacts write as that level of access rather than as "can add contacts".
+
+## Permissions
+
+Contact data answers to the **Contacts** permission:
+
+- **Read** covers contact records and their full profiles, the contact timeline, and the custom events recorded against contacts. It is also required — alongside the matching Lists or Segments grant — to enumerate the addresses inside a list or a segment, and to set `cc` or `bcc` on a transactional send.
+- **Write** covers creating and updating contacts, **deleting** them, **bulk-overwriting** them through a CSV or API import, and recording custom events. Changing a contact's subscription status on a list needs Lists write as well.
+
+Write is not "can add contacts": it deletes permanently, and it overwrites in bulk.
+
+Three grants reach contact data without Contacts write, which is worth knowing before you hand any of them out:
+
+- **Lists write** on its own creates or overwrites a complete contact record. Subscribing an address through `/api/lists.subscribe` writes every field the request carries, and can subscribe someone to a list that is not public.
+- **Automations write** sends the complete contact record to any URL a webhook node names, and nothing checks permissions while an automation runs.
+- **Transactional write** creates the recipient contact as part of sending. Without Contacts write, only the email address is stored and an existing contact is never modified — see [Transactional API](/features/transactional-api#permissions).
 
 ## Key Features
 

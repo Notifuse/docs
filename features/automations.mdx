@@ -333,6 +333,22 @@ Each node tracks:
 - **Failed**: Encountered errors
 - **Skipped**: Bypassed (e.g., wrong branch)
 
+## Permissions
+
+Automations answer to the **Automations** permission: **read** opens automations and their complete node graphs, plus one named contact's journey; **write** creates, edits and deletes them, and activates or pauses them.
+
+<Warning>
+  **Automations write reaches past its own area.** A webhook node posts the complete contact record
+  to any URL the automation names, and nothing checks permissions while an automation runs — so this
+  switch is an indirect contact read that Contacts read cannot restrain. Its other nodes add
+  contacts to lists, remove them, and send email, with no Lists or Transactional grant at all.
+
+  **Automations read exposes secrets.** The node configuration it returns includes each webhook
+  node's URL and the bearer secret saved on it.
+</Warning>
+
+See [Admins & API Keys](/features/admins-api-keys).
+
 ## Best Practices
 
 1. **Start simple**: Begin with trigger → delay → email, then add complexity

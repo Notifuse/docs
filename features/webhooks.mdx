@@ -100,6 +100,49 @@ For custom events, you can optionally filter by `goal_types` and `event_names`:
 }
 ```
 
+## Filtering by List and Segment
+
+By default a subscription to `list.*` events receives an event for **every** list in the workspace, and a subscription to `segment.*` events one for every segment. Narrow that with `list_ids` and `segment_ids`:
+
+```json
+{
+  "event_types": ["list.subscribed", "list.unsubscribed", "segment.joined"],
+  "list_ids": ["newsletter", "product_updates"],
+  "segment_ids": ["vip_customers"]
+}
+```
+
+- `list_ids` applies to the `list.*` events only, `segment_ids` to the `segment.*` events only. Neither affects contact, email or custom event types.
+- Omitting a filter, or sending an empty array, means "every list" or "every segment" — which is how every subscription created before these filters existed keeps behaving.
+- Both filters can be changed later with `webhookSubscriptions.update`.
+
+Filter whenever you can. A workspace with large lists generates one delivery per contact per list event, so a subscription that only cares about one list but subscribes to all of them does real work on your instance for events it will discard.
+
+## Subscription Fields
+
+Alongside its name, URL and event types, a subscription reports:
+
+| Field | Description |
+|-------|-------------|
+| `enabled` | Whether the subscription is currently delivering |
+| `source` | What created it. Absent for a subscription you created yourself; `zapier` for one created by the [Zapier integration](/integrations/zapier) |
+| `consecutive_failures` | Delivery attempts that have failed back to back. Reset to zero by the first success |
+| `failing_since` | When the current run of failures started. Cleared by the first success |
+| `disabled_reason` | Why the subscription was switched off automatically. Absent for one you switched off yourself |
+| `last_delivery_at` | When a delivery last succeeded |
+
+<Warning>
+  A subscription carrying a `source` was created by another tool and is owned by it. Deleting a Zapier-created subscription from Notifuse silently breaks the Zap behind it, and the Zap will not recreate it on its own. Turn the Zap off in Zapier instead.
+</Warning>
+
+### When Notifuse Switches a Subscription Off
+
+An endpoint that stops answering is retired automatically, but only once it has been failing for a long time: it takes both a run of consecutive failures and more than twelve hours of them. A short outage — a deploy, a restart, a receiver that is briefly unreachable during an import — never switches your subscription off, however many deliveries it refuses in the meantime. Those deliveries are retried on the usual backoff.
+
+An endpoint answering `410 Gone` is the exception and is retired at once, because that status means the receiver is telling you the subscription no longer exists.
+
+Switching a subscription back on clears its failure history, so it starts from a clean slate rather than being retired again on the next hiccup.
+
 ## Payload Structure
 
 All webhook payloads follow this structure:
@@ -415,6 +458,29 @@ A delivery attempt fails if:
 - The request times out (30 second timeout)
 - The endpoint is unreachable (DNS error, connection refused, etc.)
 
+## Automatic Disabling
+
+An endpoint that has moved, been decommissioned or lost its DNS record never comes back on its own, and Notifuse will not keep queueing deliveries for it forever.
+
+**After a long run of back-to-back failures, a subscription is switched off automatically** and the reason is recorded on it, so a webhook you find disabled can be told apart from one you disabled yourself. The counter is per subscription and a single successful delivery resets it to zero, so an endpoint that is merely having a bad afternoon is not switched off — only one that fails persistently.
+
+Two responses are treated specially:
+
+- **`429 Too Many Requests` never counts as a failure.** Rate limiting is your server asking for less, not an endpoint dying, and a workspace busy enough to be throttled should not have its integration switched off for being busy. The delivery is retried on the normal schedule.
+- **`410 Gone` is terminal on the first response.** It is the standard way for a receiver to say "this subscription is dead, stop sending", so the subscription is retired immediately rather than after the usual run of failures. A subscription you created is switched off with that reason recorded; one created by another tool, such as Zapier, is removed outright, because the tool recreates it when it needs it. `404` is *not* treated this way — an endpoint that is briefly missing is retried like any other failure.
+
+To bring a disabled subscription back, fix the endpoint and re-enable it.
+
+<Note>
+  **A disabled subscription drops events rather than queueing them.** Deliveries that come up while a subscription is off — whether you switched it off or Notifuse did — are marked failed in the delivery log and are not replayed when you turn it back on. If you need the events that occurred during an outage, read them from the API rather than expecting a backlog.
+</Note>
+
+## Deleting a Subscription
+
+Deleting a subscription also discards the deliveries still queued for it. There is nothing left behind to retry, and no need to drain a queue before deleting.
+
+Disable a subscription instead of deleting it when you expect to bring the endpoint back: disabling is reversible, and the subscription — with its signing secret and its delivery history — survives. A deleted subscription cannot be restored, and recreating it issues a new signing secret.
+
 ## Best Practices
 
 ### Return 2xx Quickly
@@ -501,6 +567,26 @@ ngrok http 3000
 # Use the ngrok URL as your webhook endpoint
 # https://abc123.ngrok.io/webhooks/notifuse
 ```
+
+## Permissions
+
+Outgoing subscriptions follow the **Webhook Subscriptions** permission: **read** lists subscriptions, opens one, and shows its delivery history — including each event payload and the endpoint's response status and body. **Write** creates, updates, deletes, enables and disables subscriptions, and fires a test delivery. Firing a test is a write, not a read, because it makes your server call out.
+
+Incoming provider callbacks follow the **Webhook Events** permission: **read** shows the raw callbacks your email providers have sent back to Notifuse, including recipient addresses and provider diagnostics. **Webhook Events write gates nothing today** — the rows arrive on the provider callback routes, which carry no session and consult no permission, so granting it confers nothing. The console shows it granted and locked.
+
+The catalogue of available event types is not gated at all: any authenticated member or key can list it.
+
+Two actions stay reserved for the workspace owner, whatever permissions a member or API key holds:
+
+- **Regenerating a subscription's signing secret.** The secret is also hidden from everyone but the owner, so Webhook Subscriptions read never hands it out — a member can list subscriptions and inspect deliveries without ever seeing the key those payloads are signed with.
+- **Registering webhooks with an email provider**, because it uses the provider credentials stored in your integration.
+
+<Warning>
+  Webhook Subscriptions **write** reaches further than its name suggests. A subscription chooses the
+  events it receives, so whoever holds this permission can subscribe to contact and email events and
+  have that data delivered to a URL of their choosing. Grant it as you would grant read access to
+  the contacts and the message history behind those events.
+</Warning>
 
 ## Notes
 

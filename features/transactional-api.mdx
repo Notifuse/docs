@@ -26,6 +26,8 @@ description: 'The Transactional API enables you to send event-driven emails dire
 - **Profile Enrichment**: Template data is automatically merged with existing contact profile information
 - **Data Consistency**: Ensures contact information is always current
 
+Updating the contact this way requires the Contacts write permission — see [Permissions](#permissions).
+
 ### Template Data Enrichment
 
 When you send a transactional email, Notifuse automatically:
@@ -324,6 +326,21 @@ The email body must be a JSON payload matching the Transactional API format:
   }
 }
 ```
+
+## Permissions
+
+The **Transactional** write permission on its own is enough to send, over both the API and the SMTP bridge. That makes a send-only API key practical: create a key, grant it Transactional write, leave everything else off, and it can send email without being able to read or edit a single contact. See [Admins & API Keys](/features/admins-api-keys).
+
+Two limits apply to a key scoped that narrowly, and they apply identically to the SMTP bridge:
+
+- **Without Contacts write**, a send still creates the recipient's contact when it does not exist yet, but only their email address is stored. Every other field of the `contact` object is dropped, and an existing contact is never modified.
+- **Without Contacts read**, a send that sets `cc` or `bcc` is refused. On the SMTP bridge those come from the message's `Cc:` and `Bcc:` headers, so a send-only credential that sets them is rejected as the message is handed over.
+
+Add Contacts read and write to the key if it needs to enrich contact profiles as it sends, or to copy extra recipients. A key holding both behaves exactly as it did before.
+
+Transactional write covers every path that sends real mail through your provider credentials, not just `/api/transactional.send`: it also covers `/api/transactional.testTemplate` and `/api/email.testProvider`, which despite its name delivers a real message.
+
+Transactional **read** covers only the notification definitions — listing them and opening one. It does not let a key send.
 
 ## Template Integration
 

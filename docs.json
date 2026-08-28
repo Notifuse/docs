@@ -81,7 +81,8 @@
               "integrations/openai",
               "integrations/gemini",
               "integrations/firecrawl",
-              "integrations/supabase"
+              "integrations/supabase",
+              "integrations/zapier"
             ]
           },
           {

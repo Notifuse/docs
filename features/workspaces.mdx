@@ -25,6 +25,12 @@ Each workspace can be configured with a custom endpoint URL to provide a branded
 
 This feature allows you to maintain brand consistency and build trust with your recipients by using your own domain instead of the default Notifuse domain.
 
+## Who Can Change a Workspace
+
+Renaming a workspace, changing its general settings, deleting it, and creating, updating or deleting an integration are **owner-only**. No permission grants them, and granting the Workspace permission does not confer them.
+
+The **Workspace** permission is narrower than its name suggests: **read** opens the workspace record and the team roster, and **write** adds exactly one setting — renaming the custom contact field labels — plus running, resetting and deleting integration sync tasks. Blog settings answer to Blog write, and web analytics settings to Web Analytics write. See [Admins & API Keys](/features/admins-api-keys).
+
 ## Multi-Tenant Architecture
 
 - **Complete Isolation**: Each workspace operates independently

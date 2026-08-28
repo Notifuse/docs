@@ -151,6 +151,10 @@ Use negative `goal_value` for refunds to keep accurate LTV calculations:
 }
 ```
 
+## Permissions
+
+Custom events have no permission of their own: they answer to **Contacts**. Recording or importing an event needs Contacts **write**, and reading one needs Contacts **read** — so granting Contacts read also opens the events recorded against your contacts, and the contact timeline they feed. See [Admins & API Keys](/features/admins-api-keys).
+
 ## Notes
 
 - Contacts are auto-created if they don't exist

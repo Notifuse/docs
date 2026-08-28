@@ -10,9 +10,11 @@ description: 'Classify traffic into channels with rules you control, and rewrite
 
 Every visit arrives with raw signals: a referrer, some UTM parameters, maybe an ad click ID. Attribution rules turn those into a **Channel** and a **Channel Group** you can report on.
 
+Your own site is never one of those signals. A referrer on the same host as the page it led to is discarded and the visit is recorded as **direct** — a session ends after 30 minutes of inactivity, so a visitor who comes back to a tab, or clicks on to another page after a long read, starts a new session whose referrer is one of your own pages. Another host is a genuine referral and is kept: `docs.example.com` linking to `www.example.com` appears in your reports.
+
 ## Default Rules
 
-A new workspace starts with 39 rules covering paid search, paid social, paid video, display, organic search, organic social, email and direct. They are ordinary rules: you can edit or delete any of them.
+A new workspace starts with 40 rules covering paid search, paid social, paid video, display, organic search, organic social, email and direct. They are ordinary rules: you can edit or delete any of them.
 
 | Priority | Family |
 |---|---|

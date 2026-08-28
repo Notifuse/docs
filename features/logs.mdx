@@ -44,6 +44,15 @@ Filter logs by multiple criteria:
 - **Template**: Filter by email template used
 - **Broadcast**: Filter by specific broadcast campaign
 
+## Permissions
+
+The two tabs answer to two different permissions, both read-only in practice:
+
+- **Messages** needs **Message History** read. This is also where broadcast delivery statistics live — delivered, open, click, bounce and per-link counts — so a member who may create and send a broadcast still cannot see how it performed without it. The log carries recipient addresses and the data each message was rendered with, so treat it as contact data.
+- **Email Provider Webhooks** needs **Webhook Events** read. These are the providers' own payloads, including recipient addresses and provider diagnostics.
+
+The write verb of both permissions gates nothing today: these rows are written by the sending pipeline and by the provider callback routes, never by anything you can call. See [Admins & API Keys](/features/admins-api-keys).
+
 ## Debugging Email Issues
 
 Logs are essential for troubleshooting email provider problems:

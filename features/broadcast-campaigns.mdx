@@ -295,6 +295,17 @@ Data feed URLs are fetched by the Notifuse server, so they are protected against
   **Self-hosting:** if you intentionally serve data feeds from services on your own internal network, you can allow private addresses by setting `BROADCAST_DATA_FEED_ALLOW_PRIVATE_HOSTS=true`. This disables SSRF protection for data-feed requests, so only enable it in trusted environments. See [Environment Variables](/self-hosting/installation#optional-variables).
 </Note>
 
+## Permissions
+
+Broadcasts answer to the **Broadcasts** permission: **read** opens broadcasts, their configuration and their A/B test results; **write** creates and edits them, manages data feeds, and schedules, sends, pauses, resumes, cancels and deletes them.
+
+Two things about that are easy to get wrong:
+
+- **Broadcasts write sends to your entire audience.** The switch that lets someone draft a campaign is the switch that lets them push it out. There is no separate "may send" grant.
+- **Broadcasts read does not include delivery statistics.** Delivered, open, click, bounce and per-link counts come from the message log, so they need **Message History** read. The recipient list needs **Contacts** read. A member holding Broadcasts read alone sees the campaign, not its results.
+
+See [Admins & API Keys](/features/admins-api-keys).
+
 ## Scheduling Options
 
 ### Manual Sending

@@ -1,0 +1,195 @@
+---
+title: Zapier
+description: 'Connect Notifuse to Zapier: trigger Zaps from contact, list and segment events, and add or subscribe contacts from any other app.'
+---
+
+{/*
+  Step 3 tells the reader to find Notifuse in Zapier's app directory, which only works once the
+  app is published there. While the listing is still pending, a reader who has not been sent an
+  invite link finds nothing — keep that in mind before linking this page from onboarding email.
+  Everything else on this page describes shipped behaviour: the Settings → Zapier screen is live
+  and ungated, and it is what Step 1 documents.
+*/}
+
+Zapier connects Notifuse to thousands of other applications without writing any code. Notifuse offers both halves of a Zap:
+
+- **Triggers** start a Zap the moment something happens in Notifuse — a contact is created or updated, someone subscribes to or unsubscribes from a list, a contact enters or leaves a segment. They are real-time, not polled: Notifuse pushes each event to Zapier as it happens.
+- **Actions** let another app write into Notifuse — create or update a contact, or subscribe a contact to a list.
+
+## Before You Start
+
+You need two things from Notifuse — an **API key** and your **API URL** — and **Settings** → **Zapier** hands you both on one screen.
+
+You also need **HTTPS**. Zapier only talks to endpoints served over HTTPS with a certificate issued by a public certificate authority, so a self-hosted instance has to be reachable from the public internet.
+
+## Step 1 — Create the Key from Settings → Zapier
+
+Open **Settings** → **Zapier** in the workspace you want Zapier to work in, and click **Create a Zapier API key**. Only the workspace owner can create an API key.
+
+The screen creates the key with exactly the permissions this integration needs and nothing else: **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — a key minted here cannot read your message history or send email, so a leaked token costs you this integration and no more.
+
+The token is displayed **once**, when the key is created. Copy it before you leave the screen — it cannot be retrieved afterwards. The same screen prints the **API URL** you will need in Step 2, with a copy button beside it.
+
+The screen also fills in a name for the key, something like `zapier_1a2f`. Names are unique across your whole Notifuse installation, not just this workspace, which is why the suggested one carries a suffix. If you change it to a name that is already taken, the screen says so — pick another.
+
+<Note>
+  **Or create the key by hand.** **Settings** → **Team** → **Create API Key** works too, and it is where you grant the permissions yourself — see the table below for what to tick. Team is also where you widen or narrow an existing key later, whichever screen created it: the change takes effect on the key's next request and **the token does not change**, so there is nothing to re-enter in Zapier. Give Zapier its own key rather than reusing an existing one. See [Admins & API Keys](/features/admins-api-keys) for the full permission reference.
+</Note>
+
+### What the Key Can Do
+
+This is a reference, not a checklist: **Settings** → **Zapier** grants all of it for you. Read it to know what the token in Zapier's hands can reach — or to know what to tick if you are building the key by hand from **Settings** → **Team**, or narrowing one afterwards.
+
+| What you want to use | Permissions the key needs |
+| -------------------- | ------------------------- |
+| Connecting the account, the workspace picker, and the custom field labels in an action | None — any key can do these |
+| Any trigger (turning a Zap on and off) | **Webhook Subscriptions** read and write |
+| Any trigger's sample data — what Zapier shows you while you build a Zap | **Contacts** read |
+| Contact triggers | **Contacts** read |
+| List triggers, and the list picker | **Lists** read, and **Contacts** read |
+| Segment triggers, and the segment picker | **Segments** read, and **Contacts** read |
+| The **Create or Update Contact** action | **Contacts** write |
+| The **Subscribe Contact to List** action | **Lists** read **and** write |
+
+<Note>
+  **Read is what fills the dropdowns; write is what performs the step.** Every picker in this integration reads the things you choose from, so an action that only writes still cannot be configured. A key with **Lists** write but not **Lists** read makes the **Subscribe Contact to List** step impossible to save: its list picker answers with a permission error, and the list is a required field.
+
+  **Contacts** read is needed by every trigger too, not only the contact ones: the sample records Zapier shows while you build a Zap are read from your contacts whichever trigger you picked. A key without it fills its dropdowns but fails on **Test trigger**.
+</Note>
+
+<Warning>
+  **Webhook Subscriptions write and Lists write reach further than their names suggest.** A trigger subscribes to events and has their payloads delivered to Zapier, and subscribing an address to a list creates or overwrites that contact's record. Treat this key as you would treat read access to your contact database.
+</Warning>
+
+## Step 2 — Your API URL
+
+Zapier's connection form has an **API URL** field, and **Settings** → **Zapier** prints the value to put in it.
+
+- **Notifuse Cloud**: the field arrives pre-filled with the Cloud API, `https://v3.notifuse.com`. Leave it as it is.
+- **Self-hosted**: paste the address the **Settings** → **Zapier** screen prints — the same address you open the Notifuse console at, scheme and domain only, with nothing after the domain and no trailing slash. Do not clear the field: an empty API URL means Notifuse Cloud, not "this instance".
+
+Your instance must be reachable from the public internet, over HTTPS, with a certificate from a public certificate authority. Let's Encrypt is fine.
+
+<Warning>
+  **Plain `http://`, self-signed certificates and internal certificate authorities are not supported**, and neither is an instance reachable only from inside your network. Zapier requires HTTPS with a publicly trusted certificate. If your Notifuse instance sits behind a firewall, note that Zapier only publishes a fixed set of outbound IP addresses to allowlist on its paid plans.
+</Warning>
+
+## Step 3 — Connect Your Workspace
+
+In Zapier, create a Zap, search for **Notifuse**, and choose a trigger or action. When Zapier asks you to connect an account, paste the API key and — if you self-host — your API URL.
+
+Every Notifuse trigger and action then asks which **workspace** to use, from a dropdown.
+
+<Note>
+  **One connection per workspace.** A Notifuse API key belongs to exactly one workspace, so the workspace dropdown will only ever offer that one and selects it for you. If you run several workspaces, open **Settings** → **Zapier** in each one, create a key there, and add a separate Zapier connection for each — Zapier labels connections with the workspace name and the host they live on, so they are easy to tell apart. Since key names are unique across the whole installation, no two of those keys can share a name — the suffix in the name each screen suggests is there to keep them apart.
+</Note>
+
+## Triggers
+
+| Trigger | Fires when |
+| ------- | ---------- |
+| **New Contact** | A contact is added to the workspace |
+| **Updated Contact** | An existing contact's details change |
+| **New List Subscriber** | A contact becomes an active subscriber of a list |
+| **Contact Unsubscribed from List** | A contact unsubscribes from a list |
+| **Contact Joined Segment** | A contact starts matching a segment |
+| **Contact Left Segment** | A contact stops matching a segment |
+
+List and segment triggers let you pick a specific list or segment. Do pick one: Notifuse then sends Zapier only the events for that list or segment instead of every list in the workspace, which keeps your Zap's task usage down and your instance faster.
+
+### New List Subscriber Covers Three Ways In
+
+A contact can become an active subscriber of a list in more than one way, and only the first one is a plain new subscription:
+
+- They **subscribe** for the first time.
+- They **confirm** a double opt-in subscription that was waiting for confirmation.
+- They **resubscribe** after previously unsubscribing, bouncing or reporting spam.
+
+**New List Subscriber fires for all three**, because a returning contact never produces a first-time subscription event, and a Zap that only watched for one would silently miss every returning subscriber. Each run carries the specific event so you can branch on it inside Zapier if you need to treat a first-time subscriber differently from a returning one.
+
+### Updated Contact Ignores No-Op Saves
+
+**Updated Contact** fires only when a contact's details actually change. Saving a contact without changing anything, or a background job touching a record, produces no event. This is deliberate — otherwise routine internal updates would run your Zaps.
+
+### Zapier Manages Its Own Webhook Subscriptions
+
+Turning a Notifuse Zap on creates a subscription under **Settings** → **Webhooks**, marked as created by Zapier. Turning the Zap off removes it.
+
+<Warning>
+  **Do not delete a Zapier-created webhook subscription by hand.** The Zap that owns it will stop receiving events, and it will not recreate the subscription on its own — you have to turn the Zap off and on again in Zapier, which works even though the subscription is already gone. Delete the Zap instead, and let it clean up after itself.
+</Warning>
+
+A delivery that fails is retried, so a Zap can occasionally run twice for the same event. If your Zap does something that must not happen twice — charging a card, sending a message — add a Zapier filter or a deduplication step.
+
+## Actions
+
+| Action | What it does |
+| ------ | ------------ |
+| **Create or Update Contact** | Creates the contact if the email address is new, updates it otherwise |
+| **Subscribe Contact to List** | Creates or updates the contact **and** subscribes it to the lists you pick, in one step |
+
+Both actions match on the **email address**, so re-running them with the same address updates the same contact rather than creating a duplicate.
+
+Notifuse's custom contact fields appear in these actions under the labels you gave them. Name your custom fields in **Settings** → **Custom Fields** first — unlabelled slots are hidden, so a field you cannot find in Zapier is usually a field with no label yet.
+
+### Subscription Status Is Not Always Active
+
+This is the behaviour most likely to look like a bug when it is not. **Subscribe Contact to List** returns the resulting status for every list, and it is not always `active`:
+
+- **A contact who previously unsubscribed comes back as `pending`, not `active`**, and receives the list's confirmation email. Notifuse forces double opt-in for anyone who has opted out before, whatever the list's own settings say. This is a compliance rule and it cannot be switched off. The Zap did not fail — the contact simply has to confirm before they receive anything. Note that a list with no double opt-in template configured has no confirmation email to send, so those contacts stay `pending` indefinitely: set one up before pointing a re-engagement Zap at a list.
+- **A brand-new contact lands `active` even on a double opt-in list**, and receives no confirmation email, because the request came from an authenticated API key rather than from a public subscription form.
+
+<Warning>
+  Read those two together before you point a lead-capture Zap at a double opt-in list: new addresses skip the confirmation step. Only add people to a list through Zapier when you have their consent, exactly as you would when importing a file.
+</Warning>
+
+Three more cases where the action reports success without adding a new subscriber. They do not all look the same in the output, which matters if you filter on the result:
+
+- **An address that has bounced or reported spam is not resubscribed**, deliberately — it comes back reported with its terminal status, `bounced` or `complained`. A Filter step keyed on **Status** sees it.
+- **A contact already active on the list is left alone.** Re-running the Zap changes nothing, and the membership comes back as `active`.
+- **An address at a disposable email domain is dropped silently.** This is the only case with nothing to report: the step succeeds with **no memberships at all** and a blank **Status**. Nothing was written — not the membership, and not the contact.
+
+<Note>
+  **Filter on the status value, not on the status existing.** *Continue if Status exists* passes a bounced address just as happily as an active one — both carry a status — and stops only the disposable-domain case. A filter that means "the contact is now subscribed" should check that **Status** is `active`, or that **Memberships** is not empty if you are subscribing to several lists at once.
+</Note>
+
+## Troubleshooting
+
+### The connection test fails
+
+- Check the API URL: it must start with `https://` and contain no path after the domain. **Settings** → **Zapier** prints the exact value.
+- Open `https://your-domain/api/workspaces.list` in a browser. An authentication error is the expected answer and proves the address is reachable; a timeout, a connection error or a certificate warning means Zapier cannot reach it either.
+- Check the certificate is issued by a public certificate authority, not a self-signed or internal one.
+- If the key was deleted in Notifuse, the connection stops working immediately. Zapier reports it as an authentication failure and offers to reconnect the account: create a new key and paste it in.
+
+### A step fails with a permission error
+
+The message names the missing permission. Add it to the key from **Settings** → **Team**; the change takes effect on the next request and the token stays the same.
+
+### A Zap stopped receiving events
+
+Open **Settings** → **Webhooks** in Notifuse and look at the subscription for that Zap:
+
+- **Switched off with a reason attached.** Notifuse disables a subscription automatically after a long run of failed deliveries and records why. Turn it back on once the cause is resolved — or, easier, turn the Zap off and on again in Zapier to recreate it.
+- **Missing entirely.** Someone deleted it by hand, or the Zap was turned off. Turn the Zap off and on again.
+
+The delivery log on each subscription shows every event sent, the response Zapier returned, and the payload — the fastest way to tell whether Notifuse sent an event at all.
+
+### The trigger test finds no data
+
+Zapier looks for recent matching activity to build its sample. If a list has had no subscribers recently, or a segment no new members, there is nothing to show. Create a test contact, subscribe it to the list, and re-run the test.
+
+## Limitations
+
+- **A connection covers one workspace.** Several workspaces means several connections.
+- **Contact deletions do not trigger a Zap**, and neither do broadcast or automation events.
+- **There is no search step yet** — you cannot look a contact up mid-Zap without an action that writes.
+- **Custom fields must be labelled** to appear in an action.
+
+## Related Documentation
+
+- [Admins & API Keys](/features/admins-api-keys) — what each permission allows
+- [Webhooks](/features/webhooks) — the event types and payloads behind the triggers
+- [Contacts](/features/contacts)
+- [Lists](/features/lists)
+- [Segments](/features/contacts#contact-segmentation-engine)

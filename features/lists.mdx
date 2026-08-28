@@ -91,6 +91,19 @@ When contacts are imported via CSV or the API with `subscribe_to_lists`, the sam
 
 Public subscribe endpoints always return HTTP 200 regardless of the contact's internal status. This prevents email enumeration attacks where an attacker could probe the endpoint to determine whether a specific email address is subscribed.
 
+## Permissions
+
+Lists answer to the **Lists** permission: **read** shows lists, their settings and their subscriber counts, and **write** creates, edits and deletes them and manages subscriptions. Listing the actual member addresses of a list needs **Contacts** read as well, and changing or removing an existing subscription needs **Contacts** write as well.
+
+<Warning>
+  **Lists write is an implicit Contacts write.** Subscribing an address through `/api/lists.subscribe`
+  creates or overwrites that contact's whole record, with every field the request carries, without
+  needing Contacts write — so a member or API key holding only Lists write can still rewrite your
+  contact data. An authenticated call can also subscribe someone to a list that is not public. Grant
+  Lists write only where you would grant Contacts write. See
+  [Admins & API Keys](/features/admins-api-keys).
+</Warning>
+
 ## Best Practices
 
 1. **Status Management**: Regularly review contact statuses to maintain list health
