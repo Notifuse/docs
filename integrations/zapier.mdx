@@ -1,6 +1,6 @@
 ---
 title: Zapier
-description: 'Connect Notifuse to Zapier: trigger Zaps from contact, list and segment events, and add or subscribe contacts from any other app.'
+description: 'Connect Notifuse to Zapier: send your transactional emails from any app, trigger Zaps from contact, list and segment events, and add or subscribe contacts.'
 ---
 
 {/*
@@ -16,7 +16,7 @@ description: 'Connect Notifuse to Zapier: trigger Zaps from contact, list and se
 Zapier connects Notifuse to thousands of other applications without writing any code. Notifuse offers both halves of a Zap:
 
 - **Triggers** start a Zap the moment something happens in Notifuse — a contact is created or updated, someone subscribes to or unsubscribes from a list, a contact enters or leaves a segment. They are real-time, not polled: Notifuse pushes each event to Zapier as it happens.
-- **Actions** let another app write into Notifuse — create or update a contact, or subscribe a contact to a list.
+- **Actions** let another app reach into Notifuse. The one most people come for is **sending**: a Zap picks one of your transactional notifications and Notifuse sends it, using your template, your sender and your email provider. Actions can also create or update a contact, or subscribe a contact to a list.
 
 ## Before You Start
 
@@ -30,7 +30,9 @@ Open **Settings** → **Integrations** in the workspace you want Zapier to work 
 
 You are asked for one thing: a **label**. It names the connection in Notifuse, and nothing else depends on what you type — a workspace can hold several Zapier connections, so use the label to say what each one is for. "Zapier" is filled in for you and is fine if you only need one.
 
-Click **Connect Zapier**. Notifuse mints an API key with exactly the permissions this integration needs and nothing else: **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — the grant is chosen for you, and a key minted here cannot read your message history or send email, so a leaked token costs you this integration and no more.
+Click **Connect Zapier**. Notifuse mints an API key with exactly the permissions this integration needs and nothing else: **Transactional**, **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — the grant is chosen for you.
+
+Take **Transactional** seriously before you connect. It is what lets a Zap send, and it reaches further than that: it also permits creating, editing and deleting transactional notifications, testing templates and providers, and relaying through the SMTP bridge. A leaked token could send mail through your provider, at your cost and against your sending reputation. It cannot read your message history. If a Zapier connection has no business sending, narrow the key to suit — see *Managing the Connection Afterwards*.
 
 The token is displayed **once**, in the panel that replaces the form. Copy it before you press **Done** — it cannot be retrieved afterwards, and no screen in Notifuse can show it to you again. The same panel prints the **API URL** you will need in Step 2, with a copy button beside it.
 
@@ -54,6 +56,9 @@ This is a reference, not a checklist: connecting Zapier grants all of it for you
 | Contact triggers | **Contacts** read |
 | List triggers, and the list picker | **Lists** read, and **Contacts** read |
 | Segment triggers, and the segment picker | **Segments** read, and **Contacts** read |
+| The **Send Transactional Email** action, and the notification picker | **Transactional** read **and** write |
+| Contact fields filled in on a send being saved to the contact | **Contacts** write — without it the send still works, but only the address is recorded |
+| CC or BCC on a send | **Contacts** read as well — the subject is rendered against the contact |
 | The **Create or Update Contact** action | **Contacts** write |
 | The **Subscribe Contact to List** action | **Lists** read **and** write |
 
@@ -64,7 +69,7 @@ This is a reference, not a checklist: connecting Zapier grants all of it for you
 </Note>
 
 <Warning>
-  **Webhook Subscriptions write and Lists write reach further than their names suggest.** A trigger subscribes to events and has their payloads delivered to Zapier, and subscribing an address to a list creates or overwrites that contact's record. Treat this key as you would treat read access to your contact database.
+  **Transactional write, Webhook Subscriptions write and Lists write all reach further than their names suggest.** Transactional write sends mail through your provider — and also permits editing and deleting your transactional notifications, testing providers, and the SMTP bridge. A trigger subscribes to events and has their payloads delivered to Zapier. Subscribing an address to a list creates or overwrites that contact's record, and so does sending to it. Treat this key as you would treat both your contact database and your sending credentials.
 </Warning>
 
 ## Step 2 — Your API URL
@@ -140,12 +145,44 @@ A delivery that fails is retried, so a Zap can occasionally run twice for the sa
 
 | Action | What it does |
 | ------ | ------------ |
+| **Send Transactional Email** | Sends one of your transactional notifications to a contact, filling its template variables from the Zap |
 | **Create or Update Contact** | Creates the contact if the email address is new, updates it otherwise |
 | **Subscribe Contact to List** | Creates or updates the contact **and** subscribes it to the lists you pick, in one step |
 
-Both actions match on the **email address**, so re-running them with the same address updates the same contact rather than creating a duplicate.
+All three actions match on the **email address**, so re-running them with the same address updates the same contact rather than creating a duplicate.
 
 Notifuse's custom contact fields appear in these actions under the labels you gave them. Name your custom fields in **Settings** → **Custom Fields** first — unlabelled slots are hidden, so a field you cannot find in Zapier is usually a field with no label yet.
+
+### Sending Is About Choosing, Not Composing
+
+**Send Transactional Email** does not carry your email. The template, the sender, the tracking and the unsubscribe handling all stay in Notifuse — the Zap chooses which notification to send, who receives it, and the values its template renders with.
+
+So the shape of the step is: pick a **Notification** from the dropdown, map an **Email** for the recipient, and fill **Template Data** with one row per `{{ variable }}` your template uses. A variable you do not supply renders empty rather than failing, so if an email arrives with a gap in it, that row is the first place to look — check the spelling against the template.
+
+Two details about Template Data are worth knowing before you debug something strange:
+
+- **Values arrive as text.** A template that prints a value is fine. A template that compares one — `{% if total > 100 %}` — will not match, because it is comparing against the text `"120"` rather than the number.
+- **`contact` and `notification_center_url` are set by Notifuse** and cannot be overridden from the Zap. Rows with those names are ignored.
+
+Notifications with no email channel configured are not offered in the dropdown at all, because sending one could only fail.
+
+### Sending Also Writes the Contact
+
+A send creates the contact if the address is new. That is usually what you want — you can email someone the first time they order without a separate step.
+
+The part that surprises people is that **any contact field you fill in overwrites what is stored**. If you map First Name from a source that is sometimes blank, you will blank the stored first name on those runs. Leave a field empty in the Zap and Notifuse leaves the stored value alone; map a field and its value wins. If you only want to send, fill in nothing but the email address.
+
+### Use Message External ID for Anything That Must Not Be Sent Twice
+
+Zapier retries a step that failed, and a retry runs the whole action again. For a shipping notification that is a minor annoyance; for a password reset or an order confirmation it is a real problem.
+
+Fill **Message External ID** with something stable from the trigger — an order number, an invoice id, the source record's id. Sending again with a value Notifuse has already seen returns the original message instead of sending a second email. Leave it blank and every run sends.
+
+One limitation to be aware of: the step cannot tell you which of the two happened. A deduplicated send and a fresh send look identical in Zap History, both succeeding with the same message id.
+
+<Warning>
+  **Testing the step sends a real email.** Zapier's **Test action** button performs a genuine send, not a dry run — as does every live run. Point it at an address you own while you are building the Zap.
+</Warning>
 
 ### Subscription Status Is Not Always Active
 
@@ -181,6 +218,8 @@ Three more cases where the action reports success without adding a new subscribe
 
 The message names the missing permission. Add it to the key from **Settings** → **Team**; the change takes effect on the next request and the token stays the same. Do not connect Zapier a second time to fix this — a fresh connection mints a key with the same standard grant, and the step fails in the same place.
 
+One case has a known cause. If **Send Transactional Email** fails on **Transactional**, or its notification picker is empty and reports a permission error, the connection predates Notifuse 39.1 — the release that added sending to the standard grant. Tick **Transactional** read and write on the key in **Settings** → **Team** and the step works on its next run, with no reconnection and no change to the token.
+
 ### A Zap stopped receiving events
 
 Open **Settings** → **Webhooks** in Notifuse and look at the subscription for that Zap:
@@ -200,6 +239,8 @@ Zapier looks for recent matching activity to build its sample. If a list has had
 - **Contact deletions do not trigger a Zap**, and neither do broadcast or automation events.
 - **There is no search step yet** — you cannot look a contact up mid-Zap without an action that writes.
 - **Custom fields must be labelled** to appear in an action.
+- **A send cannot carry attachments.** The API accepts them, but Zapier hands a step a reference to a file rather than the file itself, so there is nothing to attach.
+- **A send cannot compose an email.** It sends a notification you configured in Notifuse; it cannot supply its own body. You can override the subject, preview text, sender name and reply-to for one message.
 
 ## Related Documentation
 
