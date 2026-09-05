@@ -1,0 +1,72 @@
+---
+title: Licence keys
+description: 'Self-hosting Notifuse is free. Five capabilities need a licence key. This page says which, what a key costs, how to install one, and what happens without it.'
+---
+
+Notifuse v40 and later are published under the [Business Source License 1.1](https://github.com/notifuse/notifuse/blob/main/LICENSE), and every release becomes AGPL-3.0-or-later four years after it ships. You may run Notifuse in production, at any scale, modify it, and host it for others. Everything below is free except the five capabilities in the next section.
+
+## What needs a key
+
+| Capability | What is refused, and when |
+|---|---|
+| **More than three workspaces** | Creating a fourth workspace on one deployment. Workspaces you already have are never touched. |
+| **Granular permissions** | Saving a permission set that is not full access — for a member, an invitation, or an API key. Permissions already granted stay enforced; removing a member is always allowed. |
+| **Amazon SES tenant isolation** | Provisioning a new SES tenant. A tenant already provisioned keeps sending. |
+| **Template translations** | Adding a language to a template, or editing one already there. Translations already saved keep being sent. |
+| **Single sign-on (OIDC)** | The sign-in page stops offering the SSO button. Nobody is locked out: login-code sign-in always works, and open sessions are unaffected. |
+
+Everything else — sending, contacts, broadcasts, automations, the transactional API, web analytics, every provider integration — needs no key, has no meter, and never will. The full list is at [notifuse.com/pricing/self-hosted](https://notifuse.com/pricing/self-hosted#never).
+
+<Note>
+  **A refusal is one action, at the moment you take it.** Nothing is deleted or hidden, and the console is never put into a restricted mode: it greys out the one control the server would refuse — switching a translation on, narrowing a member's permissions, switching SES tenant isolation on — and says which licence covers it, while everything you already have stays visible and can be removed. The send path contains no licence check of any kind: scheduled broadcasts, transactional email, webhooks and API keys keep working in every licence state, including one with no key at all. An installation that already exceeds a limit keeps everything it has.
+</Note>
+
+## Tiers
+
+| | Studio | Agency | Enterprise |
+|---|---|---|---|
+| Price | $290 / year | $890 / year | $1,990 / year |
+| Workspaces | 5 | 15 | 15 |
+| Granular permissions | ✓ | ✓ | ✓ |
+| SES tenant isolation | ✓ | ✓ | ✓ |
+| Template translations | ✓ | ✓ | ✓ |
+| Single sign-on (OIDC) | | | ✓ |
+| Audit logs | | | coming soon |
+
+One key covers one deployment — one PostgreSQL database, however many API containers serve it. Buy at [notifuse.com/pricing/self-hosted](https://notifuse.com/pricing/self-hosted); for anything else, write to [hello@notifuse.com](mailto:hello@notifuse.com).
+
+## Getting your key
+
+1. **Pay.** Checkout is by card, through Stripe, as an annual subscription. There is no trial: the free tier is the trial, and a 14-day refund on the first purchase replaces it.
+2. **Your first key arrives by email, within a minute.** It is valid for **30 days**. The email is titled *Your Notifuse licence key* and contains the key itself.
+3. **Your one-year key follows automatically.** Once the 14-day refund window has closed, a second email delivers the key that runs to the end of your subscription year. Nothing to do on your side.
+
+At each annual renewal a fresh key is emailed. Install it the same way; the old key keeps working until its own expiry.
+
+## Installing a key
+
+Either of two ways. The environment variable wins.
+
+**In the console.** Sign in as an instance administrator (a `ROOT_EMAIL`), open **Settings → Licence**, paste the key, and save. It is stored in the database and applies immediately, with no restart, on the API container that received it.
+
+**As an environment variable.** Set `NOTIFUSE_LICENSE_KEY` to the key and restart. While it is set, the console refuses to save a key rather than store one that would lose to the variable at the next restart.
+
+<Note>
+  **Running more than one API container?** Use the environment variable. A key pasted in the console reaches the other containers only at their next restart — until then, requests are licensed or not depending on which container answers them. One container, either way works.
+</Note>
+
+<Note>
+  **Verification is offline.** The key is checked against a public key compiled into the binary. There is no activation step, no account, and no call to Notifuse — an installation with no outbound network access is licensed exactly like any other. If [telemetry](/self-hosting/installation#optional-variables) is enabled, it reports the licence tier and whether SSO is configured, and nothing else about the key.
+</Note>
+
+## Expiry and grace
+
+A key carries an expiry date, shown in **Settings → Licence**. After it, the key keeps granting everything it granted for a further **30 days**, then the installation falls back to the free tier — which, again, removes nothing you already have. The console shows a banner during the grace period.
+
+## Lost your key?
+
+The key is in the purchase email. If that is gone, ask for it again at [cloud.notifuse.com/api/licences/portal](https://cloud.notifuse.com/api/licences/portal) — enter the address the licence was bought with and the current key is re-sent to it — or write to [hello@notifuse.com](mailto:hello@notifuse.com).
+
+## Refunds and cancellation
+
+A licence may be refunded within 14 days of the first purchase, no questions asked, by email. Cancel at any time; the key you hold runs to its expiry. Both are governed by [section 7.5 of the Terms](https://notifuse.com/terms#pricing).

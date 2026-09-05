@@ -104,7 +104,7 @@
         "groups": [
           {
             "group": "Self-hosting",
-            "pages": ["self-hosting/installation", "self-hosting/sso"]
+            "pages": ["self-hosting/installation","self-hosting/licence", "self-hosting/sso"]
           }
         ]
       },

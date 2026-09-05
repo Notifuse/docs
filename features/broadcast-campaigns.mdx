@@ -352,15 +352,32 @@ Notifuse includes built-in protection against email delivery issues through a ci
 
 When the circuit breaker triggers:
 
-- **Failed Messages**: The 5 recipients that caused the failures are marked as "failed" in the Message History Logs
-- **No Automatic Retry**: These failed messages will NOT be retried when the broadcast resumes
-- **Permanent Failure**: The affected recipients will not receive the message for this campaign
+- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one.
+- **Failed Messages**: Those recipients are marked as "failed" in the Message History Logs, with the provider's own explanation in the Error column.
+- **Recoverable**: Nothing is lost by the pause itself. Resume sends the paused recipients, and any that were given up on can be retried separately.
 
 ### Manual Resume Required
 
 - **Manual Intervention**: Broadcasts paused by the circuit breaker must be manually resumed from the UI
 - **Root Cause Analysis**: Before resuming, investigate and resolve the underlying delivery issues
-- **Fresh Start**: When resumed, the broadcast continues from where it left off, skipping the previously failed messages
+- **Fresh Start**: When resumed, the broadcast continues from where it left off. Recipients whose attempts were all used up are not resumed automatically — use Retry for those.
+
+### Retrying Failed Recipients
+
+A recipient whose delivery attempts were all refused is held for **7 days**, so you can send to them again once the cause is fixed.
+
+- **Where**: A broadcast that finished with failures reads "Completed — N failed" rather than "Complete". The Retry button sits beside it.
+- **When**: Only once the broadcast has finished sending. A broadcast still working through its queue, or one that is paused, has to finish or be resumed first.
+- **What happens**: The same email is sent again to those recipients. Fix whatever the provider objected to before retrying, or it will fail a second time.
+- **Over the API**: `POST /api/broadcasts.retryFailed` with `workspace_id` and `id`, which answers with how many recipients were requeued.
+
+<Warning>
+  After 7 days the failed recipients are cleared and can no longer be retried from the broadcast.
+</Warning>
+
+### What "Complete" Means
+
+A broadcast reads as complete only when its queue is empty and nobody was given up on. The **Sent** figure counts the messages the email provider accepted — a message it refused is counted under **Failed**, never under Sent.
 
 ### Common Failure Scenarios
 

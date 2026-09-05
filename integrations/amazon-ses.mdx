@@ -64,6 +64,10 @@ By default every workspace in an AWS account shares one sending reputation and *
 
 Turning on **SES tenant isolation** gives an integration its own [SES tenant](https://docs.aws.amazon.com/ses/latest/dg/tenants.html): its own reputation profile, its own bounce and complaint metrics, and its own suppression list. AWS can then pause a single tenant instead of the whole account.
 
+<Note>
+  **Self-hosted: provisioning a new SES tenant needs a [licence key](/self-hosting/licence).** A tenant already provisioned keeps sending through its own reputation indefinitely without one — the send path contains no licence check. Every Notifuse Cloud plan includes it.
+</Note>
+
 ### Enabling it
 
 Open the integration (**Settings** → **Integrations**), switch **SES tenant isolation** on, and save. Notifuse confirms first — a tenant is a billable AWS resource — then provisions everything in your account:

@@ -173,6 +173,9 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | **Broadcast Configuration**         |
 | `BROADCAST_DATA_FEED_ALLOW_PRIVATE_HOSTS` | Allow broadcast [data feeds](/features/broadcast-campaigns) to fetch from private, loopback, and link-local addresses. This **disables SSRF protection** for data-feed requests — only enable it in trusted deployments that intentionally fetch feeds from your internal network (e.g., `true`). | `false` |
 |                                     |
+| **Licence**                         |
+| `NOTIFUSE_LICENSE_KEY`              | A self-hosted [licence key](/self-hosting/licence). Wins over a key pasted in the console. Not needed to run Notifuse. | -                         |
+|                                     |
 | **Privacy Settings**                |
 | `TELEMETRY`                         | Send anonymous usage statistics (e.g., `true` or `false`)                                 | `true`                               |
 | `CHECK_FOR_UPDATES`                 | Check for new versions (e.g., `true` or `false`)                                          | `true`                               |

@@ -7,6 +7,10 @@ Notifuse supports **Single Sign-On (SSO)** via [OpenID Connect](https://openid.n
 
 SSO runs **alongside** the built-in magic-code login — it does not replace it. When SSO is enabled, the sign-in page shows an additional **"Sign in with SSO"** button next to the email form; either method signs the user into the same account.
 
+<Warning>
+  **SSO needs a licence that includes it** (the Enterprise tier). On an installation without one, the **Sign in with SSO** button is not offered, however SSO is configured — everyone signs in with a login code instead. Nobody is locked out: every SSO account carries a verified email address, login-code sign-in always works, and sessions already open are unaffected. The startup log says `sso_gated=true` when this applies, and **Settings → System** says so next to the switch. Installing a licence that includes SSO brings the button back immediately, with no restart. See [Licence keys](/self-hosting/licence).
+</Warning>
+
 <Note>
   SSO is **off by default**. Existing deployments that don't configure it see no change — the sign-in page stays exactly as before, with only the magic-code form.
 </Note>

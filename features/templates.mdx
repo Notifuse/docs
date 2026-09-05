@@ -34,6 +34,45 @@ Templates are used across Notifuse for:
 
 <img src="/assets/screenshots/templates.png" alt="Email templates screenshot" />
 
+## Translations
+
+A template can carry one version of its content per language. Which version a contact receives is decided at send time from the contact's `language` field, so one broadcast or one transactional notification serves every language you have written — nothing to branch on in your automations or your API calls.
+
+### Enabling languages in the workspace
+
+Translations are only offered for languages the workspace has switched on. Open **Settings → General**:
+
+- **Supported Languages** — the languages this workspace works in. Add every language you intend to write templates for; a language that is not listed here cannot be given a translation.
+- **Default Language** — the language a template's main content is written in, and the version a contact receives when nothing better matches. Every workspace has exactly one.
+
+Language codes are two-letter ISO codes such as `en`, `fr`, `de`, `es`. The default language must be one of the supported languages, and the list must contain at least one.
+
+<Note>
+  With a single supported language the template editor shows no translation controls at all. The **Translations** tab appears as soon as the workspace supports more than one language.
+</Note>
+
+### Writing a translation
+
+When creating or editing a template, the editor has a tab per stage: **Template**, in the workspace's default language, and **Translations**, listing each other supported language. Open a language to write its version: its own subject, preview text and body, with the same visual editor, MJML code mode and Liquid variables as the default. **Reset translation** copies the default-language content into the translation as a starting point, replacing whatever was there.
+
+A language that has no translation is simply skipped at send time — you do not have to translate a template into every supported language at once.
+
+### Which version a contact receives
+
+At send time Notifuse reads the contact's `language`:
+
+1. If it is empty, or equals the workspace's default language, the contact receives the **default content**.
+2. If the template has a translation for that language, the contact receives **that translation**.
+3. Otherwise the contact receives the **default content**.
+
+So the default content is always the fallback, and a translation is only ever an improvement over it, never a gap. Set a contact's language on import, through the API (`language` on `contacts.upsert`), or from a subscription form; see [Contacts](/features/contacts).
+
+To check a specific language before sending, the template preview and the test-send dialog both have a **Language** selector.
+
+<Note>
+  **Self-hosted: adding a language to a template, or editing the content of an existing translation, needs a [licence key](/self-hosting/licence).** Translations already saved keep being sent in every licence state, editing the rest of a template that carries them is never refused, and removing a translation is always allowed. Every Notifuse Cloud plan includes it.
+</Note>
+
 ## Liquid Syntax
 
 Notifuse uses Liquid templating to insert dynamic content into your emails. Variables are enclosed in double curly braces and automatically replaced with actual data when emails are sent.

@@ -14,6 +14,7 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 - **Email Events**: Track delivery, opens, clicks, bounces, and complaints
 - **Real-Time Updates**: Events appear immediately as they occur
 - **Email Provider Data**: Direct feedback from your configured email providers
+- **Error**: When a send was refused, the provider's own reply — the SMTP code and the text that came with it, such as `452: 4.3.1 Daily sending quota exceeded`. Hover to read the whole of it, or hide the column from the column picker.
 
 <img src="/assets/screenshots/logs_messages.png" alt="Messages logs screenshot" />
 
@@ -40,6 +41,7 @@ Email events are updated in real-time as email provider webhooks are received:
 Filter logs by multiple criteria:
 
 - **Status**: Filter by delivery status (delivered, bounced, etc.)
+- **Delivery**: Show only the messages that failed to send, or only those that did not
 - **Email**: Search by specific recipient email address
 - **Template**: Filter by email template used
 - **Broadcast**: Filter by specific broadcast campaign
@@ -57,7 +59,7 @@ The write verb of both permissions gates nothing today: these rows are written b
 
 Logs are essential for troubleshooting email provider problems:
 
-- **Delivery Failures**: Identify bounced emails and reasons
+- **Delivery Failures**: Identify bounced emails and reasons, and read why a send was refused in the Error column
 - **Provider Issues**: Spot patterns in webhook failures
 - **Performance Monitoring**: Track open and click rates
 - **Real-Time Debugging**: Immediate feedback on email sending issues
