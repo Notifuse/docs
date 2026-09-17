@@ -66,6 +66,7 @@
               "features/file-manager",
               "features/webhooks",
               "features/logs",
+              "features/audit-logs",
               "features/admins-api-keys",
               "features/notification-center"
             ]
@@ -208,6 +209,17 @@
               "GET /api/webhookSubscriptions.deliveries",
               "POST /api/webhookSubscriptions.test",
               "GET /api/webhookSubscriptions.eventTypes"
+            ]
+          },
+          {
+            "group": "Audit logs",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /api/auditLogs.list",
+              "GET /api/auditLogs.get",
+              "GET /api/auditLogs.actions",
+              "POST /api/auditLogs.export",
+              "POST /api/workspaces.setAuditLogSettings"
             ]
           }
         ]

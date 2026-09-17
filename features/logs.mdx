@@ -1,11 +1,11 @@
 ---
 title: Logs
-description: 'Real-time logs for monitoring email delivery and debugging email provider issues. Track message events and webhook data with advanced filtering capabilities.'
+description: 'Real-time logs for monitoring email delivery and debugging email provider issues. Track message events, webhook data and the workspace audit trail with advanced filtering capabilities.'
 ---
 
 ## Overview
 
-Logs provide real-time monitoring of email activity and webhook events to help debug email delivery issues and track campaign performance.
+Logs provide real-time monitoring of email activity and webhook events to help debug email delivery issues and track campaign performance. The same section also holds the workspace's **audit trail** — who did what, from where — on its own tab.
 
 ## Log Types
 
@@ -23,6 +23,14 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 - **Raw Payloads**: Stores the complete, unmodified webhook data from email providers
 - **Real-Time Processing**: Webhooks processed immediately upon receipt
 - **Provider Integration**: Data from Mailgun, Amazon SES, Postmark, etc.
+
+### Audit Logs Tab
+
+- **Who Did What**: Every control-plane action — a member invited, a permission changed, an API key created, an integration edited, a template saved, a broadcast scheduled — with the actor, the IP address, the outcome and a before/after of what changed
+- **Append-Only**: A database trigger refuses every rewrite; the retention purge is the only deletion
+- **Exportable**: Download the current filter as CSV or NDJSON, or pull it over the API into a SIEM
+
+Recording is an Enterprise [licence key](/self-hosting/licence) capability; the tab, its export and its retention setting work in every licence state. See [Audit logs](/features/audit-logs) for the full reference.
 
 ## Event Updates
 
@@ -48,12 +56,13 @@ Filter logs by multiple criteria:
 
 ## Permissions
 
-The two tabs answer to two different permissions, both read-only in practice:
+The tabs answer to different permissions, all read-only in practice:
 
 - **Messages** needs **Message History** read. This is also where broadcast delivery statistics live — delivered, open, click, bounce and per-link counts — so a member who may create and send a broadcast still cannot see how it performed without it. The log carries recipient addresses and the data each message was rendered with, so treat it as contact data.
 - **Email Provider Webhooks** needs **Webhook Events** read. These are the providers' own payloads, including recipient addresses and provider diagnostics.
+- **Audit logs** needs **Audit logs** read, which an owner grants deliberately — it is never part of full access, because full access should not imply reading every colleague's email address, IP address and refused actions. Owners always see the tab, and a root user can switch it to the whole deployment.
 
-The write verb of both permissions gates nothing today: these rows are written by the sending pipeline and by the provider callback routes, never by anything you can call. See [Admins & API Keys](/features/admins-api-keys).
+The write verb of these permissions gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. See [Admins & API Keys](/features/admins-api-keys).
 
 ## Debugging Email Issues
 

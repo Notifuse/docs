@@ -75,6 +75,10 @@ For that reason, keep the number of keys small, give each one a prefix that name
   upgrade. A key you deliberately narrowed therefore widens with the new area, and stays widened
   until you narrow it again. Re-check your scoped keys after each upgrade. A key with *every*
   permission switched off is the one exception: the upgrade leaves it alone.
+
+  **Audit logs read is the second exception**, and the only permission that works this way: it is
+  never filled in on upgrade and is not part of full access. Grant it deliberately, to the people
+  and keys that should read every colleague's email address, IP address and refused actions.
 </Note>
 
 In the console, click a permission's name in the matrix to expand the exact list of endpoints it gates and what each one does. The table below is the summary.
@@ -93,6 +97,7 @@ In the console, click a permission's name in the matrix to expand the exact list
 | **Web Analytics** | View site analytics, the annotations drawn on those charts, and backfill progress | Create, edit and delete annotations, start and cancel the historical backfill, and change the web analytics settings — allowed domains, filters, custom dimension labels and email-link identification |
 | **Webhook Subscriptions** | List subscriptions and open one, and read the delivery log including each event payload and the endpoint's response. The signing secret is hidden from everyone but the owner | Create, edit, delete, enable and disable subscriptions, and fire a test delivery |
 | **Webhook Events** | View the raw callbacks your email providers send back, including recipient addresses and provider diagnostics | **Nothing — this verb gates nothing today** |
+| **Audit logs** | Read the [audit trail](/features/audit-logs) and export it: who did what in the workspace, with the actor's email address, the IP address they came from and the actions they were refused. **Never granted by "full access"** — see the note below | **Nothing — this verb gates nothing today.** Entries are written by the platform, and the retention is an owner-only setting |
 | **LLM** | **Nothing — this verb gates nothing today** | Use the AI assistant |
 | **Workspace** | Read the workspace record and its settings, and see the whole team — members, owners, API keys and pending invitations. Without it the team list is degraded to your own row rather than refused | Rename the workspace's custom contact field labels, and run, reset or delete an integration sync task. **Nothing else** — see below |
 
@@ -100,9 +105,9 @@ Two endpoint families are shared, and answer to whichever permission matches wha
 
 ### Verbs That Gate Nothing Today
 
-Three switches have no endpoint behind them as the API stands: **LLM read**, **Message History write** and **Webhook Events write**. The console shows all three granted and locked, and you cannot turn them off. That is deliberate: storing one as "off" would be permanent, because filling in a missing permission only ever adds what a grant lacks, so nothing would widen it if a later release gives the verb something real to gate.
+Four switches have no endpoint behind them as the API stands: **LLM read**, **Message History write**, **Webhook Events write** and **Audit logs write**. The console shows all four granted and locked, and you cannot turn them off. That is deliberate: storing one as "off" would be permanent, because filling in a missing permission only ever adds what a grant lacks, so nothing would widen it if a later release gives the verb something real to gate.
 
-Granting them confers nothing. Their neighbours do the work: the AI assistant answers to LLM write, message history is read-only because rows are written by the sending pipeline, and inbound provider callbacks arrive on routes that carry no session and consult no permission at all.
+Granting them confers nothing. Their neighbours do the work: the AI assistant answers to LLM write, message history is read-only because rows are written by the sending pipeline, inbound provider callbacks arrive on routes that carry no session and consult no permission at all, and the audit trail is written by the platform itself — its one writable setting, the retention, is owner-only and answers to no permission.
 
 ### Workspace Write Is Narrower Than It Sounds
 

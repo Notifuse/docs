@@ -43,6 +43,8 @@ The email assistant works on the same block tree as the visual editor, so anythi
 | Set the subject line and preview text | "Write three subject lines for this and use the best one" |
 | Select a block so you can see it | It highlights what it just changed in the editor |
 
+It also designs for the template's category: a marketing template always ends with a footer carrying the unsubscribe and preferences links, a transactional one gets no unsubscribe link because an API send has no list to unsubscribe from, and a double opt-in one gets its confirmation button.
+
 After it edits the template, the MJML is compiled and any error is reported in the thread — a broken generation is never presented as a success.
 
 <Note>

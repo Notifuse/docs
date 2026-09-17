@@ -1,9 +1,9 @@
 ---
 title: Licence keys
-description: 'Self-hosting Notifuse is free. Five capabilities need a licence key. This page says which, what a key costs, how to install one, and what happens without it.'
+description: 'Self-hosting Notifuse is free. Six capabilities need a licence key. This page says which, what a key costs, how to install one, and what happens without it.'
 ---
 
-Notifuse v40 and later are published under the [Business Source License 1.1](https://github.com/notifuse/notifuse/blob/main/LICENSE), and every release becomes AGPL-3.0-or-later four years after it ships. You may run Notifuse in production, at any scale, modify it, and host it for others. Everything below is free except the five capabilities in the next section.
+Notifuse v40 and later are published under the [Business Source License 1.1](https://github.com/notifuse/notifuse/blob/main/LICENSE), and every release becomes AGPL-3.0-or-later four years after it ships. You may run Notifuse in production, at any scale, modify it, and host it for others. Everything below is free except the six capabilities in the next section.
 
 ## What needs a key
 
@@ -14,6 +14,7 @@ Notifuse v40 and later are published under the [Business Source License 1.1](htt
 | **Amazon SES tenant isolation** | Provisioning a new SES tenant. A tenant already provisioned keeps sending. |
 | **Template translations** | Adding a language to a template, or editing one already there. Translations already saved keep being sent. |
 | **Single sign-on (OIDC)** | The sign-in page stops offering the SSO button. Nobody is locked out: login-code sign-in always works, and open sessions are unaffected. |
+| **Audit logs** | Recording. Without a key covering audit logs nothing is written; the [Logs → Audit logs tab](/features/audit-logs), its export and its retention setting stay available and simply show what was recorded while a key covered it. A marker entry says when recording stopped and resumed. |
 
 Everything else — sending, contacts, broadcasts, automations, the transactional API, web analytics, every provider integration — needs no key, has no meter, and never will. The full list is at [notifuse.com/pricing/self-hosted](https://notifuse.com/pricing/self-hosted#never).
 
@@ -31,7 +32,7 @@ Everything else — sending, contacts, broadcasts, automations, the transactiona
 | SES tenant isolation | ✓ | ✓ | ✓ |
 | Template translations | ✓ | ✓ | ✓ |
 | Single sign-on (OIDC) | | | ✓ |
-| Audit logs | | | coming soon |
+| Audit logs | | | ✓ |
 
 One key covers one deployment — one PostgreSQL database, however many API containers serve it. Buy at [notifuse.com/pricing/self-hosted](https://notifuse.com/pricing/self-hosted); for anything else, write to [hello@notifuse.com](mailto:hello@notifuse.com).
 
