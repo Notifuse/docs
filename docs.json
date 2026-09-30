@@ -196,6 +196,30 @@
             ]
           },
           {
+            "group": "Blog",
+            "openapi": "openapi.json",
+            "pages": [
+              "GET /api/blogCategories.list",
+              "GET /api/blogCategories.get",
+              "POST /api/blogCategories.create",
+              "POST /api/blogCategories.update",
+              "POST /api/blogCategories.delete",
+              "GET /api/blogPosts.list",
+              "GET /api/blogPosts.get",
+              "POST /api/blogPosts.create",
+              "POST /api/blogPosts.update",
+              "POST /api/blogPosts.delete",
+              "POST /api/blogPosts.publish",
+              "POST /api/blogPosts.unpublish",
+              "GET /api/blogThemes.list",
+              "GET /api/blogThemes.get",
+              "GET /api/blogThemes.getPublished",
+              "POST /api/blogThemes.create",
+              "POST /api/blogThemes.update",
+              "POST /api/blogThemes.publish"
+            ]
+          },
+          {
             "group": "Webhooks",
             "openapi": "openapi.json",
             "pages": [

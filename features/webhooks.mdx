@@ -137,11 +137,21 @@ Alongside its name, URL and event types, a subscription reports:
 
 ### When Notifuse Switches a Subscription Off
 
-An endpoint that stops answering is retired automatically, but only once it has been failing for a long time: it takes both a run of consecutive failures and more than twelve hours of them. A short outage — a deploy, a restart, a receiver that is briefly unreachable during an import — never switches your subscription off, however many deliveries it refuses in the meantime. Those deliveries are retried on the usual backoff.
+An endpoint that stops answering is retired automatically, but only once it has been failing persistently. Both conditions have to be met: 20 consecutive failures, and a run of them that has been going for more than two hours. A short outage — a deploy, a restart, a receiver that is briefly unreachable during an import — never switches your subscription off, however many deliveries it refuses in the meantime. Those deliveries are retried on the usual backoff.
 
 An endpoint answering `410 Gone` is the exception and is retired at once, because that status means the receiver is telling you the subscription no longer exists.
 
 Switching a subscription back on clears its failure history, so it starts from a clean slate rather than being retired again on the next hiccup.
+
+### Where Notifuse Can Deliver
+
+Your endpoint has to be reachable from the public internet. Notifuse refuses to connect to private, loopback, link-local and reserved addresses — including the cloud instance metadata endpoint — and checks this again on every redirect, so a public URL that redirects to an internal one is refused as well. A subscription whose URL names such an address is rejected when you save it.
+
+<Note>
+  Self-hosted only: if you run Notifuse yourself and deliberately deliver webhooks to a service on your own private network — a container on the same Docker network, an internal automation tool — set `WEBHOOK_DELIVERY_ALLOW_PRIVATE_HOSTS=true`. Leave it unset on any deployment where someone you would not trust with your internal network can create subscriptions.
+</Note>
+
+A delivery refused this way is retried like any other failure, but it never counts toward switching the subscription off, so correcting the URL or the setting is enough to get it delivering again.
 
 ## Payload Structure
 
