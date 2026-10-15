@@ -51,7 +51,7 @@ Every `POST /api/…` route below is recorded under its own name. Reads are not 
 | licence | `licence.set`, `licence.recordingStopped`, `licence.recordingResumed` |
 | system | `settings.update` |
 | workspaces | `workspaces.create`, `workspaces.update`, `workspaces.delete`, `workspaces.setBlogSettings`, `workspaces.setCustomFieldLabels`, `workspaces.setWebAnalyticsSettings`, `workspaces.setAuditLogSettings` |
-| members | `workspaces.inviteMember`, `workspaces.acceptInvitation`, `workspaces.deleteInvitation`, `workspaces.removeMember`, `workspaces.setUserPermissions` |
+| members | `workspaces.inviteMember`, `workspaces.acceptInvitation`, `workspaces.joinInvitation`, `workspaces.deleteInvitation`, `workspaces.removeMember`, `workspaces.setUserPermissions` |
 | api_keys | `workspaces.createAPIKey`, `workspaces.connectZapier` |
 | integrations | `workspaces.createIntegration`, `workspaces.updateIntegration`, `workspaces.deleteIntegration`, `ses.enableTenantIsolation`, `webhooks.register` |
 | webhooks | `webhookSubscriptions.create`, `.update`, `.delete`, `.toggle`, `.regenerateSecret` |
@@ -92,4 +92,4 @@ Entries are stored in the system database, not in the workspace's own database, 
 
 ## API
 
-The four endpoints are documented in the API reference: [`auditLogs.list`](/api-reference/list-audit-logs), [`auditLogs.get`](/api-reference/get-an-audit-log-entry), [`auditLogs.actions`](/api-reference/list-audit-actions) and [`auditLogs.export`](/api-reference/export-audit-logs). An API key can call them when granted the Audit logs read permission, which is how a SIEM pulls the log on a schedule. The retention is set over the API with [`workspaces.setAuditLogSettings`](/api-reference/set-the-workspace-audit-log-retention), which only a workspace owner can call — no permission grants it.
+The four endpoints are documented in the API reference: [`auditLogs.list`](/api-reference/audit-logs/list-audit-logs), [`auditLogs.get`](/api-reference/audit-logs/get-an-audit-log-entry), [`auditLogs.actions`](/api-reference/audit-logs/list-audit-actions) and [`auditLogs.export`](/api-reference/audit-logs/export-audit-logs). An API key can call them when granted the Audit logs read permission, which is how a SIEM pulls the log on a schedule. The retention is set over the API with [`workspaces.setAuditLogSettings`](/api-reference/audit-logs/set-the-workspace-audit-log-retention), which only a workspace owner can call — no permission grants it.

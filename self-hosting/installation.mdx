@@ -124,7 +124,7 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | Variable          | Description                                                      |
 | ----------------- | ---------------------------------------------------------------- |
 | `ROOT_EMAIL`      | Root administrator email (e.g., `admin@yourcompany.com`). Accepts multiple comma/semicolon-separated emails to grant root to several administrators (e.g., `alice@yourcompany.com,bob@yourcompany.com`); matching is case-sensitive. |
-| `API_ENDPOINT`    | Public API endpoint URL (e.g., `https://emails.yourcompany.com`) |
+| `API_ENDPOINT`    | Public API endpoint URL (e.g., `https://emails.yourcompany.com`). To move to another domain later, see [Changing your domain](/self-hosting/changing-domain). |
 | `SMTP_HOST`       | SMTP server host (e.g., `smtp.gmail.com`)                        |
 | `SMTP_PORT`       | SMTP server port (e.g., `587` or `465`)                          |
 | `SMTP_USERNAME`   | SMTP username (e.g., `noreply@yourcompany.com`)                  |
@@ -152,7 +152,7 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 | **Server Configuration**            |
 | `SERVER_PORT`                       | Port for the server to listen on (e.g., `8080`)                                           | `8080`                               |
 | `SERVER_HOST`                       | Host address to bind to (e.g., `0.0.0.0`)                                                 | `0.0.0.0`                            |
-| `CORS_ALLOW_ORIGIN`                 | CORS allowed origins (e.g., `https://yourapp.com,https://admin.yourapp.com`)              | `*`                                  |
+| `CORS_ALLOW_ORIGIN`                 | Origins allowed to call the API from a browser: `*`, one origin, or a comma-separated list (e.g., `https://yourapp.com,https://admin.yourapp.com`; lists need 41.1 or later). A restricted value must include every workspace custom domain, whose console and notification center call the API from their own origin. | `*`                                  |
 | `ENVIRONMENT`                       | Environment mode (e.g., `production`)                                                     | `production`                         |
 | `LOG_LEVEL`                         | Logging level (e.g., `debug` or `warn`)                                                   | `info`                               |
 |                                     |

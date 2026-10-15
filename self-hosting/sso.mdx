@@ -52,6 +52,7 @@ When a value is set via an environment variable, the matching field is shown as 
 | `OIDC_BUTTON_LABEL`      | Text shown on the sign-in button.                                                                                                                                     | `Sign in with SSO`                     |
 | `OIDC_AUTO_CREATE_USERS` | Just-in-time provisioning. When `true`, requires `OIDC_ALLOWED_DOMAINS`. See [Provisioning](#provisioning).                                                            | `false`                                |
 | `OIDC_ALLOWED_DOMAINS`   | Comma/semicolon/space-separated email-domain allowlist that gates auto-creation. **Mandatory** when `OIDC_AUTO_CREATE_USERS=true` (the server refuses to boot otherwise). | -                                      |
+| `OIDC_ALLOW_UNVERIFIED_EMAIL` | Accept an ID token that carries no `email_verified` claim, for providers that never send one (Microsoft Entra ID, Cloudflare Access). On a first sign-in, a token saying `email_verified: false` is refused; an identity already linked to an account signs in by its subject and is not re-checked. An unverified address never counts for a pending invitation — see [Invited users](#invited-users). | `false` |
 
 <Warning>
   When `OIDC_ENABLED=true`, the server validates the configuration at startup and **fails fast** on an invalid one (missing issuer/client/secret, a non-https issuer, or auto-create with no allowlist). The same validation runs before the Settings drawer saves, so a bad config is rejected with an error rather than persisted.
@@ -59,7 +60,7 @@ When a value is set via an environment variable, the matching field is shown as 
 
 ## Provisioning
 
-By default, SSO is **invited-users-only**: a user can sign in with SSO only if they already have a Notifuse account (created via the setup root, a workspace invitation, or the API). An SSO login for an unknown email is rejected with a "no account — ask to be invited" message. This preserves Notifuse's no-self-signup model.
+By default, SSO is **invited-users-only**: a user can sign in with SSO only if they already have a Notifuse account or have been invited to a workspace (see [Invited users](#invited-users)). An SSO login for an address nobody invited is rejected with a "no account" message. This preserves Notifuse's no-self-signup model.
 
 To let new users be created automatically on first SSO login, set:
 
@@ -68,10 +69,24 @@ OIDC_AUTO_CREATE_USERS=true
 OIDC_ALLOWED_DOMAINS=yourcompany.com
 ```
 
-With auto-create on, an account is created on first login **only** when the IdP asserts a verified email **and** its domain is in `OIDC_ALLOWED_DOMAINS`. Even then, the new user has no workspace access until invited.
+With auto-create on, an account is created on first login when the IdP asserts a verified email **and** its domain is in `OIDC_ALLOWED_DOMAINS`. Even then, the new user has no workspace access until invited. An address with an invitation waiting follows the [Invited users](#invited-users) rules instead, both ways: the invitation can create the account outside the allowlist, and a provider that is not authoritative for the address creates none.
+
+### Invited users
+
+An invitee doesn't need to open the emailed link before signing in with SSO. On their first SSO login, a pending invitation to their address creates their account — in invited-only mode, and even when their domain is not in `OIDC_ALLOWED_DOMAINS`, since an invitation is an owner's explicit choice of that one address. The invitation is not accepted for them: they land on the workspace list, under **Pending invitations**, and click **Join**.
+
+That only happens when your identity provider is authoritative for the address, because joining from the console relies on the address the provider asserts:
+
+| Provider | Authoritative when |
+| -------- | ------------------ |
+| Google | The address ends in `@gmail.com`, or it belongs to a Google Workspace account (the `hd` claim). Google does not vouch for a personal Google account registered with another domain's address. |
+| Microsoft Entra ID | The user is a member of your tenant and the ID token carries the optional `xms_edov` claim, set to true. Add it in your app registration under **Token configuration → Add optional claim → ID**. Guests signing in with a personal Microsoft or Google account, or a one-time passcode, do not count: Entra sets `xms_edov` for them too. |
+| Any other provider | The ID token carries `email_verified: true`. A provider that brokers others (Keycloak, Dex, Auth0 social connections) vouches for their addresses with its own `email_verified`, so pass it through only for addresses you trust. |
+
+When the provider is not authoritative, SSO creates no account for an invited address — not even with `OIDC_AUTO_CREATE_USERS` — and the invitee opens the link in their invitation email instead. Once they have accepted it, SSO works for them from then on.
 
 <Note>
-  Users are matched by the durable `(issuer, subject)` pair from the IdP, not by email — so a user keeps the same account even if their email changes at the IdP. Email is used only to link an SSO identity to an existing invited account on first login. A `ROOT_EMAIL` account can never be auto-linked to an external identity (a safeguard against platform-admin takeover).
+  Users are matched by the durable `(issuer, subject)` pair from the IdP, not by email — so a user keeps the same account even if their email changes at the IdP. Email is used only on first login: to link an SSO identity to an existing account, or to find the invitations waiting for that address. A `ROOT_EMAIL` account can never be auto-linked to an external identity (a safeguard against platform-admin takeover).
 </Note>
 
 ## Identity provider setup
@@ -104,7 +119,7 @@ OIDC_ALLOWED_DOMAINS=yourcompany.com
 ```
 
 <Note>
-  Personal `@gmail.com` accounts and your Workspace accounts share the `accounts.google.com` issuer. Use `OIDC_ALLOWED_DOMAINS` (or keep the default invited-only mode) to restrict sign-in to your organization.
+  Personal `@gmail.com` accounts and your Workspace accounts share the `accounts.google.com` issuer. Use `OIDC_ALLOWED_DOMAINS` (or keep the default invited-only mode) to restrict sign-in to your organization. A `@gmail.com` address you have invited can still sign in — see [Invited users](#invited-users).
 </Note>
 
 ### Keycloak
@@ -141,10 +156,11 @@ Any OpenID-Connect–certified provider works the same way — set `OIDC_ISSUER_
 | Symptom                                                              | Cause & fix                                                                                                                                  |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **"Single sign-on is temporarily unavailable"** after clicking SSO   | Notifuse can't reach or discover the issuer. Verify `OIDC_ISSUER_URL` is correct, reachable from the server, and serves a discovery document. Notifuse retries automatically once the issuer is back. |
-| **"No Notifuse account is linked… ask to be invited"**               | Invited-only mode (the default) and this email has no account. Invite the user to a workspace, or enable `OIDC_AUTO_CREATE_USERS` with an allowlist. |
+| **"No Notifuse account is linked… If you were invited, open the link in your invitation email"** | The address has no account and nothing SSO can create one from. Either nobody invited it — invite the user, or enable `OIDC_AUTO_CREATE_USERS` with an allowlist — or it has a pending invitation but your provider is not authoritative for the address (see [Invited users](#invited-users)), and the user accepts the invitation through its link. |
+| **"Single sign-on cannot create an account for your email domain"**  | Auto-create is on and the address is outside `OIDC_ALLOWED_DOMAINS`. Add the domain, or invite the user — an invitation overrides the allowlist for that address when your provider is authoritative for it (see [Invited users](#invited-users)); otherwise the user accepts the invitation through its link. |
 | **`redirect_uri_mismatch` / `invalid_redirect_uri` at the IdP**      | The redirect URI registered at the IdP doesn't exactly match what Notifuse sends. Register `…/api/user.oidc.callback`, and set `OIDC_REDIRECT_URI` if you're behind a proxy that rewrites scheme/host. |
 | **The server won't start after enabling OIDC**                       | Configuration validation failed. Check that `OIDC_ISSUER_URL` is https and `OIDC_CLIENT_ID`/`OIDC_CLIENT_SECRET` are set, and that `OIDC_ALLOWED_DOMAINS` is non-empty when `OIDC_AUTO_CREATE_USERS=true`. |
-| **A user can sign in but can't access any workspace**                | Expected — login is not authorization. Invite the user to the relevant workspace (or add them to `ROOT_EMAIL`).                              |
+| **A user can sign in but can't access any workspace**                | Expected — login is not authorization. Invite the user to the relevant workspace (or add them to `ROOT_EMAIL`); a pending invitation shows on their workspace list with a **Join** button. |
 
 <Note>
   Running multiple Notifuse replicas behind a load balancer? The one-time code used to complete the SSO handoff is held per-instance, so enable **sticky sessions** for SSO to work reliably across replicas. Single-instance deployments need no extra configuration.

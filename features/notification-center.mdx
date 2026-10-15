@@ -36,8 +36,11 @@ Automatically detects browser language and displays content accordingly. Support
 - Portuguese (pt)
 - Russian (ru)
 - Japanese (ja)
+- Polish (pl)
 
 Defaults to English if browser language is not supported.
+
+When the contact clicks, taps or presses a key on the page, their browser's timezone is saved to their profile, and so is their browser's language if their profile has none. Opening the page alone saves nothing, so email security scanners that open links in a browser don't change contact data.
 
 ### Subscription Management
 
@@ -46,6 +49,15 @@ Users can:
 - View all public lists
 - Subscribe/unsubscribe with one click
 - See real-time feedback messages
+
+### Unsubscribe from the Mail Client
+
+Broadcasts, and emails sent by automations attached to a list, carry the `List-Unsubscribe` and `List-Unsubscribe-Post` headers ([RFC 8058](https://www.rfc-editor.org/rfc/rfc8058)), so Gmail, Yahoo, Outlook and other mail clients can show their own **Unsubscribe** button next to the sender:
+
+- **One-click**: when the mail client offers one-click unsubscribe, the contact is unsubscribed from the list right away. The contact's click on the mail client's button is the confirmation.
+- **Opened in a browser**: mail clients that don't offer one-click open the link instead. The notification center then shows the list and asks the contact to confirm, because anti-spam filters also open these links on their own.
+
+Mail clients only offer one-click when the email's DKIM signature covers both headers, and that signature is applied by your email provider.
 
 ## Configuration
 
@@ -60,10 +72,11 @@ The notification center uses:
 
 ### User Flow
 
-1. User clicks unsubscribe link
-2. Notification center opens
-3. User modifies subscription preferences
-4. Changes applied immediately
+What happens depends on the link the contact followed:
+
+- **Unsubscribe link in the email** (`{{ unsubscribe_url }}`): the contact is unsubscribed from that list as soon as the page opens, and the page confirms it. They can then manage their other lists.
+- **The mail client's Unsubscribe button**: unsubscribes in one click, or opens a page that asks the contact to confirm, as described in [Unsubscribe from the Mail Client](#unsubscribe-from-the-mail-client).
+- **Preferences link** (`{{ notification_center_url }}`): shows the contact's lists, and each subscribe or unsubscribe applies immediately.
 
 ### Implementation
 

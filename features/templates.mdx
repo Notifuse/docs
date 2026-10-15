@@ -22,6 +22,22 @@ Email templates in Notifuse are built using a **visual drag-and-drop editor** th
 - **Brand Consistency**: Colors, fonts, logos, and styling options
 - **Real-time Preview**: See exactly how your email will look before sending
 
+## Editor modes
+
+When you create a template, you choose how its email is written:
+
+- **Visual**: the drag-and-drop editor, where blocks, styles and Liquid variables are edited in place.
+- **Code (MJML)**: you write the MJML yourself, with Liquid, in a code editor with a live preview.
+
+The editor mode is set when the template is created and can't be changed afterwards. To move a design to the other editor, create a new template in that mode and copy the content across with the **Import / Export** menu of each editor:
+
+- **Code to visual**: in the code template, use **Export MJML**; in the new visual template, use **Import → MJML** with that file.
+- **Visual to code**: in the visual template, use **Export → MJML**; in the new code template, use **Import MJML** with that file.
+
+Check the preview after copying. The visual editor refuses MJML components it doesn't support, and Liquid placed between blocks (for example a `{% for %}` loop around sections) is not kept when importing into it. In the other direction, write Liquid inside links with single quotes (`{{ link | append: '?ref=mail' }}`): double-quoted text there doesn't survive the export.
+
+The new template has its own ID. Point your broadcasts, transactional notifications and automations at it, then delete the old one.
+
 ## Usage
 
 Templates are used across Notifuse for:
@@ -33,6 +49,14 @@ Templates are used across Notifuse for:
 - **Unsubscribe Confirmations**: Sent when contacts opt out
 
 <img src="/assets/screenshots/templates.png" alt="Email templates screenshot" />
+
+## Deleting a template
+
+Deleting a template removes it from the template list and from every template picker, but Notifuse keeps it, with all its versions: messages already sent were rendered from them, and the message history and broadcast reports still display them.
+
+Because of this, a deleted template keeps its ID. Creating a new template with the same ID is refused, and the API's `templates.update` answers `404` for it. Give the new template another ID.
+
+Templates managed by an integration, such as the [Supabase](/integrations/supabase) auth emails, can't be deleted.
 
 ## Translations
 
@@ -76,6 +100,10 @@ To check a specific language before sending, the template preview and the test-s
 ## Liquid Syntax
 
 Notifuse uses Liquid templating to insert dynamic content into your emails. Variables are enclosed in double curly braces and automatically replaced with actual data when emails are sent.
+
+<Note>
+  Liquid is evaluated in the template you write, not in your data. A value coming from a contact field, a data feed or an API call is inserted as text: if it happens to contain `{{ ... }}` or `{% ... %}`, that text is shown as-is, not run as Liquid. Put merge tags in the template; feed the data plain values.
+</Note>
 
 ### Contact Variables
 
@@ -122,6 +150,8 @@ Use pre-generated URLs for common actions:
 ```liquid
 <a href="{{ unsubscribe_url }}">Unsubscribe from this list</a>
 ```
+
+Opening this link unsubscribes the contact from the list right away and shows the [notification center](/features/notification-center). Mail clients can also show their own Unsubscribe button, from the `List-Unsubscribe` header that Notifuse adds to every email sent to a list.
 
 #### Subscription Confirmation
 

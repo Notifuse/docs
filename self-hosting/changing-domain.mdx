@@ -1,0 +1,57 @@
+---
+title: Changing your domain
+description: 'Move a Notifuse instance to a new address, and open the console on workspace custom domains.'
+---
+
+Notifuse knows its public address through `API_ENDPOINT`, set as an environment variable or saved by the Setup Wizard; the environment variable wins when both exist. The console sends every request to that address, and it is written into emails, invitations, webhooks registered with your email providers and the SSO redirect URI. Moving an instance to a new domain means changing `API_ENDPOINT`, then updating the places that copied it.
+
+<Warning>
+  Keep the old domain pointing at Notifuse, or redirecting to the new one with the path and query string intact, for as long as people may open emails you have already sent. Their tracking, unsubscribe and notification center links carry the old address, and nothing can update an email that has been delivered.
+</Warning>
+
+## Switching to the new domain
+
+1. Route the new domain to Notifuse in your reverse proxy, with a TLS certificate, and keep the old domain routed as well.
+2. Change `API_ENDPOINT`:
+   - **Set as an environment variable**: change it and restart Notifuse.
+   - **Saved by the Setup Wizard**: sign in as root on the old domain, open **System Settings** (the button above the workspace list), change **API Endpoint** and save. Saving restarts Notifuse: the process exits and your container or service manager starts it again, which the provided Docker Compose file does with `restart: unless-stopped`. The field is disabled when the environment variable is set, since the environment variable would override it.
+3. Sign in again on the new domain. Sessions are kept per address, so a session opened on the old domain does not carry over.
+4. Work through the list below.
+
+<Note>
+  **Locked out after the move?** If the old domain no longer reaches Notifuse, the console on the new domain cannot reach its API either, and the sign-in page says which address it tried. Set `API_ENDPOINT` to the new address as an environment variable and restart: it takes precedence over the value the Setup Wizard saved.
+</Note>
+
+## What else uses the address
+
+| Uses the address | After the change | What to do |
+| --- | --- | --- |
+| Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. |
+| Pending workspace invitations | Link to the old domain | Keep the old domain routed, or resend the invitations: a resent invitation uses the new address. |
+| Email provider webhooks | Registered once, with the address of the time | For each integration, open **Settings → Integrations** and click **Re-register**. See [Email provider webhooks](#email-provider-webhooks). |
+| `WEBHOOK_ENDPOINT` | Overrides `API_ENDPOINT` for webhooks when set | Change it too, then re-register. |
+| Single sign-on | The redirect URI is derived from `API_ENDPOINT` unless `OIDC_REDIRECT_URI` is set | Add `https://<new-domain>/api/user.oidc.callback` at your identity provider, and update `OIDC_REDIRECT_URI` if you set it. See [Single Sign-On](/self-hosting/sso). |
+| URLs copied into other tools: Supabase auth hooks, the Zapier connection, applications calling the API | Still call the old domain | Update them with the new address. |
+| The web analytics snippet installed on your sites | Its `endpoint` and its script URL name the old domain, unless the workspace has a Custom Endpoint URL | Install the updated snippet, or keep the old domain routed. |
+| Workspace Custom Endpoint URLs | Their DNS check expects a CNAME to the `API_ENDPOINT` host, and runs only when a custom domain is set or changed | Existing custom domains keep working while their CNAME target still reaches Notifuse. Point them at the new host when convenient. |
+| `CORS_ALLOW_ORIGIN` | Lists the origins allowed to call the API, when set | Add the new origin. See [Workspace custom domains](#opening-the-console-on-a-workspace-custom-domain). |
+
+### Email provider webhooks
+
+Notifuse registers its webhook with your email provider when you create the integration, using the address at that time, and never updates it on its own. **Re-register** sends the new address:
+
+- **Mailgun** and **SendGrid** replace the old address.
+- **Postmark**, **SparkPost**, **Mailjet** and **Amazon SES** add the new address next to the old one. Delete the old webhook in the provider's dashboard, or for Amazon SES the old SNS subscription, so events are not delivered twice.
+
+An integration can show as registered while its webhook still points at the old domain. Hover over an endpoint in **Settings → Integrations** to see the address it uses.
+
+Amazon SES confirms the new SNS subscription automatically, which only succeeds once AWS can reach Notifuse on the new domain.
+
+## Opening the console on a workspace custom domain
+
+A workspace's Custom Endpoint URL also serves the console: if a workspace uses `https://news.example.com`, its members can sign in at `https://news.example.com/console`. The console and notification center opened there send their requests to `API_ENDPOINT`, from the custom domain's origin.
+
+- With the default `CORS_ALLOW_ORIGIN` (`*`) there is nothing to configure.
+- If you restrict `CORS_ALLOW_ORIGIN`, list every workspace custom domain, separated by commas: `CORS_ALLOW_ORIGIN=https://news.example.com,https://mail.other-brand.com`. A domain left out cannot sign in to the console, and its notification center cannot load preferences.
+- Sessions are kept per address: signing in on a custom domain does not sign you in on the main domain, and the other way round.
+- Single sign-on and invitation links finish on the `API_ENDPOINT` address, not on the custom domain.
