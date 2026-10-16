@@ -73,6 +73,12 @@ Also keep in mind:
 - **Message history and segment memberships** are keyed to the email address. They stay attached to the old email address and are not transferred to the new contact.
 - **Active automations**: deleting the old contact drops it from any automation it is currently progressing through; the new contact does not resume its position.
 
+### Deleting a Contact
+
+Deleting a contact with `contacts.delete` also deletes its list subscriptions, unsubscribed, bounced and complained statuses included, so Notifuse no longer remembers that the address opted out. A later import, upsert with `subscribe_to_lists` or `lists.subscribe` adds the address back as a new, subscribed contact. To keep honouring an opt-out, set the contact's list status to unsubscribed instead of deleting it.
+
+An unsubscribe link in an email sent before the deletion still answers successfully, but stores nothing about the address.
+
 ### List Subscriptions
 
 - Contacts can subscribe to one or multiple mailing lists

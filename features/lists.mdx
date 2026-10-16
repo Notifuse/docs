@@ -23,10 +23,12 @@ Contacts within lists can have different statuses that determine their engagemen
 | **Active**       | ✅ Can receive emails    | Confirmed subscribers eligible for broadcasts |
 | **Pending**      | ❌ Cannot receive emails | Waiting for double opt-in confirmation        |
 | **Unsubscribed** | ❌ Cannot receive emails | Opted out of receiving communications         |
-| **Bounced**      | ❌ Cannot receive emails | Email address is invalid or unreachable       |
-| **Complained**   | ❌ Cannot receive emails | Marked emails as spam                         |
+| **Bounced**      | ❌ Never receives emails | Email address is invalid or unreachable       |
+| **Complained**   | ❌ Never receives emails | Marked emails as spam                         |
 
-> **Important**: Only contacts with **"active"** status can receive emails from broadcast campaigns.
+> **Important**: Broadcasts leave out the list's unsubscribed contacts unless the broadcast sets `exclude_unsubscribed` to `false`, for example for a legal notice. Leaving `exclude_unsubscribed` out of an API request means exclude them, as the console does. Bounced and complained contacts are never emailed, whatever that setting.
+
+A contact who unsubscribes from an email sent for a list they weren't on, such as an automation email, is recorded on that list as **unsubscribed**. An unsubscribe never replaces a **bounced** or **complained** status.
 
 ## List Visibility
 
@@ -38,8 +40,8 @@ Contacts within lists can have different statuses that determine their engagemen
 
 ### Private Lists
 
-- **Notification Center**: ❌ Do not appear in the notification center
-- **Subscriber Access**: Only accessible through direct management or API
+- **Notification Center**: ❌ Not offered to contacts who aren't on them. A contact sees a private list they are active or pending on, and can only leave it there.
+- **Subscriber Access**: Only the workspace adds contacts, from the console or the authenticated API (`lists.subscribe`). A contact can't join a private list from the notification center or the public `/subscribe` endpoint, nor come back after leaving one. Adding them back is up to the workspace. A link from their emails only lets them confirm a pending double opt-in.
 - **Use Case**: Perfect for internal communications, VIP segments, transactional lists, or one-time broadcasts
 
 ## Double Opt-In Configuration
