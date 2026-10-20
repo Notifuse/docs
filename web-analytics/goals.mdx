@@ -21,11 +21,13 @@ NotifuseAnalytics.trackGoal({ action: 'purchase', type: 'purchase', value: 49.9 
 | `action` | Yes | The goal name, up to 100 bytes — 100 ASCII characters, fewer for accented or non-Latin text. |
 | `type` | Yes | What kind of conversion this is: `purchase`, `subscription`, `lead`, `signup`, `booking`, `trial` or `other`. |
 | `value` | No | A non-negative number — revenue, or whatever you are totalling. |
-| `properties` | No | Up to 50 string values of your own, 1024 bytes each and 8 KB in total. |
+| `properties` | No | Up to 50 values of your own, 1024 bytes per value and 8 KB in total, keys included. They are stored as strings. |
 
 `type` is required because only your site knows whether a conversion is a sale or
-a lead, and the goal-based segment conditions filter on it. `trackGoal` throws
-without it. Use `other` when none of the rest fit.
+a lead, and the goal-based segment conditions filter on it. `trackGoal` rejects
+when `type` is missing or isn't one of these values, in lowercase, so catch the
+error if you wait for `trackGoal` before redirecting. Use `other` when none of
+the rest fit.
 
 The current page path and its position in the visit are attached for you, so a goal always knows where it happened.
 
@@ -38,6 +40,19 @@ A negative `value` makes the whole goal invalid, and the goal is discarded — n
 </Warning>
 
 You do not declare goals anywhere first. The Goals tab lists whatever names your site has actually sent, ordered by conversions, showing up to the 30 most-converted goals for the period and filters you have applied.
+
+### Values From a Tag Manager or Plain JavaScript
+
+A snippet or a tag manager often passes values read from the page, so `trackGoal` converts the common types for you:
+
+- A `value` given as a string written like a JSON number, such as `'49.90'` or `'120'`, is stored as a number. `'49,90'`, `'1,299.00'`, `'€49.90'` and `'.5'` are not, and such a goal is left out, as described below.
+- A `value` of `NaN` (what `parseFloat('€49.90')` returns), an infinite number, `null` or an empty string records the goal without a value and without a warning. The Goals tab and the reports count such a goal as 0 in average and median values.
+- Numbers and booleans in `properties` are stored as strings and a `Date` as its ISO string. `null`, `NaN`, an infinite number and an invalid `Date` are stored as an empty string, and an `undefined` entry is left out.
+- When `properties` is `false`, `''` or `0`, as `coupon && { coupon }` gives without a coupon, the goal is recorded without properties.
+
+A goal whose data still can't be recorded is left out with a warning in the browser console, and the call still resolves, so a page that waits for `trackGoal` before redirecting still redirects. That covers a missing, blank or non-string `action` or one over 100 bytes, a `value` that isn't a number or is outside 0 to 1e12, and `properties` that are an array, a non-empty string, `true` or a number other than `0` and `NaN`, hold an object or an array, or go over the limits above. The rest of the visit keeps recording.
+
+A `Map`, `FormData` or `URLSearchParams` has no fields of its own, so a goal given one as `properties` is recorded without properties and without a warning: pass `Object.fromEntries(…)` of it instead, leaving out any file field, whose value is an object.
 
 ## What a Goal Produces
 
@@ -81,7 +96,7 @@ you would for events sent through the API.
 
 - Up to 100 goals of one session are bridged to the contact timeline per write batch. Goals beyond that within the same batch are dropped from the timeline permanently, and the counter restarts on each batch — so a long visit that keeps converting can end up with more than 100 timeline entries in total. Either way the visit itself keeps recording; the cap only affects the timeline copy.
 - A goal older than 24 hours is not bridged to a timeline. A visitor whose browser was offline for a day comes back with their visit intact, without firing "you just did this" automations a day late.
-- A goal value above 1e12, a name over 100 bytes, or properties over 8 KB are dropped — the goal alone, never the rest of the visit.
+- A goal with a value above 1e12, a name over 100 bytes, properties over 50 keys, 1024 bytes in one value or 8 KB in all with their keys, a property that holds an object or an array, or a NUL character (`\u0000`) in its name or properties is dropped — the goal alone, never the rest of the visit.
 
 ## Notes
 
