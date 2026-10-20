@@ -96,7 +96,7 @@ you would for events sent through the API.
 
 - Up to 100 goals of one session are bridged to the contact timeline per write batch. Goals beyond that within the same batch are dropped from the timeline permanently, and the counter restarts on each batch — so a long visit that keeps converting can end up with more than 100 timeline entries in total. Either way the visit itself keeps recording; the cap only affects the timeline copy.
 - A goal older than 24 hours is not bridged to a timeline. A visitor whose browser was offline for a day comes back with their visit intact, without firing "you just did this" automations a day late.
-- A goal with a value above 1e12, a name over 100 bytes, properties over 50 keys, 1024 bytes in one value or 8 KB in all with their keys, or a property that holds an object or an array is dropped — the goal alone, never the rest of the visit.
+- A goal with a value above 1e12, a name over 100 bytes, properties over 50 keys, 1024 bytes in one value or 8 KB in all with their keys, a property that holds an object or an array, or a NUL character (`\u0000`) in its name, path or properties is dropped — the goal alone, never the rest of the visit.
 
 ## Notes
 
