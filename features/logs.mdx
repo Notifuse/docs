@@ -20,7 +20,7 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 
 ### Email Provider Webhooks Tab
 
-- **Raw Payloads**: Stores the complete, unmodified webhook data from email providers
+- **Raw Payloads**: Stores each event's data exactly as the email provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch
 - **Real-Time Processing**: Webhooks processed immediately upon receipt
 - **Provider Integration**: Data from Mailgun, Amazon SES, Postmark, etc.
 
