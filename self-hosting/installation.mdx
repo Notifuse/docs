@@ -124,7 +124,7 @@ openssl rand -base64 32
 
 | Variable      | Description                                                                 |
 | ------------- | --------------------------------------------------------------------------- |
-| `SIGNING_KEY` | Signs sessions, API keys, magic codes and root sign-in instead of `SECRET_KEY` (generate it the same way) |
+| `SIGNING_KEY` | Signs sessions, API keys, magic codes and root sign-in instead of `SECRET_KEY`. Generate it with `openssl rand -base64 32`: a shorter value is refused |
 
 When `SIGNING_KEY` is not set, `SECRET_KEY` signs as well as encrypts. Setting or changing `SIGNING_KEY`
 signs every user out and invalidates existing API keys and pending invitation links, but leaves your
@@ -140,7 +140,8 @@ signs with.
 
   ```bash
   SECRET_KEY=d04zCk3Fa45oOjDWHpAvc1AZxnLdGffOnNWK+Jt2yXf37+FTfuMMHb8flcfPMqLluRR3rvhbr555r6j1DEigrA==
-  SIGNING_KEY=<output of openssl rand -base64 32>
+  # Paste the output of: openssl rand -base64 32
+  SIGNING_KEY=
   ```
 
   If you run a compose file of your own, make sure it passes `SIGNING_KEY` to the container, as the
