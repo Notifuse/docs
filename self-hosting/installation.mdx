@@ -32,6 +32,9 @@ This option includes an embedded PostgreSQL database for easy testing and develo
 git clone https://github.com/notifuse/notifuse.git
 cd notifuse
 
+# Generate your secret key once, and keep it: it encrypts your stored data
+echo "SECRET_KEY=$(openssl rand -base64 32)" > .env
+
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
 ```
@@ -115,6 +118,32 @@ openssl rand -base64 32
   **IMPORTANT**: Never change your `SECRET_KEY` after initial setup. It encrypts all workspace
   integration secrets (email provider API keys, SMTP passwords, etc.). Changing it will permanently
   destroy all encrypted credentials.
+</Warning>
+
+### Signing Key (Optional)
+
+| Variable      | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `SIGNING_KEY` | Signs sessions, API keys, magic codes and root sign-in instead of `SECRET_KEY` (generate it the same way) |
+
+When `SIGNING_KEY` is not set, `SECRET_KEY` signs as well as encrypts. Setting or changing `SIGNING_KEY`
+signs every user out and invalidates existing API keys, but leaves your stored data readable, so it is
+the key to change when you want to replace the one your installation signs with.
+
+<Warning>
+  Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
+  If your installation runs with either value, Notifuse refuses to start until you set `SIGNING_KEY`.
+  Keep `SECRET_KEY` as it is, since it decrypts your stored data: generating a new one would leave that
+  data unreadable. If you started from `compose.yaml` without setting `SECRET_KEY`, add the former
+  default to your `.env` along with the new signing key:
+
+  ```bash
+  SECRET_KEY=d04zCk3Fa45oOjDWHpAvc1AZxnLdGffOnNWK+Jt2yXf37+FTfuMMHb8flcfPMqLluRR3rvhbr555r6j1DEigrA==
+  SIGNING_KEY=<output of openssl rand -base64 32>
+  ```
+
+  Everyone then signs in again, API keys must be recreated, and scripts that call
+  `user.rootSignin` sign with `SIGNING_KEY`.
 </Warning>
 
 ### Application Variables (Optional with Setup Wizard)
@@ -382,13 +411,13 @@ For CI/CD pipelines and automated deployments, a root user can authenticate prog
 #!/bin/bash
 # Configuration
 NOTIFUSE_URL="https://your-notifuse-instance.com"
-SECRET_KEY="your-secret-key"
+SIGNING_KEY="your-signing-key"  # your SECRET_KEY when SIGNING_KEY is not set
 ROOT_EMAIL="admin@example.com"
 TIMESTAMP=$(date +%s)
 
 # Generate HMAC signature
 MESSAGE="${ROOT_EMAIL}:${TIMESTAMP}"
-SIGNATURE=$(echo -n "$MESSAGE" | openssl dgst -sha256 -hmac "$SECRET_KEY" | awk '{print $2}')
+SIGNATURE=$(echo -n "$MESSAGE" | openssl dgst -sha256 -hmac "$SIGNING_KEY" | awk '{print $2}')
 
 # Authenticate and get JWT token
 curl -X POST "${NOTIFUSE_URL}/api/user.rootSignin" \
