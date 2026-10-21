@@ -143,6 +143,9 @@ signs with.
   SIGNING_KEY=<output of openssl rand -base64 32>
   ```
 
+  If you run a compose file of your own, make sure it passes `SIGNING_KEY` to the container, as the
+  `compose.yaml` of version 42.0 does.
+
   Everyone then signs in again, API keys must be recreated, pending invitations must be sent again,
   and scripts that call `user.rootSignin` sign with `SIGNING_KEY`.
 </Warning>
