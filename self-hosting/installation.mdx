@@ -127,8 +127,9 @@ openssl rand -base64 32
 | `SIGNING_KEY` | Signs sessions, API keys, magic codes and root sign-in instead of `SECRET_KEY` (generate it the same way) |
 
 When `SIGNING_KEY` is not set, `SECRET_KEY` signs as well as encrypts. Setting or changing `SIGNING_KEY`
-signs every user out and invalidates existing API keys, but leaves your stored data readable, so it is
-the key to change when you want to replace the one your installation signs with.
+signs every user out and invalidates existing API keys and pending invitation links, but leaves your
+stored data readable, so it is the key to change when you want to replace the one your installation
+signs with.
 
 <Warning>
   Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
@@ -142,8 +143,8 @@ the key to change when you want to replace the one your installation signs with.
   SIGNING_KEY=<output of openssl rand -base64 32>
   ```
 
-  Everyone then signs in again, API keys must be recreated, and scripts that call
-  `user.rootSignin` sign with `SIGNING_KEY`.
+  Everyone then signs in again, API keys must be recreated, pending invitations must be sent again,
+  and scripts that call `user.rootSignin` sign with `SIGNING_KEY`.
 </Warning>
 
 ### Application Variables (Optional with Setup Wizard)
