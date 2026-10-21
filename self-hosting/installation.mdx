@@ -32,8 +32,9 @@ This option includes an embedded PostgreSQL database for easy testing and develo
 git clone https://github.com/notifuse/notifuse.git
 cd notifuse
 
-# Generate your secret key once, and keep it: it encrypts your stored data
-echo "SECRET_KEY=$(openssl rand -base64 32)" > .env
+# Generate your secret key once, and keep it: it encrypts your stored data.
+# The command leaves a SECRET_KEY already in .env alone.
+grep -qs '^SECRET_KEY=' .env || echo "SECRET_KEY=$(openssl rand -base64 32)" >> .env
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
@@ -48,7 +49,10 @@ On first launch, you'll be guided through the Setup Wizard to configure your ins
 For production deployments, use the standalone Docker image with your own PostgreSQL database:
 
 ```bash
-docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
+# Generate SECRET_KEY once with: openssl rand -base64 32, and keep it: it encrypts your stored data
+docker run -d --name notifuse -p 8080:8080 \
+  -e SECRET_KEY=<your secret key> \
+  notifuse/notifuse:latest
 ```
 
 On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables).
@@ -87,11 +91,11 @@ If you're using a `.env` file and any of your values contain the `#` character (
 ```bash
 # ✅ CORRECT - value is quoted
 DB_PASSWORD="mypass#word123"
-SECRET_KEY="abc123#xyz789"
+SMTP_PASSWORD="smtp#pass456"
 
 # ❌ INCORRECT - will be truncated at the # character
 DB_PASSWORD=mypass#word123   # parsed as "mypass"
-SECRET_KEY=abc123#xyz789     # parsed as "abc123"
+SMTP_PASSWORD=smtp#pass456   # parsed as "smtp"
 ```
 
 This limitation only applies to `.env` files. Environment variables set directly in your shell, Docker Compose, or container orchestration platform do not have this restriction.
@@ -126,7 +130,9 @@ openssl rand -base64 32
 | ------------- | --------------------------------------------------------------------------- |
 | `SIGNING_KEY` | Signs sessions, API keys, magic codes and root sign-in instead of `SECRET_KEY`. Generate it with `openssl rand -base64 32`: a shorter value is refused |
 
-When `SIGNING_KEY` is not set, `SECRET_KEY` signs as well as encrypts. Setting or changing `SIGNING_KEY`
+When `SIGNING_KEY` is not set, `SECRET_KEY` signs as well as encrypts, so it must then be at least
+32 bytes long: with a shorter `SECRET_KEY`, Notifuse refuses to start until you set `SIGNING_KEY`, and
+`SECRET_KEY` stays as it is. Setting or changing `SIGNING_KEY`
 signs every user out and invalidates existing API keys and pending invitation links, but leaves your
 stored data readable, so it is the key to change when you want to replace the one your installation
 signs with.
