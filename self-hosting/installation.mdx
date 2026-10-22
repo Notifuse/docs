@@ -41,10 +41,11 @@ git clone https://github.com/notifuse/notifuse.git
 cd notifuse
 
 # Generate your secret key once, and keep it: it encrypts your stored data.
-# This leaves .env alone when it already sets SECRET_KEY, and replaces an empty SECRET_KEY line.
-if ! grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*["'\'']?[^[:space:]"'\''#]' .env; then
+# This leaves .env alone when it sets SECRET_KEY to anything, and replaces an empty SECRET_KEY line.
+empty='^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*(""|'\'''\'')?([[:space:]]+#.*)?[[:space:]]*$'
+if ! grep -Ev "$empty" .env 2>/dev/null | grep -Eq '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]'; then
   touch .env
-  sed -i.bak -E '/^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]/d' .env && rm -f .env.bak
+  sed -i.bak -E "/$empty/d" .env && rm -f .env.bak
   printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
 fi
 
@@ -152,10 +153,12 @@ before serving anything. To replace your key:
 3. Stop every Notifuse instance, then start them all with that value. An instance still running with the
    current key alone cannot read the data the others re-encrypted, and an instance running the list
    cannot read what such an instance writes until the next start with the list.
-4. Once every instance runs with that value, set `SECRET_KEY` to the new key alone.
+4. Once every instance runs with that value, set `SECRET_KEY` to the new key alone, without quotes or
+   spaces around it: a single key is used exactly as written. If it opens none of the stored
+   workspaces, Notifuse does not start.
 
-If a key or credential Notifuse reads opens with none of the listed keys, Notifuse does not start,
-changes nothing, and names the workspace or setting it could not read.
+If the key of a workspace, or a credential it uses, opens with none of the listed keys, Notifuse does
+not start, changes nothing, and names that workspace.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
 must be sent again, and scripts that call `user.rootSignin` sign with the new key. A console page opened
