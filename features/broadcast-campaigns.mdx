@@ -338,6 +338,17 @@ See [Admins & API Keys](/features/admins-api-keys).
 7. **Send or Schedule**: Deploy immediately or schedule for later delivery
 8. **Monitor Results**: Track delivery, opens, clicks, and conversions
 
+## Sending Speed
+
+Broadcasts and automation emails go out through the email queue, at the **Rate Limit for Marketing** set on each email integration, in emails per minute. Before 42.0, a workspace sent them one at a time, and never more than about 3,000 per minute.
+
+- **Set the limit to what your provider accepts, minus your transactional traffic.** Transactional emails are sent as soon as the API is called and don't count against this limit, but they use the same provider quota. Amazon SES states its quota per second: 100 emails per second is 6,000 per minute.
+- **Each email integration has its own limit** and sends up to 10 emails at once, so a provider that takes a while to answer each email still reaches the limit. Two integrations send side by side, each at its own rate. An integration sends at most about 6,000 emails per minute, whatever its limit.
+- **SMTP integrations send one email at a time.** Each email opens its own connection, and many SMTP servers refuse several at once. One at a time, an SMTP integration can't send faster than its server answers: about 200 per minute when each email takes 300 ms. If your SMTP server accepts several connections, a self-hosted instance can raise `EMAIL_QUEUE_SMTP_CONCURRENCY` (`EMAIL_QUEUE_CONCURRENCY` does the same for the other providers). See [Installation](/self-hosting/installation).
+- **Each email also takes a few database queries** on the workspace's connections, 3 by default. With a database far from Notifuse, a self-hosted instance may need a higher `DB_MAX_CONNECTIONS_PER_DB` to reach a high limit.
+
+A limit above what the provider accepts makes it refuse emails, and enough refusals pause the integration's broadcasts (see below). Other queued emails, such as automation emails, wait for the cooldown. The integration then sends one of them as a test and goes back to full speed if it goes through.
+
 ## Transmission Failure Handling
 
 ### Circuit Breaker Protection
@@ -352,7 +363,7 @@ Notifuse includes built-in protection against email delivery issues through a ci
 
 When the circuit breaker triggers:
 
-- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one.
+- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one. From 42.0, this includes the emails still being sent when it triggers: one that fails is paused with the rest instead of being retried.
 - **Failed Messages**: Those recipients are marked as "failed" in the Message History Logs, with the provider's own explanation in the Error column.
 - **Recoverable**: Nothing is lost by the pause itself. Resume sends the paused recipients, and any that were given up on can be retried separately.
 
