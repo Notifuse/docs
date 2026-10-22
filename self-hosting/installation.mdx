@@ -148,8 +148,9 @@ before serving anything. To replace your key:
 
 1. Generate a new key with `openssl rand -base64 32`.
 2. Put it first and your current key after it: `SECRET_KEY=<new key>,<current key>`. If your current key
-   contains a comma, write that comma twice. A version before 42.0 reads the whole list as a single key:
-   when you upgrade to 42.0, set the list in the same step.
+   contains a comma, write that comma twice, and if it starts or ends with one, put that key in quotes
+   (`SECRET_KEY=<new key>,",,<rest of the key>"`). A version before 42.0 reads the whole list as a
+   single key: when you upgrade to 42.0, set the list in the same step.
 3. Stop every Notifuse instance, then start them all with that value. An instance still running with the
    current key alone cannot read the data the others re-encrypted, and an instance running the list
    cannot read what such an instance writes until the next start with the list.
@@ -167,10 +168,11 @@ single sign-on or the SMTP bridge is on and needs it, or when no workspace is st
 those settings opens.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
-must be sent again, and scripts that call `user.rootSignin` sign with the new key. A console page opened
-before the change asks to be reloaded before it saves. Database backups taken before the change still
-need the former key. Data kept in each workspace's database, such as message history, is encrypted with
-that workspace's own key and is not affected.
+must be sent again, and scripts that call `user.rootSignin` sign with the new key. An API client that
+saves an integration with the encrypted credentials it read before the change is refused until it reads
+the workspace again. Database backups taken before the change still need the former key. Data kept in
+each workspace's database, such as message history, is encrypted with that workspace's own key and is
+not affected.
 
 <Warning>
   Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
