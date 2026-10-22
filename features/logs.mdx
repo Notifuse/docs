@@ -23,6 +23,7 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 - **Raw Payloads**: Stores each event's data exactly as the email provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch
 - **Real-Time Processing**: Webhooks processed immediately upon receipt
 - **Provider Integration**: Data from Mailgun, Amazon SES, Postmark, etc.
+- **Emails Notifuse Sent**: Only events about an email Notifuse sent, for the address it went to, are listed and acted on. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
 
 ### Audit Logs Tab
 
