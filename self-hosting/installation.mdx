@@ -41,7 +41,7 @@ cd notifuse
 
 # Generate your secret key once, and keep it: it encrypts your stored data.
 # The command does nothing when .env already sets SECRET_KEY.
-grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*[^[:space:]]' .env || printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
+grep -Eqs "^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*[\"']?[^[:space:]\"'#]" .env || printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
