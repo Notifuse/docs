@@ -136,16 +136,19 @@ Notifuse refuses to start with a `SECRET_KEY` that gives less than 32 bytes.
 
 ### Replacing the secret key
 
-`SECRET_KEY` can list several keys separated by commas. The first one encrypts and signs; the others
-only let Notifuse read the data stored under them. When Notifuse starts with a list, it re-encrypts that
-data with the first key, in a single transaction, before serving anything. To replace your key:
+`SECRET_KEY` can list several keys separated by commas (a comma that is part of a key is written
+twice). The first key encrypts and signs; the others only let Notifuse read the data stored under them.
+When Notifuse starts with a list, it re-encrypts that data with the first key, in a single transaction,
+before serving anything. To replace your key:
 
 1. Generate a new key with `openssl rand -base64 32`.
 2. Put it first and your current key after it: `SECRET_KEY=<new key>,<current key>`. If your current key
    contains a comma, write that comma twice.
 3. Restart every Notifuse instance with that value. An instance still running with the current key alone
    cannot read the re-encrypted data.
-4. Once Notifuse has started, you can set `SECRET_KEY` to the new key alone.
+4. Once every instance runs with that value, you can set `SECRET_KEY` to the new key alone. Until
+   then, an instance still running with the current key alone may write data under it, which the next
+   instance to start with the list re-encrypts.
 
 If a stored value opens with none of the listed keys, Notifuse does not start, changes nothing, and names
 the workspace or setting it could not read.
@@ -159,8 +162,10 @@ that workspace's own key and is not affected.
 <Warning>
   Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
   Notifuse refuses to start when the first key of `SECRET_KEY` is one of those values or gives less than
-  32 bytes. If your installation runs with one, replace it as above, keeping it after the new key. If you
-  started from `compose.yaml` without setting `SECRET_KEY`, your current key is the former default:
+  32 bytes, and reads a single comma as a separator between keys: if your key contains a comma, write
+  each of its commas twice. If your installation runs with one of those values, replace it as above,
+  keeping it after the new key. If you started from `compose.yaml` without setting `SECRET_KEY`, your
+  current key is the former default:
 
   ```bash
   # Put the output of openssl rand -base64 32 before the comma
