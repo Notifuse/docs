@@ -27,14 +27,21 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
 
 This option includes an embedded PostgreSQL database for easy testing and development:
 
+<Warning>
+  These steps set up a new installation. To upgrade one that already runs, keep the `SECRET_KEY` it
+  runs with and skip the key step: generating a new one leaves your stored data unreadable. An
+  installation that started from `compose.yaml` before version 42.0 without setting `SECRET_KEY` used
+  a default, which [Signing Key](#signing-key-optional) gives, along with what to add.
+</Warning>
+
 ```bash
 # Clone the repository (the compose.yaml builds from the included Dockerfile)
 git clone https://github.com/notifuse/notifuse.git
 cd notifuse
 
 # Generate your secret key once, and keep it: it encrypts your stored data.
-# The command leaves a SECRET_KEY already in .env alone.
-grep -qs '^SECRET_KEY=' .env || echo "SECRET_KEY=$(openssl rand -base64 32)" >> .env
+# The command does nothing when .env already sets SECRET_KEY.
+grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY=[^[:space:]]' .env || printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
