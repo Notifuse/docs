@@ -27,10 +27,27 @@ Notifuse includes an interactive **Setup Wizard** that makes installation easy. 
 
 This option includes an embedded PostgreSQL database for easy testing and development:
 
+<Warning>
+  These steps set up a new installation. To upgrade one that already runs, keep the `SECRET_KEY` it
+  runs with and skip the key step: a new key on its own leaves your stored data unreadable. An
+  installation that started from `compose.yaml` before version 42.0 without setting `SECRET_KEY` runs
+  on a default that Notifuse now refuses: [Replacing the secret key](#replacing-the-secret-key) gives
+  it, and the change to make.
+</Warning>
+
 ```bash
 # Clone the repository (the compose.yaml builds from the included Dockerfile)
 git clone https://github.com/notifuse/notifuse.git
 cd notifuse
+
+# Generate your secret key once, and keep it: it encrypts your stored data.
+# This leaves .env alone when it sets SECRET_KEY to anything, and replaces an empty SECRET_KEY line.
+empty='^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*(""|'\'''\'')?([[:space:]]+#.*)?[[:space:]]*$'
+if ! grep -Ev "$empty" .env 2>/dev/null | grep -Eq '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]'; then
+  touch .env
+  sed -i.bak -E "/$empty/d" .env && rm -f .env.bak
+  printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
+fi
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
@@ -45,7 +62,10 @@ On first launch, you'll be guided through the Setup Wizard to configure your ins
 For production deployments, use the standalone Docker image with your own PostgreSQL database:
 
 ```bash
-docker run -d --name notifuse -p 8080:8080 notifuse/notifuse:latest
+# Generate SECRET_KEY once with: openssl rand -base64 32, and keep it: it encrypts your stored data
+docker run -d --name notifuse -p 8080:8080 \
+  -e SECRET_KEY=<your secret key> \
+  notifuse/notifuse:latest
 ```
 
 On first launch, you'll be guided through the Setup Wizard to configure your instance. Alternatively, you can configure [environment variables](#environment-variables).
@@ -84,11 +104,11 @@ If you're using a `.env` file and any of your values contain the `#` character (
 ```bash
 # ✅ CORRECT - value is quoted
 DB_PASSWORD="mypass#word123"
-SECRET_KEY="abc123#xyz789"
+SMTP_PASSWORD="smtp#pass456"
 
 # ❌ INCORRECT - will be truncated at the # character
 DB_PASSWORD=mypass#word123   # parsed as "mypass"
-SECRET_KEY=abc123#xyz789     # parsed as "abc123"
+SMTP_PASSWORD=smtp#pass456   # parsed as "smtp"
 ```
 
 This limitation only applies to `.env` files. Environment variables set directly in your shell, Docker Compose, or container orchestration platform do not have this restriction.
@@ -103,7 +123,7 @@ This limitation only applies to `.env` files. Environment variables set directly
 | `DB_PORT`     | PostgreSQL port (e.g., `5432`)                              |
 | `DB_USER`     | Database username (e.g., `postgres`)                        |
 | `DB_PASSWORD` | Database password (e.g., `postgres`)                        |
-| `SECRET_KEY`  | Secret key for encryption (generate with command below)     |
+| `SECRET_KEY`  | Secret key for encryption and signing (generate with command below) |
 
 **Generate SECRET_KEY:**
 
@@ -111,10 +131,62 @@ This limitation only applies to `.env` files. Environment variables set directly
 openssl rand -base64 32
 ```
 
+Notifuse refuses to start with a `SECRET_KEY` that gives less than 32 bytes.
+
 <Warning>
-  **IMPORTANT**: Never change your `SECRET_KEY` after initial setup. It encrypts all workspace
-  integration secrets (email provider API keys, SMTP passwords, etc.). Changing it will permanently
-  destroy all encrypted credentials.
+  **IMPORTANT**: Never replace your `SECRET_KEY` with a new value on its own. It encrypts all workspace
+  integration secrets (email provider API keys, SMTP passwords, etc.), which a new key alone cannot
+  read. To change it, follow [Replacing the secret key](#replacing-the-secret-key).
+</Warning>
+
+### Replacing the secret key
+
+`SECRET_KEY` can list several keys separated by commas (a comma that is part of a key is written
+twice). The first key encrypts and signs; the others only let Notifuse read the data stored under them.
+When Notifuse starts with a list, it re-encrypts that data with the first key, in a single transaction,
+before serving anything. To replace your key:
+
+1. Generate a new key with `openssl rand -base64 32`.
+2. Put it first and your current key after it: `SECRET_KEY=<new key>,<current key>`. If your current key
+   contains a comma, write that comma twice, and if it starts or ends with one, put a space between it
+   and the comma that separates the keys (`SECRET_KEY=<new key>, ,,<rest of the key>`). A version
+   before 42.0 reads the whole list as a single key: when you upgrade to 42.0, set the list in the same
+   step.
+3. Stop every Notifuse instance, then start them all with that value. An instance still running with the
+   current key alone cannot read the data the others re-encrypted, and an instance running the list
+   cannot read what such an instance writes until the next start with the list.
+4. Once every instance runs with that value, set `SECRET_KEY` to the new key alone, without quotes or
+   spaces around it: a single key is used exactly as written. If it opens none of the stored
+   workspaces (or, while none is stored, none of the encrypted system settings), Notifuse does not
+   start.
+
+If the key of a workspace, or a credential it uses, opens with none of the listed keys, Notifuse does
+not start, changes nothing, and names that workspace. An encrypted system setting that none of them
+opens (an SMTP credential or the OIDC client secret saved in the setup wizard, the SMTP bridge TLS
+certificate or key) is left as it is and named in a warning in the startup logs, and Notifuse runs
+without it: to keep it, list the key it is encrypted with. Notifuse does not start, and names the
+setting, when single sign-on or the SMTP bridge is on and needs it, or when no workspace is stored yet
+and none of those settings opens.
+
+Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
+must be sent again, and scripts that call `user.rootSignin` sign with the new key. An API client that
+saves an integration with the encrypted credentials it read before the change is refused until it reads
+the workspace again. Database backups taken before the change still need the former key. Data kept in
+each workspace's database, such as message history, is encrypted with that workspace's own key and is
+not affected.
+
+<Warning>
+  Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
+  Notifuse refuses to start when the first key of `SECRET_KEY` is one of those values or gives less than
+  32 bytes, and reads a single comma as a separator between keys: if your key contains a comma, write
+  each of its commas twice when you upgrade. If your installation runs with one of those values, replace
+  it as above, keeping it after the new key, in the same step as the upgrade to 42.0. If you started from
+  `compose.yaml` without setting `SECRET_KEY`, your current key is the former default:
+
+  ```bash
+  # Put the output of openssl rand -base64 32 before the comma
+  SECRET_KEY=<new key>,d04zCk3Fa45oOjDWHpAvc1AZxnLdGffOnNWK+Jt2yXf37+FTfuMMHb8flcfPMqLluRR3rvhbr555r6j1DEigrA==
+  ```
 </Warning>
 
 ### Application Variables (Optional with Setup Wizard)
@@ -382,7 +454,7 @@ For CI/CD pipelines and automated deployments, a root user can authenticate prog
 #!/bin/bash
 # Configuration
 NOTIFUSE_URL="https://your-notifuse-instance.com"
-SECRET_KEY="your-secret-key"
+SECRET_KEY="your-secret-key"  # the first key when SECRET_KEY lists several
 ROOT_EMAIL="admin@example.com"
 TIMESTAMP=$(date +%s)
 
