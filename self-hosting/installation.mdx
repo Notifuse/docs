@@ -148,9 +148,10 @@ before serving anything. To replace your key:
 
 1. Generate a new key with `openssl rand -base64 32`.
 2. Put it first and your current key after it: `SECRET_KEY=<new key>,<current key>`. If your current key
-   contains a comma, write that comma twice, and if it starts or ends with one, put that key in quotes
-   (`SECRET_KEY=<new key>,",,<rest of the key>"`). A version before 42.0 reads the whole list as a
-   single key: when you upgrade to 42.0, set the list in the same step.
+   contains a comma, write that comma twice, and if it starts or ends with one, put a space between it
+   and the comma that separates the keys (`SECRET_KEY=<new key>, ,,<rest of the key>`). A version
+   before 42.0 reads the whole list as a single key: when you upgrade to 42.0, set the list in the same
+   step.
 3. Stop every Notifuse instance, then start them all with that value. An instance still running with the
    current key alone cannot read the data the others re-encrypted, and an instance running the list
    cannot read what such an instance writes until the next start with the list.
@@ -161,11 +162,11 @@ before serving anything. To replace your key:
 
 If the key of a workspace, or a credential it uses, opens with none of the listed keys, Notifuse does
 not start, changes nothing, and names that workspace. An encrypted system setting that none of them
-opens (an SMTP credential or the OIDC client secret saved in the setup wizard, the SMTP bridge
-certificate key) is left as it is and named in a warning in the startup logs, and Notifuse runs without
-it: to keep it, list the key it is encrypted with. Notifuse does not start, and names the setting, when
-single sign-on or the SMTP bridge is on and needs it, or when no workspace is stored yet and none of
-those settings opens.
+opens (an SMTP credential or the OIDC client secret saved in the setup wizard, the SMTP bridge TLS
+certificate or key) is left as it is and named in a warning in the startup logs, and Notifuse runs
+without it: to keep it, list the key it is encrypted with. Notifuse does not start, and names the
+setting, when single sign-on or the SMTP bridge is on and needs it, or when no workspace is stored yet
+and none of those settings opens.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
 must be sent again, and scripts that call `user.rootSignin` sign with the new key. An API client that
