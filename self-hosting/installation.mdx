@@ -158,7 +158,11 @@ before serving anything. To replace your key:
    workspaces, Notifuse does not start.
 
 If the key of a workspace, or a credential it uses, opens with none of the listed keys, Notifuse does
-not start, changes nothing, and names that workspace.
+not start, changes nothing, and names that workspace. An encrypted system setting that none of them
+opens (an SMTP credential or the OIDC client secret saved in the setup wizard, the SMTP bridge
+certificate key) is left as it is and named in a warning in the startup logs, and Notifuse runs without
+it: to keep it, list the key it is encrypted with. While no workspace is stored, at least one of those
+settings must open, or Notifuse does not start.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
 must be sent again, and scripts that call `user.rootSignin` sign with the new key. A console page opened
