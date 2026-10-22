@@ -155,14 +155,16 @@ before serving anything. To replace your key:
    cannot read what such an instance writes until the next start with the list.
 4. Once every instance runs with that value, set `SECRET_KEY` to the new key alone, without quotes or
    spaces around it: a single key is used exactly as written. If it opens none of the stored
-   workspaces, Notifuse does not start.
+   workspaces (or, while none is stored, none of the encrypted system settings), Notifuse does not
+   start.
 
 If the key of a workspace, or a credential it uses, opens with none of the listed keys, Notifuse does
 not start, changes nothing, and names that workspace. An encrypted system setting that none of them
 opens (an SMTP credential or the OIDC client secret saved in the setup wizard, the SMTP bridge
 certificate key) is left as it is and named in a warning in the startup logs, and Notifuse runs without
-it: to keep it, list the key it is encrypted with. While no workspace is stored, at least one of those
-settings must open, or Notifuse does not start.
+it: to keep it, list the key it is encrypted with. Notifuse does not start, and names the setting, when
+single sign-on or the SMTP bridge is on and needs it, or when no workspace is stored yet and none of
+those settings opens.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
 must be sent again, and scripts that call `user.rootSignin` sign with the new key. A console page opened
