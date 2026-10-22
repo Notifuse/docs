@@ -41,8 +41,12 @@ git clone https://github.com/notifuse/notifuse.git
 cd notifuse
 
 # Generate your secret key once, and keep it: it encrypts your stored data.
-# The command leaves .env alone when it already has a SECRET_KEY line.
-grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]' .env || { key=$(openssl rand -base64 32) && printf '\nSECRET_KEY=%s\n' "$key" >> .env; }
+# This leaves .env alone when it already sets SECRET_KEY, and replaces an empty SECRET_KEY line.
+if ! grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:][[:space:]]*["'\'']?[^[:space:]"'\''#]' .env; then
+  touch .env
+  sed -i.bak -E '/^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]/d' .env && rm -f .env.bak
+  printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
+fi
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
@@ -143,15 +147,15 @@ before serving anything. To replace your key:
 
 1. Generate a new key with `openssl rand -base64 32`.
 2. Put it first and your current key after it: `SECRET_KEY=<new key>,<current key>`. If your current key
-   contains a comma, write that comma twice.
-3. Restart every Notifuse instance with that value. An instance still running with the current key alone
-   cannot read the re-encrypted data.
-4. Once every instance runs with that value, you can set `SECRET_KEY` to the new key alone. Until
-   then, an instance still running with the current key alone may write data under it, which the next
-   instance to start with the list re-encrypts.
+   contains a comma, write that comma twice. A version before 42.0 reads the whole list as a single key:
+   when you upgrade to 42.0, set the list in the same step.
+3. Stop every Notifuse instance, then start them all with that value. An instance still running with the
+   current key alone cannot read the data the others re-encrypted, and an instance running the list
+   cannot read what such an instance writes until the next start with the list.
+4. Once every instance runs with that value, set `SECRET_KEY` to the new key alone.
 
-If a stored value opens with none of the listed keys, Notifuse does not start, changes nothing, and names
-the workspace or setting it could not read.
+If a key or credential Notifuse reads opens with none of the listed keys, Notifuse does not start,
+changes nothing, and names the workspace or setting it could not read.
 
 Replacing the key signs everyone out. API keys must be deleted and created again, pending invitations
 must be sent again, and scripts that call `user.rootSignin` sign with the new key. A console page opened
@@ -163,9 +167,9 @@ that workspace's own key and is not affected.
   Before version 42.0, `compose.yaml` provided a default `SECRET_KEY` and `env.example` a placeholder.
   Notifuse refuses to start when the first key of `SECRET_KEY` is one of those values or gives less than
   32 bytes, and reads a single comma as a separator between keys: if your key contains a comma, write
-  each of its commas twice. If your installation runs with one of those values, replace it as above,
-  keeping it after the new key. If you started from `compose.yaml` without setting `SECRET_KEY`, your
-  current key is the former default:
+  each of its commas twice when you upgrade. If your installation runs with one of those values, replace
+  it as above, keeping it after the new key, in the same step as the upgrade to 42.0. If you started from
+  `compose.yaml` without setting `SECRET_KEY`, your current key is the former default:
 
   ```bash
   # Put the output of openssl rand -base64 32 before the comma
