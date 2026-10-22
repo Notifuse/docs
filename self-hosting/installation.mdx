@@ -41,7 +41,7 @@ cd notifuse
 
 # Generate your secret key once, and keep it: it encrypts your stored data.
 # The command leaves .env alone when it already has a SECRET_KEY line.
-grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]' .env || printf '\nSECRET_KEY=%s\n' "$(openssl rand -base64 32)" >> .env
+grep -Eqs '^[[:space:]]*(export[[:space:]]+)?SECRET_KEY[[:space:]]*[=:]' .env || { key=$(openssl rand -base64 32) && printf '\nSECRET_KEY=%s\n' "$key" >> .env; }
 
 # Start Notifuse with embedded PostgreSQL
 docker compose up -d
@@ -160,7 +160,7 @@ signs with.
   If you run a compose file of your own, make sure it passes `SIGNING_KEY` to the container, as the
   `compose.yaml` of version 42.0 does.
 
-  Everyone then signs in again, API keys must be recreated, pending invitations must be sent again,
+  Everyone then signs in again, API keys must be deleted and created again, pending invitations must be sent again,
   and scripts that call `user.rootSignin` sign with `SIGNING_KEY`.
 </Warning>
 
