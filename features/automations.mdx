@@ -211,6 +211,12 @@ Sends contact and automation data to an external URL via HTTP POST.
 
 The payload includes contact data, automation context, and execution metadata.
 
+The receiver has to be reachable from the public internet. Notifuse refuses to connect to private, loopback, link-local and reserved addresses — including the cloud instance metadata endpoint — and checks this again on every redirect, so a public URL that redirects to an internal one is refused as well. The editor marks a webhook node whose URL names such an address, and saving the automation is refused until it is fixed. A step refused this way is retried like any other failed step, and then fails the contact's journey.
+
+<Note>
+  Self-hosted only: if you run Notifuse yourself and deliberately post to a service on your own private network — a container on the same Docker network, an internal automation tool — set `WEBHOOK_DELIVERY_ALLOW_PRIVATE_HOSTS=true`. Leave it unset on any deployment where someone you would not trust with your internal network can edit automations.
+</Note>
+
 ## Visual Flow Editor
 
 The visual flow editor provides a drag-and-drop canvas for building automation workflows.
@@ -311,7 +317,7 @@ Automations run on a background scheduler that processes contacts through their 
 When node execution fails:
 
 1. Increment retry count
-2. Schedule retry with exponential backoff: 1min, 2min, 4min, 8min...
+2. Schedule a retry with exponential backoff: 2 minutes after the first failure, then 4 minutes
 3. After max retries (default: 3), mark as `failed`
 
 ## Statistics
