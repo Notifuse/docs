@@ -57,6 +57,8 @@ Ports are not part of a hostname and must not appear. A wildcard over a single l
 Most sites want `*.example.com`. It covers the apex domain and every subdomain, so `www` keeps working when someone adds it later.
 </Tip>
 
+The list also decides which pages the console opens from a contact's timeline. **View website** is offered for a page view whose host is on the list or, while the list is empty, is your workspace website's domain, with or without `www.`. A page view recorded without a host opens on your workspace website. To preview the pages of your other hosts, list every host you track, your website's included: once the list has entries, beats from a host it leaves out are discarded.
+
 ## Settings
 
 <img
@@ -67,7 +69,7 @@ Most sites want `*.example.com`. It covers the apex domain and every subdomain, 
 | Setting | What it does |
 |---|---|
 | **Enable Web Analytics** | Starts accepting beats. Off by default. |
-| **Allowed domains** | The hostnames that may send traffic, and the only hosts a tracked email link may hand an identity to. |
+| **Allowed domains** | The hostnames that may send traffic, the only hosts a tracked email link may hand an identity to, and the hosts whose pages a contact's timeline opens. |
 | **Bounce threshold** | Seconds of engaged time below which a visit counts as a bounce. Defaults to 10. |
 | **Identify recipients who click a tracked email link** | Lets Notifuse add a signed identity to the links of tracked emails. Off by default — see [Identifying Visitors](/web-analytics/identifying-visitors). |
 | **Custom dimension labels** | Display names for `custom_1` through `custom_10`. See [Reports](/web-analytics/reports). |
