@@ -244,6 +244,8 @@ These variables can be configured via the Setup Wizard on first launch, or set a
 |                                     |
 | **Broadcast Configuration**         |
 | `BROADCAST_DATA_FEED_ALLOW_PRIVATE_HOSTS` | Allow broadcast [data feeds](/features/broadcast-campaigns) to fetch from private, loopback, and link-local addresses. This **disables SSRF protection** for data-feed requests — only enable it in trusted deployments that intentionally fetch feeds from your internal network (e.g., `true`). | `false` |
+| `EMAIL_QUEUE_CONCURRENCY`           | Emails each email integration other than SMTP sends at once for broadcasts and automations, per Notifuse instance, between 1 and 50 (e.g., `20`; 42.0 or later). See [Sending speed](/features/broadcast-campaigns#sending-speed). | `10` |
+| `EMAIL_QUEUE_SMTP_CONCURRENCY`      | The same for SMTP integrations, between 1 and 50 (42.0 or later). Raise it only if your SMTP server accepts several connections at once (e.g., `4`). | `1` |
 |                                     |
 | **Licence**                         |
 | `NOTIFUSE_LICENSE_KEY`              | A self-hosted [licence key](/self-hosting/licence). Wins over a key pasted in the console. Not needed to run Notifuse. | -                         |

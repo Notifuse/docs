@@ -338,6 +338,18 @@ See [Admins & API Keys](/features/admins-api-keys).
 7. **Send or Schedule**: Deploy immediately or schedule for later delivery
 8. **Monitor Results**: Track delivery, opens, clicks, and conversions
 
+## Sending Speed
+
+Broadcasts and automation emails go out through the email queue, at the **Rate Limit for Marketing** set on each email integration, in emails per minute.
+
+- **Set the limit to what your provider accepts, minus your other traffic on the same account.** Transactional emails are sent as soon as the API is called and don't count against this limit, but when they go through the same provider account they use the same quota. So do other integrations on that account, in this workspace or another: their limits add up. Amazon SES states its quota per second: 100 emails per second is 6,000 per minute.
+- **The limit is a maximum, and it applies per Notifuse instance.** Several instances sharing one database each apply it on their own. While the limit is what holds them back, they compete for the same emails and together send at about the limit; when it is set above what one instance can reach (see below), their rates add up and can exceed it. Below the limit, an instance's pace is set by the points that follow.
+- **Emails sent at once.** Each email integration sends up to 10 emails at once, and SMTP integrations one at a time: each SMTP email opens its own connection, and many SMTP servers refuse several at once. An integration can't go faster than that number divided by the time one email takes, which is the provider's answer plus about three queries on the workspace's database: 10 at once at 100 ms each is 6,000 per minute, and one at a time at 300 ms each is 200 per minute. A self-hosted instance can raise `EMAIL_QUEUE_CONCURRENCY`, or `EMAIL_QUEUE_SMTP_CONCURRENCY` if its SMTP server accepts several connections (see [Installation](/self-hosting/installation#optional-variables)). That helps when the provider's answer is what takes time. When the database's queries are, with a distant database for instance, the workspace's few connections, shared with the API (`DB_MAX_CONNECTIONS_PER_DB`, 3 by default), are what hold sending back.
+- **Rounds.** An integration sends at most 200 emails per round, and a round starts at most once a second, so it never goes above about 12,000 per minute per instance. A round ends when every integration on the instance has sent its emails for it. While another integration is sending as fast as its own limit allows, a round takes about two seconds, or less when that limit is above 6,000 per minute. This brings the ceiling down to 6,000 per minute, or to that integration's limit when it is between 6,000 and 12,000. Rounds take longer when an integration's emails are slow to send.
+- **Workspaces.** An instance sends for five workspaces at a time. With more than five sending at once, they take turns, and each stays below its limit.
+
+A limit above what the provider accepts makes it refuse emails. A refused email is retried one minute later, then two minutes after that, and given up at its third refusal; retrying the broadcast sends it again. Several refusals in a row pause the integration's broadcasts (see below), and its other queued emails, such as automation emails, wait for the cooldown. The integration then sends one of them as a test and goes back to full speed if it goes through. A broadcast running an A/B test is paused only once all its emails are queued; until then, its emails wait like the others. With Amazon SES, the client first retries a refused email for several seconds, which holds up the round for the other integrations on the instance.
+
 ## Transmission Failure Handling
 
 ### Circuit Breaker Protection
@@ -352,7 +364,7 @@ Notifuse includes built-in protection against email delivery issues through a ci
 
 When the circuit breaker triggers:
 
-- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one.
+- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one; those the provider refused for good, or on their last attempt, are given up instead. On a single Notifuse instance, an email still being sent when it triggers is paused with the rest if the provider fails it, unless it was on its last attempt; one refused for its recipient is given up as usual.
 - **Failed Messages**: Those recipients are marked as "failed" in the Message History Logs, with the provider's own explanation in the Error column.
 - **Recoverable**: Nothing is lost by the pause itself. Resume sends the paused recipients, and any that were given up on can be retried separately.
 
