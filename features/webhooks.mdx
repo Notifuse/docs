@@ -148,7 +148,7 @@ Switching a subscription back on clears its failure history, so it starts from a
 Your endpoint has to be reachable from the public internet. Notifuse refuses to connect to private, loopback, link-local and reserved addresses — including the cloud instance metadata endpoint — and checks this again on every redirect, so a public URL that redirects to an internal one is refused as well. A subscription whose URL names such an address is rejected when you save it.
 
 <Note>
-  Self-hosted only: if you run Notifuse yourself and deliberately deliver webhooks to a service on your own private network — a container on the same Docker network, an internal automation tool — set `WEBHOOK_DELIVERY_ALLOW_PRIVATE_HOSTS=true`. Leave it unset on any deployment where someone you would not trust with your internal network can create subscriptions.
+  Self-hosted only: if you run Notifuse yourself and deliberately deliver webhooks to a service on your own private network — a container on the same Docker network, an internal automation tool — set `WEBHOOK_DELIVERY_ALLOW_PRIVATE_HOSTS=true`. Leave it unset on any deployment where someone you would not trust with your internal network can create subscriptions or edit automations. The same setting covers [automation webhook nodes](/features/automations#webhook-node).
 </Note>
 
 A delivery refused this way is retried like any other failure, but it never counts toward switching the subscription off, so correcting the URL or the setting is enough to get it delivering again.
