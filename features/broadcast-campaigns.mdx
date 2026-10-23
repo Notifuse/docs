@@ -340,7 +340,7 @@ See [Admins & API Keys](/features/admins-api-keys).
 
 ## Sending Speed
 
-Broadcasts and automation emails go out through the email queue, at the **Rate Limit for Marketing** set on each email integration, in emails per minute. Before 42.0, a workspace sent them one at a time, and never more than about 3,000 per minute.
+Broadcasts and automation emails go out through the email queue, at the **Rate Limit for Marketing** set on each email integration, in emails per minute.
 
 - **Set the limit to what your provider accepts, minus your other traffic on the same account.** Transactional emails are sent as soon as the API is called and don't count against this limit, but when they go through the same provider account they use the same quota. So do other integrations on that account, in this workspace or another: their limits add up. Amazon SES states its quota per second: 100 emails per second is 6,000 per minute.
 - **The limit is a maximum, and it applies per Notifuse instance.** Several instances sharing one database each apply it on their own. While the limit is what holds them back, they compete for the same emails and together send at about the limit; when it is set above what one instance can reach (see below), their rates add up and can exceed it. Below the limit, an instance's pace is set by the points that follow.
@@ -364,7 +364,7 @@ Notifuse includes built-in protection against email delivery issues through a ci
 
 When the circuit breaker triggers:
 
-- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one; those the provider refused for good, or on their last attempt, are given up instead. From 42.0, on a single Notifuse instance, an email still being sent when it triggers is paused with the rest if the provider fails it, unless it was on its last attempt; one refused for its recipient is given up as usual.
+- **Recipients Are Kept**: Everything still queued is paused, not discarded, and keeps its remaining delivery attempts. Only the handful of messages that were actually refused have spent one; those the provider refused for good, or on their last attempt, are given up instead. On a single Notifuse instance, an email still being sent when it triggers is paused with the rest if the provider fails it, unless it was on its last attempt; one refused for its recipient is given up as usual.
 - **Failed Messages**: Those recipients are marked as "failed" in the Message History Logs, with the provider's own explanation in the Error column.
 - **Recoverable**: Nothing is lost by the pause itself. Resume sends the paused recipients, and any that were given up on can be retried separately.
 
