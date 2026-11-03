@@ -32,7 +32,7 @@ You are asked for one thing: a **label**. It names the connection in Notifuse, a
 
 Click **Connect Zapier**. Notifuse mints an API key with exactly the permissions this integration needs and nothing else: **Transactional**, **Webhook Subscriptions**, **Contacts** and **Lists** read and write, plus **Segments** read. There is nothing to tick — the grant is chosen for you.
 
-Take **Transactional** seriously before you connect. It is what lets a Zap send, and it reaches further than that: it also permits creating, editing and deleting transactional notifications, testing templates and providers, and relaying through the SMTP bridge. A leaked token could send mail through your provider, at your cost and against your sending reputation. It cannot read your message history. If a Zapier connection has no business sending, narrow the key to suit (this needs [granular permissions](/self-hosting/licence#what-needs-a-key)) — see *Managing the Connection Afterwards*.
+Take **Transactional** seriously before you connect. It is what lets a Zap send, and it reaches further than that: it also permits creating, editing and deleting transactional notifications, testing templates and providers, and relaying through the SMTP bridge. A leaked token could send mail through your provider, at your cost and against your sending reputation. It cannot read your message history. If a Zapier connection has no business sending, narrow the key to suit — see *Managing the Connection Afterwards*.
 
 The token is displayed **once**, in the panel that replaces the form. Copy it before you press **Done** — it cannot be retrieved afterwards, and no screen in Notifuse can show it to you again. The same panel prints the **API URL** you will need in Step 2, with a copy button beside it.
 
@@ -102,7 +102,7 @@ The connection appears as a card under **Settings** → **Integrations**, showin
 - **Renaming it** changes the label on the card and nothing else. The key keeps the address it was minted under, so the card's name and the address can disagree afterwards — the card shows both for exactly that reason. Nothing has to be re-entered in Zapier.
 - **Deleting it revokes the key.** Every Zap using that key stops working the moment you confirm, and there is no way back: a revoked key cannot be restored, and reconnecting mints a different one you must paste into Zapier. Deleting the workspace revokes its Zapier keys the same way.
 
-**Settings** → **Team** is where a key's permissions change. Widen or narrow the Zapier key there (this needs [granular permissions](/self-hosting/licence#what-needs-a-key)) — the change takes effect on its next request and **the token does not change**, so there is nothing to re-enter in Zapier. Removing the key's row from Team also revokes it, exactly as deleting the card does, but leaves the card behind pointing at a key that no longer exists.
+**Settings** → **Team** is where a key's permissions change. Widen or narrow the Zapier key there — the change takes effect on its next request and **the token does not change**, so there is nothing to re-enter in Zapier. Removing the key's row from Team also revokes it, exactly as deleting the card does, but leaves the card behind pointing at a key that no longer exists.
 
 ## Triggers
 
