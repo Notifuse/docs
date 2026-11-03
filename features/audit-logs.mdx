@@ -11,7 +11,7 @@ It never records the data plane — contact upserts, sends, tracking, custom eve
 
 Audit logs are a **licensed capability** (Enterprise): recording happens only while a licence key covering `audit_logs` is installed. Reading, exporting and configuring the retention are never gated, so the page works in every licence state on whatever was recorded. See [Licence keys](/self-hosting/licence).
 
-On Notifuse Cloud the key is managed for you, and audit logs are recorded on the Business plan; an instance still on its original terms keeps recording until its first plan change. See [On Notifuse Cloud](/self-hosting/licence#on-notifuse-cloud).
+On Notifuse Cloud the key is managed for you, and audit logs are recorded on the Business plan. See [On Notifuse Cloud, including instances that predate this](/self-hosting/licence#on-notifuse-cloud).
 
 <Note>
   **Nothing is refused, nothing is hidden.** An unlicensed deployment writes no entries and is told nothing; a deployment whose key lapses stops recording after the 30-day grace period and writes one marker entry, `licence.recordingStopped`, so the gap is never silent. Installing a key again writes `licence.recordingResumed`.
