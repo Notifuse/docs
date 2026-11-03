@@ -6,7 +6,7 @@ description: 'Self-hosting Notifuse is free. Six capabilities need a licence key
 Notifuse v40 and later are published under the [Business Source License 1.1](https://github.com/notifuse/notifuse/blob/main/LICENSE), and every release becomes AGPL-3.0-or-later four years after it ships. You may run Notifuse in production, at any scale, modify it, and host it for others. Everything below is free except the six capabilities in the next section.
 
 <Note>
-  **On Notifuse Cloud?** You never need to buy or install a key. Which capabilities your instance has depends on its plan, and on whether it existed before plans unlocked different capabilities: see [On Notifuse Cloud](#on-notifuse-cloud).
+  **On Notifuse Cloud?** You never need to buy or install a key. Which capabilities your instance has depends on its plan, or, for an instance that existed before plans unlocked different capabilities and has not changed plan since, on its earlier terms: see [On Notifuse Cloud](#on-notifuse-cloud).
 </Note>
 
 ## What needs a key
@@ -14,7 +14,7 @@ Notifuse v40 and later are published under the [Business Source License 1.1](htt
 | Capability | What is refused, and when |
 |---|---|
 | **More than three workspaces** | Creating a fourth workspace on one deployment. Workspaces you already have are never touched. |
-| **Granular permissions** | Saving a permission set that is not full access — for a member, an invitation, or an API key. Permissions already granted stay enforced; removing a member is always allowed. |
+| **Granular permissions** | Saving a member's permissions in the permission editor (whatever the set), inviting with a restricted set, or creating an API key with a restricted scope you choose. Permissions already granted stay enforced; removing a member is always allowed. |
 | **Amazon SES tenant isolation** | Provisioning a new SES tenant. A tenant already provisioned keeps sending. |
 | **Template translations** | Adding a language to a template, or editing one already there. Translations already saved keep being sent. |
 | **Single sign-on (OIDC)** | The sign-in page stops offering the SSO button. Nobody is locked out: login-code sign-in always works, and open sessions are unaffected. |
@@ -78,7 +78,7 @@ A licence may be refunded within 14 days of the first purchase, no questions ask
 
 ## On Notifuse Cloud
 
-You never buy, install or renew a key on Notifuse Cloud: Notifuse issues one for your instance and replaces it when your plan changes. The tiers, prices, purchase, installation, renewal, grace period and refunds described above are for self-hosted keys and do not apply, and a self-hosted key cannot be installed on a Cloud instance. What a capability does when it is missing is the same as in [What needs a key](#what-needs-a-key).
+You never buy, install or renew a key on Notifuse Cloud: Notifuse issues one for your instance and replaces it when your plan changes. The tiers, prices, purchase, installation, renewal, key recovery and refunds described above are for self-hosted keys and do not apply, and a self-hosted key cannot be installed on a Cloud instance. What a capability does when it is missing is the same as in [What needs a key](#what-needs-a-key).
 
 | | Lite | Starter | Pro | Business |
 |---|---|---|---|---|
@@ -91,4 +91,4 @@ You never buy, install or renew a key on Notifuse Cloud: Notifuse issues one for
 
 **Instances that existed before plans unlocked different capabilities** have every capability in this table, and the workspace count they had then, for as long as they stay on the plan they were on at that point. Their first plan change, up or down, ends this for good: from then on the instance has what its new plan's column shows, so a move that keeps a capability (Starter to Pro keeps permissions, for example) keeps it, and a move that does not removes it. Moving back to the earlier plan does not restore the earlier terms. The billing page says when an instance is still on them.
 
-**When a plan change removes a capability**, it applies as soon as the new key is in place, with no grace period. Afterwards the instance behaves as described in [What needs a key](#what-needs-a-key): the sign-in page stops offering SSO; audit logging stops, and a marker entry records when; the member permission editor, restricted invitations and restricted API keys are refused; adding or editing a translation is refused; provisioning an SES tenant is refused; and creating a workspace beyond the new count is refused. What already exists is not deleted and keeps working: workspaces beyond the new count, permissions already granted (still enforced), saved translations (still sent), provisioned SES tenants (still sending) and recorded audit entries.
+**When a plan change removes a capability or lowers the workspace count**, it applies as soon as the new key is in place; the grace period, which is for an expired key, does not delay it. Afterwards the instance behaves as described in [What needs a key](#what-needs-a-key): the sign-in page stops offering SSO; audit logging stops, and a marker entry in the log says so; the member permission editor, restricted invitations and restricted API keys are refused; adding or editing a translation is refused; provisioning an SES tenant is refused; and creating a workspace beyond the new count is refused. What already exists is not deleted and keeps working: workspaces beyond the new count, permissions already granted (still enforced), saved translations (still sent), provisioned SES tenants (still sending) and recorded audit entries.
