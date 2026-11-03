@@ -9,7 +9,7 @@ The audit log records every control-plane action taken on a deployment: a member
 
 It never records the data plane — contact upserts, sends, tracking, custom events — which can run at thousands of requests a minute and belongs in [Logs](/features/logs), not in a trail.
 
-Audit logs are a **licensed capability** (Enterprise): recording happens only while a licence key covering `audit_logs` is installed. Reading, exporting and configuring the retention are never gated, so the page works in every licence state on whatever was recorded. See [Licence keys](/self-hosting/licence).
+Audit logs are a **licensed capability** (Enterprise): recording happens only while a licence key covering `audit_logs` is installed. Reading, exporting and configuring the retention are never gated, so the page works in every licence state on whatever was recorded. See [Licence keys](/self-hosting/licence). On Notifuse Cloud, audit logs are included in the Business plan.
 
 <Note>
   **Nothing is refused, nothing is hidden.** An unlicensed deployment writes no entries and is told nothing; a deployment whose key lapses stops recording after the 30-day grace period and writes one marker entry, `licence.recordingStopped`, so the gap is never silent. Installing a key again writes `licence.recordingResumed`.
