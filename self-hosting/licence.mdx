@@ -36,6 +36,23 @@ Everything else — sending, contacts, broadcasts, automations, the transactiona
 
 One key covers one deployment — one PostgreSQL database, however many API containers serve it. Buy at [notifuse.com/pricing/self-hosted](https://notifuse.com/pricing/self-hosted); for anything else, write to [hello@notifuse.com](mailto:hello@notifuse.com).
 
+## On Notifuse Cloud
+
+A Cloud instance runs the same binary and carries a key like any other, but you never buy, paste or renew it: Notifuse issues it from your plan and replaces it when your plan changes. A self-hosted key cannot be installed on a Cloud instance, so the capabilities you get are the ones your plan includes.
+
+| | Lite | Starter | Pro | Business |
+|---|---|---|---|---|
+| Workspaces | 3 | 3 | 10 | 20 |
+| Granular permissions | | ✓ | ✓ | ✓ |
+| SES tenant isolation | | ✓ | ✓ | ✓ |
+| Template translations | | ✓ | ✓ | ✓ |
+| Single sign-on (OIDC) | | | | ✓ |
+| Audit logs | | | | ✓ |
+
+**Instances that existed before plans unlocked different capabilities** keep every capability above and the workspace count they had, for as long as they stay on the same plan. The first plan change, up or down, moves the instance to the column of its new plan for good; moving back to the old plan does not restore the earlier terms. The billing page says when an instance is on its original terms.
+
+When a plan change removes a capability, it applies as soon as the new key is in place. The [grace period](#expiry-and-grace) is for an expired key and does not apply: SSO stops being offered and audit logging stops at that point, with the same rules as anywhere else — nothing already configured or recorded is deleted.
+
 ## Getting your key
 
 1. **Pay.** Checkout is by card, through Stripe, as an annual subscription. There is no trial: the free tier is the trial, and a 14-day refund on the first purchase replaces it.
