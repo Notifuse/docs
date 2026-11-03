@@ -5,6 +5,10 @@ description: 'Self-hosting Notifuse is free. Six capabilities need a licence key
 
 Notifuse v40 and later are published under the [Business Source License 1.1](https://github.com/notifuse/notifuse/blob/main/LICENSE), and every release becomes AGPL-3.0-or-later four years after it ships. You may run Notifuse in production, at any scale, modify it, and host it for others. Everything below is free except the six capabilities in the next section.
 
+<Note>
+  **On Notifuse Cloud?** You never need to buy or install a key: your plan decides which capabilities your instance has. See [On Notifuse Cloud](#on-notifuse-cloud).
+</Note>
+
 ## What needs a key
 
 | Capability | What is refused, and when |
@@ -74,7 +78,7 @@ A licence may be refunded within 14 days of the first purchase, no questions ask
 
 ## On Notifuse Cloud
 
-Everything above this section is about self-hosting. A Cloud instance runs the same binary and carries a key like any other, but you never buy, paste or renew it: Notifuse issues it from your plan and replaces it when your plan changes. A self-hosted key cannot be installed on a Cloud instance, so the capabilities you get are the ones your plan includes.
+The sections before this one describe buying and installing a self-hosted key; none of that applies to Cloud. A Cloud instance runs the same binary and carries a key like any other, but you never buy, paste or renew it: Notifuse issues it from your plan and replaces it when your plan changes. A self-hosted key cannot be installed on a Cloud instance, so the capabilities you get are the ones your plan includes.
 
 | | Lite | Starter | Pro | Business |
 |---|---|---|---|---|
@@ -85,6 +89,6 @@ Everything above this section is about self-hosting. A Cloud instance runs the s
 | Single sign-on (OIDC) | | | | ✓ |
 | Audit logs | | | | ✓ |
 
-**Instances that existed before plans unlocked different capabilities** keep every capability above and the workspace count they had, for as long as they stay on the same plan. The first plan change, up or down, moves the instance to the column of its new plan for good; moving back to the old plan does not restore the earlier terms. The billing page says when an instance is on its original terms.
+**Instances that existed before plans unlocked different capabilities** keep every capability in this table and the workspace count they had, for as long as they stay on the same plan. The first plan change, up or down, moves the instance to the column of its new plan for good; moving back to the old plan does not restore the earlier terms. The billing page says when an instance is on its original terms.
 
-When a plan change removes a capability or lowers the workspace count, it applies as soon as the new key is in place. The [grace period](#expiry-and-grace) is for an expired key and does not apply. The rules are the ones in [What needs a key](#what-needs-a-key): each refusal is one action at the moment it is taken, and nothing already configured, created or recorded is deleted — existing workspaces, permission sets, translations and SES tenants stay, SSO stops being offered, and audit logging stops.
+When a plan change removes a capability or lowers the workspace count, it applies as soon as the new key is in place; the [grace period](#expiry-and-grace) is for an expired key and does not apply. What changes is what [What needs a key](#what-needs-a-key) describes for an instance without that capability: the sign-in page stops offering SSO, audit logging stops (with a marker entry), and creating a workspace past the new count, saving a restricted permission set, adding a translation or provisioning an SES tenant is refused. Nothing already there is deleted: existing workspaces, permission sets, translations, SES tenants and recorded audit entries stay.
