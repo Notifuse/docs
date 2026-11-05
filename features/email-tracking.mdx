@@ -55,7 +55,7 @@ The choice is applied when an email is sent, and checked again when an open or a
 
 ## Statistics
 
-Open and click rates are counted over the emails that were tracked, not over all emails sent. Where some emails were not tracked, statistics say how many were (*of 1,200 tracked*), and a rate with no tracked email shows `-`. This applies to broadcast statistics, A/B test results, per-link click rates and the analytics dashboard.
+Open and click rates are counted over the emails that were tracked, not over all emails sent. Where some emails were not tracked, the tooltip of the rate says how many were (*of 1,200 tracked*), and a rate with no tracked email shows `-`. This applies to broadcast statistics, A/B test results, per-link click rates and the analytics dashboard.
 
 Emails sent before version 43 count as tracked, so their rates do not change.
 
@@ -63,7 +63,7 @@ Emails sent before version 43 count as tracked, so their rates do not change.
 
 The automatic winner is chosen on the open or click rate over the tracked recipients of each variation. A variation with no tracked recipient cannot win, and when none has any, you pick the winner yourself.
 
-When the workspace does not track contacts without recorded consent, only the contacts who agreed count in the results: the variations table shows the share of tracked recipients, in orange below half.
+When the workspace does not track contacts without recorded consent, only the contacts who agreed count in the results: the variations table warns in orange when fewer than half of a variation's recipients were tracked, and the tooltip of each rate gives the number of tracked recipients.
 
 ## Turning tracking off for one email
 
@@ -74,7 +74,7 @@ When the workspace does not track contacts without recorded consent, only the co
 
 Two variables let contacts make their choice from an email:
 
-- `{{ tracking_preferences_url }}` opens the email tracking section of the notification center.
+- `{{ tracking_preferences_url }}` opens the email tracking dialog of the notification center.
 - `{{ tracking_optout_url }}` asks the contact to confirm, then refuses both open and click tracking (source `email_link`). Nothing is recorded until the contact confirms, because email security scanners open links on their own.
 
 ```html
