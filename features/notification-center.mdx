@@ -51,6 +51,10 @@ Users can:
 - Leave a private list, which then disappears from their preferences. Only the workspace can add them back (see [Private Lists](/features/lists#private-lists)).
 - See real-time feedback messages
 
+### Email Tracking
+
+When the workspace tracks opens or clicks, the page has an **Email tracking** section where the contact allows or stops each one. Their choice is recorded with source `notification_center` and applies to the next emails and to opens and clicks of emails already sent. See [Email Tracking](/features/email-tracking).
+
 ### Unsubscribe from the Mail Client
 
 Broadcasts, and emails sent by automations attached to a list, carry the `List-Unsubscribe` and `List-Unsubscribe-Post` headers ([RFC 8058](https://www.rfc-editor.org/rfc/rfc8058)), so Gmail, Yahoo, Outlook and other mail clients can show their own **Unsubscribe** button next to the sender:
@@ -78,6 +82,8 @@ What happens depends on the link the contact followed:
 - **Unsubscribe link in the email** (`{{ unsubscribe_url }}`): the contact is unsubscribed from that list as soon as the page opens, and the page confirms it. They can then manage their other lists.
 - **The mail client's Unsubscribe button**: unsubscribes in one click, or opens a page that asks the contact to confirm, as described in [Unsubscribe from the Mail Client](#unsubscribe-from-the-mail-client).
 - **Preferences link** (`{{ notification_center_url }}`): shows the contact's lists, and each subscribe or unsubscribe applies immediately.
+- **Tracking preferences link** (`{{ tracking_preferences_url }}`): opens the page on its email tracking section. Nothing changes until the contact chooses.
+- **Tracking opt-out link** (`{{ tracking_optout_url }}`): asks the contact to confirm, then stops both open and click tracking (source `email_link`).
 
 ### Implementation
 
