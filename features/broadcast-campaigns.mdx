@@ -19,6 +19,10 @@ Each broadcast targets exactly one contact list:
 
 **Example**: Send a product announcement to your "Newsletter Subscribers" list.
 
+### Notices for Every Member
+
+By default a broadcast leaves out the list's unsubscribed contacts. For a notice every member must receive, such as a security, outage or legal notice, switch **Exclude unsubscribed recipients** off: the list's unsubscribed contacts receive it too, and its emails carry no `List-Unsubscribe` header, so mail clients show no Unsubscribe button on them. Bounced and complained contacts are still never emailed, and the unsubscribe link in your template is unchanged. See [Lists](/features/lists) for the subscription statuses.
+
 ### Segment Filters
 
 Apply dynamic segment filters to further refine your broadcast audience based on contact properties and behavior:
