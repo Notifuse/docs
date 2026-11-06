@@ -58,6 +58,13 @@ Configure email routing with flexible options:
 - **BCC**: Include blind carbon copy recipients
 - **Attachments**: Attach files to emails (PDFs, images, documents, etc.)
 
+### Tracking
+
+Opens and clicks follow the workspace settings and the contact's [tracking consent](/features/email-tracking). A `contact` in the request can carry `tracking_opens_consent` and `tracking_clicks_consent`, recorded with source `api` unless you send `tracking_consent_source`. Each notification can also turn tracking off:
+
+- **No open or click tracking, keep UTM parameters** (`tracking_mode: "no_tracking"`)
+- **Disabled for this notification** (`tracking_mode: "disabled"`): links are never rewritten, without tracking or UTM parameters, for links that must stay as they are, such as sign-in links
+
 ## API Endpoint
 
 Send transactional emails using a simple POST request:

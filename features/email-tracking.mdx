@@ -1,0 +1,84 @@
+---
+title: Email Tracking
+description: 'Record when contacts open your emails and click their links, and let each contact agree to or refuse that tracking.'
+---
+
+## Overview
+
+Notifuse can record two things about the emails it sends:
+
+- **Opens**: an invisible image (a tracking pixel) is added to the email, and it records when the email is opened.
+- **Clicks**: links go through a redirect that records each click before sending the contact on to the page.
+
+Each one is turned on separately in the workspace settings, and each contact can agree to or refuse each one. Links keep their [UTM parameters](/features/broadcast-campaigns#utm-tracking) whatever the tracking choice.
+
+## Workspace settings
+
+In **Settings → General**:
+
+- **Email opens tracking** and **Email clicks tracking** turn each kind of tracking on or off for the whole workspace. When one is off, no email carries it, whatever the contacts chose.
+- **Contacts without recorded consent** decides what happens for a contact who never made a choice: **Track** (the default) or **Do not track**.
+
+A contact's own choice always wins over this setting. Some regulators, such as the Italian Garante and the French CNIL, expect open and click tracking to require consent: if that applies to you, choose **Do not track**, and only contacts who agreed are tracked.
+
+## The contact's choice
+
+Each contact has four fields:
+
+| Field                         | Description |
+| ----------------------------- | ----------- |
+| `tracking_opens_consent`      | `granted`, `denied`, or `null` when unknown |
+| `tracking_clicks_consent`     | `granted`, `denied`, or `null` when unknown |
+| `tracking_consent_updated_at` | When a choice last changed. Set by Notifuse when a value changes, unless you send it |
+| `tracking_consent_source`     | Where the change came from: `api`, `console`, `import`, `notification_center`, `email_link` or `subscribe_form` |
+
+An email to a contact is tracked for opens when the workspace tracks opens and the contact's choice allows it: `granted`, or unknown with **Track** selected. Clicks follow the same rule.
+
+The choice can be set:
+
+- **With the API**: `contacts.upsert`, `contacts.import`, the transactional API's `contact`, and the subscribe endpoint. Without a `tracking_consent_source`, a change made with an API key records `api` and an import records `import`; a subscription form posted without an API key always records `subscribe_form`.
+- **In the console**: on the contact's page, when creating or editing a contact, and in CSV imports (columns mapped to *Opens Tracking Consent* and *Clicks Tracking Consent*, values `granted` or `denied`).
+- **By the contact**, in the [notification center](/features/notification-center#email-tracking).
+
+Send `null` to set a choice back to unknown. A request that leaves the fields out keeps the stored choice.
+
+### Using the choice
+
+- **Contacts list**: filter by each choice, `unknown` included, and show a *Tracking consent* column. CSV exports include the four fields.
+- **Segments**: the four fields are contact fields; use *is not set* for an unknown choice.
+- **Automations**: a *contact updated* trigger can be limited to a change of either choice.
+- **Webhooks**: contact payloads carry the four fields, and a change is recorded on the contact timeline.
+
+## When a contact changes their mind
+
+The choice is applied when an email is sent, and checked again when an open or a click comes in. A contact who refuses tracking after an email was sent is not recorded opening or clicking it: the link still takes them to the page.
+
+## Statistics
+
+Open and click rates are counted over the emails that were tracked, not over all emails sent. Where some emails were not tracked, the tooltip of the rate says how many were (*of 1,200 tracked*), and a rate with no tracked email shows `-`. This applies to broadcast statistics, A/B test results, per-link click rates and the analytics dashboard.
+
+Emails sent before version 43 count as tracked, so their rates do not change.
+
+## A/B tests
+
+The automatic winner is chosen on the open or click rate over the tracked recipients of each variation. A variation with no tracked recipient cannot win, and when none has any, you pick the winner yourself.
+
+When the workspace does not track contacts without recorded consent, only the contacts who agreed count in the results: the variations table warns in orange when fewer than half of a variation's recipients were tracked, and the tooltip of each rate gives the number of tracked recipients.
+
+## Turning tracking off for one email
+
+- **Broadcasts**: check **Don't track opens and clicks for this broadcast** in the *Web Analytics* step (`tracking_mode: "no_tracking"` in the API). UTM parameters are kept. The winner of an A/B test then has to be picked by hand.
+- **Transactional notifications**: choose **No open or click tracking, keep UTM parameters** (`no_tracking`), or **Disabled for this notification** (`disabled`), which also leaves links untouched, without UTM parameters, for links that must not change such as sign-in links.
+
+## Template links
+
+Two variables let contacts make their choice from an email:
+
+- `{{ tracking_preferences_url }}` opens the email tracking dialog of the notification center.
+- `{{ tracking_optout_url }}` asks the contact to confirm, then refuses both open and click tracking (source `email_link`). Nothing is recorded until the contact confirms, because email security scanners open links on their own.
+
+```html
+<a href="{{ tracking_preferences_url }}">Choose what we track</a>
+```
+
+Both links are never rewritten for tracking.

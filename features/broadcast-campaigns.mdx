@@ -76,6 +76,8 @@ Configure automatic winner selection based on performance metrics:
 - **Time Period**: Set a specific duration for evaluation
 - **Auto-Deploy**: Automatically send winning variation after the period
 
+Rates are counted over the recipients whose opens or clicks were tracked, which depends on their [tracking consent](/features/email-tracking). A broadcast sent without tracking cannot pick its winner automatically.
+
 ### A/B Testing Example
 
 1. Create campaign with 2 subject line variations
@@ -105,6 +107,10 @@ All external links in your email templates automatically receive UTM parameters 
 ```
 https://yourwebsite.com/products?utm_source=notifuse&utm_medium=email&utm_campaign=summer_sale_2024
 ```
+
+### Sending Without Open and Click Tracking
+
+Check **Don't track opens and clicks for this broadcast** to send it with no tracking pixel and no click redirect, for every recipient. UTM parameters are kept. Otherwise each recipient's [tracking consent](/features/email-tracking) applies.
 
 ### Analytics Integration
 
