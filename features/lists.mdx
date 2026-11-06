@@ -26,7 +26,7 @@ Contacts within lists can have different statuses that determine their engagemen
 | **Bounced**      | ❌ Never receives emails | Email address is invalid or unreachable       |
 | **Complained**   | ❌ Never receives emails | Marked emails as spam                         |
 
-> **Important**: Broadcasts leave out the list's unsubscribed contacts unless the broadcast sets `exclude_unsubscribed` to `false`, for example for a legal notice. Leaving `exclude_unsubscribed` out of an API request means exclude them, as the console does. Bounced and complained contacts are never emailed, whatever that setting.
+> **Important**: Broadcasts leave out the list's unsubscribed contacts unless the broadcast sets `exclude_unsubscribed` to `false` (**Exclude unsubscribed recipients** switched off in the console), for example for a security or legal notice. Such a broadcast's emails carry no `List-Unsubscribe` header, so mail clients show no Unsubscribe button on them. Leaving `exclude_unsubscribed` out of an API request means exclude them, as the console does. Bounced and complained contacts are never emailed, whatever that setting.
 
 A contact who unsubscribes from an email sent for a list they weren't on, such as an automation email, is recorded on that list as **unsubscribed**. An unsubscribe never replaces a **bounced** or **complained** status.
 
