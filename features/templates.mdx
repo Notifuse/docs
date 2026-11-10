@@ -194,7 +194,15 @@ The link opens the web version of the email, for recipients whose mail client re
 
 Anyone who has the link can open the page, as with a forwarded email. It shows what the email shows, including the contact's unsubscribe and notification center links, so whoever holds it can unsubscribe that contact. Each email's web version opens at most 30 times a minute: it is not meant as a public archive link.
 
-The link signs the domain it was sent with, your workspace's [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) or the `API_ENDPOINT` address, and the page opens only there and on the `API_ENDPOINT` address: another workspace's domain cannot show it. The link keeps working after you change domain, as long as the old one still points to Notifuse. Behind a reverse proxy, forward the original `Host` header or set `X-Forwarded-Host`, or every web version answers "This email is no longer available".
+The link signs the domain it was sent with, your workspace's [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) or the `API_ENDPOINT` address, and the page opens there and on the `API_ENDPOINT` address only. This keeps another workspace's custom domain from showing your email under its own address. What it does not cover:
+
+- The `API_ENDPOINT` address opens the web version of every workspace, since every link can fall back to it.
+- Workspaces that already shared a custom domain before 43.1 show each other's web versions on it.
+- Anyone who has the link can fetch the page and publish a copy elsewhere, as with any email they receive.
+
+After your workspace changes its custom domain, links sent with the old one keep working while the old domain still points to Notifuse, until another workspace takes it. A redirect from the old domain keeps them working only if it goes to the `API_ENDPOINT` address, not to the new custom domain.
+
+Behind a reverse proxy, forward the original `Host` header, or set `X-Forwarded-Host` to it: when that header is present, the page is judged on it alone. A proxy that sends the `API_ENDPOINT` host as `Host` without `X-Forwarded-Host` makes every custom domain's web version answer "This email is no longer available".
 
 The page runs no script and is kept apart from the console, although both are served from the same domain.
 

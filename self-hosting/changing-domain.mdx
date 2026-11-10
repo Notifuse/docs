@@ -26,7 +26,7 @@ Notifuse knows its public address through `API_ENDPOINT`, set as an environment 
 
 | Uses the address | After the change | What to do |
 | --- | --- | --- |
-| Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center, web version | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. |
+| Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center, web version | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. When a workspace changes its own custom domain, redirect the old one to `API_ENDPOINT` rather than to the new custom domain: a web version opens only on the domain it was sent with and on `API_ENDPOINT`. |
 | Pending workspace invitations | Link to the old domain | Keep the old domain routed, or resend the invitations: a resent invitation uses the new address. |
 | Email provider webhooks | Registered once, with the address of the time | For each integration, open **Settings → Integrations** and click **Re-register**. See [Email provider webhooks](#email-provider-webhooks). |
 | `WEBHOOK_ENDPOINT` | Overrides `API_ENDPOINT` for webhooks when set | Change it too, then re-register. |

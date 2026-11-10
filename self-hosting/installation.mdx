@@ -92,6 +92,8 @@ If using SES, you can create SMTP credentials in the SMTP settings section of th
 
 Notifuse needs a public API endpoint to be accessible from the web. Example: `https://emails.yourcompany.com`
 
+Behind a reverse proxy, forward the original `Host` header to Notifuse, or set `X-Forwarded-Host` to it. Web versions of emails open only on the domain their link was sent with, so a proxy that replaces `Host` with its upstream address, and sets no `X-Forwarded-Host`, makes those on workspace custom domains unavailable.
+
 ## Environment Variables
 
 With the Setup Wizard, many environment variables are optional and can be configured through the web interface. Environment variables always take precedence over database settings when present.
