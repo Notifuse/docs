@@ -56,6 +56,8 @@ Deleting a template removes it from the template list and from every template pi
 
 Because of this, a deleted template keeps its ID. Creating a new template with the same ID is refused, and the API's `templates.update` answers `404` for it. Give the new template another ID.
 
+Deleting a template does take down the [web versions](#view-in-browser) of the emails sent with it.
+
 Templates managed by an integration, such as the [Supabase](/integrations/supabase) auth emails, can't be deleted.
 
 ## Translations
@@ -174,6 +176,30 @@ Opening this link unsubscribes the contact from the list right away and shows th
 
 The first opens the email tracking dialog of the notification center; the second asks the contact to confirm in that dialog, then refuses open and click tracking. See [Email Tracking](/features/email-tracking#template-links).
 
+#### View in Browser
+
+```liquid
+{% if view_in_browser_url != blank %}
+  <a href="{{ view_in_browser_url }}">View this email in your browser</a>
+{% endif %}
+```
+
+The link opens the web version of the email, for recipients whose mail client renders it badly. In the visual builder, select some text, open the link editor and choose the **Web version of the email** link type.
+
+- **Available in broadcasts and automations.** Transactional and double opt-in emails leave the variable empty, unless a transactional API call sets `view_in_browser_url` in its own data. Guard the link as above in a template shared with them.
+- **Only where it is used.** Only emails whose template uses the variable have a web version. There is no workspace setting.
+- **The email as it was sent.** The page is rendered from the template version and the data of that send, in the contact's language. Editing the template later does not change it.
+- **Nothing is tracked on the page.** Viewing it records no open, and its links record no click; they keep the UTM parameters of the send. With click tracking on, the click on the link in the email itself counts as a click, like any other link.
+- **Taken down with the template or the contact.** [Deleting the template](#deleting-a-template) or [deleting the contact](/features/contacts#deleting-a-contact) makes the page answer "This email is no longer available".
+
+Anyone who has the link can open the page, as with a forwarded email. It shows what the email shows, including the contact's unsubscribe and notification center links, so whoever holds it can unsubscribe that contact. Each email's web version opens at most 30 times a minute: it is not meant as a public archive link. The page runs no script and is kept apart from the console, although both are served from the same domain.
+
+In a template preview and in a test email, the link opens a page saying that the web version exists once the email is sent to a contact.
+
+<Note>
+  Web versions are served under `/v/`. On a [blog](/blog/setup) served from a custom domain, a category whose slug is `v` cannot be reached: give it another slug.
+</Note>
+
 ### Complete Example
 
 ```liquid
@@ -208,6 +234,7 @@ When designing templates, you have access to this data structure:
   "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
   "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
   "tracking_preferences_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking&email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
-  "tracking_optout_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking_optout&email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
+  "tracking_optout_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking_optout&email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
+  "view_in_browser_url": "https://your_notifuse_endpoint.your_website.com/v/ODkyY2Q..."
 }
 ```
