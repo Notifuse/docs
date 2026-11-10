@@ -58,6 +58,20 @@ Because of this, a deleted template keeps its ID. Creating a new template with t
 
 Templates managed by an integration, such as the [Supabase](/integrations/supabase) auth emails, can't be deleted.
 
+## Plain-text version
+
+Every email Notifuse sends carries two versions of its content: the HTML, and a plain-text version generated from it. Mail clients that show text only, some watches and screen readers display the text version, and spam filters treat an email with both versions better than an HTML-only one.
+
+The text version is generated at every send from the final HTML, so there is nothing to write or keep up to date:
+
+- headings and paragraphs keep their line breaks, lists become `- item` or `1. item`;
+- a link becomes its label followed by its URL in brackets, such as `Shop the sale (https://example.com/sale)`; a linked image uses its `alt` text as label;
+- hidden content (the preview text of the inbox, elements styled `display:none`) and tracking pixels are left out.
+
+Its links are the links of the HTML, with the same click tracking and UTM parameters, decided for each recipient as for the HTML. A click from the text version counts like any other click. If your email provider rewrites links for its own click tracking (SendGrid, Mailgun or Postmark, when enabled on their side), it rewrites those of the text version too. An email whose HTML holds no text at all, such as a single image without `alt`, is sent as HTML only.
+
+To see it before sending, open the **Text version** mode next to **Edit** and **Preview** in the visual editor, the **Text version** tab of the MJML editor, or the **Text version** tab of the template preview. They show the text built from your test data. Through the API, [`templates.compile`](/api-reference/compile-template) returns it in the `text` field.
+
 ## Translations
 
 A template can carry one version of its content per language. Which version a contact receives is decided at send time from the contact's `language` field, so one broadcast or one transactional notification serves every language you have written — nothing to branch on in your automations or your API calls.
