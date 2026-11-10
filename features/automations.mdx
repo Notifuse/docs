@@ -139,7 +139,13 @@ not loop on the links of its own emails.
 
 <Note>
 Only clicks Notifuse can verify start it: clicks on the signed links of emails sent from version 42.2 on. Clicks made
-before the upgrade to 44.0 are not replayed. See [what records a link click](/features/email-tracking#link-clicks).
+before the upgrade to 44.0 are not replayed, but a link clicked before the upgrade starts the automation on its next
+click. See [what records a link click](/features/email-tracking#link-clicks).
+</Note>
+
+<Note>
+Some email security scanners follow every link of the emails they deliver. Notifuse leaves out the clicks it recognises
+as automated, and a scanner it does not recognise starts the automation as a contact would.
 </Note>
 
 ### Conditional Triggers

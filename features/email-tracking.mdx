@@ -62,7 +62,8 @@ segments that filter on a clicked link up to date at once. It does not count tow
 
 No entry is written for:
 
-- a click on a link already clicked in that email;
+- a click on a link already clicked in that email (a link clicked before the upgrade to 44.0 gets its entry on its
+  next click);
 - a link Notifuse cannot verify: links in emails sent before version 42.2, and links whose signature does not match;
 - a link whose address is longer than 2,048 characters, or a link beyond the first 50 different links clicked in an
   email;
