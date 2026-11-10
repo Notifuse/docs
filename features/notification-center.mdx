@@ -57,7 +57,7 @@ When the workspace tracks opens or clicks, a line at the bottom of the page says
 
 ### Unsubscribe from the Mail Client
 
-Broadcasts, and emails sent by automations attached to a list, carry the `List-Unsubscribe` and `List-Unsubscribe-Post` headers ([RFC 8058](https://www.rfc-editor.org/rfc/rfc8058)), so Gmail, Yahoo, Outlook and other mail clients can show their own **Unsubscribe** button next to the sender:
+Broadcasts, emails sent by automations attached to a list, and test emails sent for a list carry the `List-Unsubscribe` and `List-Unsubscribe-Post` headers ([RFC 8058](https://www.rfc-editor.org/rfc/rfc8058)), so Gmail, Yahoo, Outlook and other mail clients can show their own **Unsubscribe** button next to the sender:
 
 - **One-click**: when the mail client offers one-click unsubscribe, the contact is unsubscribed from the list right away. The contact's click on the mail client's button is the confirmation.
 - **Opened in a browser**: mail clients that don't offer one-click open the link instead. The notification center then shows the list and asks the contact to confirm, because anti-spam filters also open these links on their own.

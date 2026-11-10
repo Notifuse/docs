@@ -156,4 +156,4 @@ Read these before granting them to a key you do not fully control.
 - **Without Contacts write**, the send still creates the recipient contact when it does not exist, but stores nothing beyond the email address, and never modifies an existing contact.
 - **Without Contacts read**, a send that sets `cc` or `bcc` is refused — the subject line is rendered against each recipient's whole record. On the SMTP bridge those come from the message's `Cc:` and `Bcc:` headers.
 
-Note that Transactional write sends real mail from three separate endpoints, including `/api/email.testProvider`, which only claims to test a provider.
+Note that Transactional write sends real mail from three separate endpoints, including `/api/email.testProvider`, which only claims to test a provider. A test email sent for a mailing list also needs Lists read.
