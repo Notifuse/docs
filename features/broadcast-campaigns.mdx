@@ -42,6 +42,20 @@ Apply dynamic segment filters to further refine your broadcast audience based on
 
 **Important**: When both a list and segment filters are applied, only contacts that belong to the selected list AND match the segment criteria will receive the broadcast.
 
+## Sender
+
+A broadcast always sends through the workspace's marketing email integration. By default each email leaves from its template's sender, or from the integration's default sender when the template has none.
+
+To send a campaign from another address without editing the template, choose a **Sender** next to the template in the broadcast's content step. Only the senders of the marketing email integration are offered; clearing the field goes back to the template's sender. Over the API, set `sender_id` on the variation in `test_settings.variations`.
+
+The broadcast never falls back to another address:
+
+- A sender that is not one of the integration's is refused when the broadcast is saved.
+- If the chosen sender is removed from the integration afterwards, that variation's remaining recipients are not queued until you choose another one. The broadcast cannot be scheduled, and cannot be resumed while that variation still has recipients to queue.
+- A broadcast queuing that variation's recipients when the sender is removed pauses the next time its sending task runs. Click **Change sender** next to **Resume** on the paused broadcast, choose another sender, then resume it.
+- In an A/B test, once a winner is chosen, a losing variation's removed sender no longer stops the broadcast. It is still checked when the variations are saved, so when the **Change sender** dialog is shown, it asks for that sender too.
+- Emails already queued keep the sender they were queued with, including once you resume. A broadcast whose recipients are all queued offers no **Change sender**: a new sender would change nothing.
+
 ## A/B Testing
 
 Optimize your campaigns by testing different variations with your audience.
@@ -50,6 +64,7 @@ Optimize your campaigns by testing different variations with your audience.
 
 - **Sample Size**: Test variations on a percentage of your total recipients
 - **Multiple Variations**: Create different subject lines, content, or templates
+- **Sender per Variation**: Each variation keeps its template's sender or chooses another one, so the sender can be part of what you test
 - **Control Groups**: Automatically split your test audience evenly
 
 ### Winner Selection
