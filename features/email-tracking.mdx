@@ -53,6 +53,24 @@ Send `null` to set a choice back to unknown. A request that leaves the fields ou
 
 The choice is applied when an email is sent, and checked again when an open or a click comes in. A contact who refuses tracking after an email was sent is not recorded opening or clicking it: the link still takes them to the page.
 
+## Link clicks
+
+Each email records which of its links were clicked. The first time a contact clicks each link of an email, the
+contact timeline gets an `email.link_clicked` entry with the link's address, next to the `email.clicked` entry of the
+email's first click. This entry can [start an automation](/features/automations#link-click-triggers), and it brings
+segments that filter on a clicked link up to date at once. It does not count toward the monthly event usage.
+
+No entry is written for:
+
+- a click on a link already clicked in that email;
+- a link Notifuse cannot verify: links in emails sent before version 42.2, and links whose signature does not match;
+- a link whose address is longer than 2,048 characters, or a link beyond the first 50 different links clicked in an
+  email;
+- links that are not `http` or `https`, such as `mailto:` and `tel:`, and links to your Notifuse instance itself, such
+  as the unsubscribe and notification center links.
+
+Opens and clicks on an email whose contact was deleted are not recorded; the link still takes the reader to the page.
+
 ## Statistics
 
 Open and click rates are counted over the emails that were tracked, not over all emails sent. Where some emails were not tracked, the tooltip of the rate says how many were (*of 1,200 tracked*), and a rate with no tracked email shows `-`. This applies to broadcast statistics, A/B test results, per-link click rates and the analytics dashboard.
