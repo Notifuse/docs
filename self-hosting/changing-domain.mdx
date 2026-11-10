@@ -6,7 +6,7 @@ description: 'Move a Notifuse instance to a new address, and open the console on
 Notifuse knows its public address through `API_ENDPOINT`, set as an environment variable or saved by the Setup Wizard; the environment variable wins when both exist. The console sends every request to that address, and it is written into emails, invitations, webhooks registered with your email providers and the SSO redirect URI. Moving an instance to a new domain means changing `API_ENDPOINT`, then updating the places that copied it.
 
 <Warning>
-  Keep the old domain pointing at Notifuse, or redirecting to the new one with the path and query string intact, for as long as people may open emails you have already sent. Their tracking, unsubscribe and notification center links carry the old address, and nothing can update an email that has been delivered.
+  Keep the old domain pointing at Notifuse, or redirecting to the new one with the path and query string intact, for as long as people may open emails you have already sent. Their tracking, unsubscribe, notification center and web version links carry the old address, and nothing can update an email that has been delivered.
 </Warning>
 
 ## Switching to the new domain
@@ -26,7 +26,7 @@ Notifuse knows its public address through `API_ENDPOINT`, set as an environment 
 
 | Uses the address | After the change | What to do |
 | --- | --- | --- |
-| Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. |
+| Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center, web version | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. |
 | Pending workspace invitations | Link to the old domain | Keep the old domain routed, or resend the invitations: a resent invitation uses the new address. |
 | Email provider webhooks | Registered once, with the address of the time | For each integration, open **Settings → Integrations** and click **Re-register**. See [Email provider webhooks](#email-provider-webhooks). |
 | `WEBHOOK_ENDPOINT` | Overrides `API_ENDPOINT` for webhooks when set | Change it too, then re-register. |

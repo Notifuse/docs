@@ -192,7 +192,11 @@ The link opens the web version of the email, for recipients whose mail client re
 - **Nothing is tracked on the page.** Viewing it records no open, and its links record no click; they keep the UTM parameters of the send. With click tracking on, the click on the link in the email itself counts as a click, like any other link.
 - **Taken down with the template or the contact.** [Deleting the template](#deleting-a-template) or [deleting the contact](/features/contacts#deleting-a-contact) makes the page answer "This email is no longer available".
 
-Anyone who has the link can open the page, as with a forwarded email. It shows what the email shows, including the contact's unsubscribe and notification center links, so whoever holds it can unsubscribe that contact. Each email's web version opens at most 30 times a minute: it is not meant as a public archive link. The page does not open on another workspace's [Custom Endpoint URL](/features/workspaces#custom-endpoint-url), so a workspace cannot show its emails under another's brand. It opens on the `API_ENDPOINT` address and on your workspace's own domains, a former one included as long as it still points to Notifuse. A custom domain belongs to a single workspace: saving one that another workspace already uses is refused. It runs no script and is kept apart from the console, although both are served from the same domain.
+Anyone who has the link can open the page, as with a forwarded email. It shows what the email shows, including the contact's unsubscribe and notification center links, so whoever holds it can unsubscribe that contact. Each email's web version opens at most 30 times a minute: it is not meant as a public archive link.
+
+The link signs the domain it was sent with, your workspace's [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) or the `API_ENDPOINT` address, and the page opens only there and on the `API_ENDPOINT` address: another workspace's domain cannot show it. The link keeps working after you change domain, as long as the old one still points to Notifuse. Behind a reverse proxy, forward the original `Host` header or set `X-Forwarded-Host`, or every web version answers "This email is no longer available".
+
+The page runs no script and is kept apart from the console, although both are served from the same domain.
 
 In a template preview and in a test email, the link opens a page saying that the web version exists once the email is sent to a contact.
 
