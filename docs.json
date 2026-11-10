@@ -43,6 +43,7 @@
               "features/lists",
               "features/templates",
               "features/broadcast-campaigns",
+              "features/email-tracking",
               "features/transactional-api",
               "features/custom-events",
               {

@@ -151,7 +151,7 @@ Use pre-generated URLs for common actions:
 <a href="{{ unsubscribe_url }}">Unsubscribe from this list</a>
 ```
 
-Opening this link unsubscribes the contact from the list right away and shows the [notification center](/features/notification-center). Mail clients can also show their own Unsubscribe button, from the `List-Unsubscribe` header that Notifuse adds to every email sent to a list.
+Opening this link unsubscribes the contact from the list right away and shows the [notification center](/features/notification-center). Mail clients can also show their own Unsubscribe button, from the `List-Unsubscribe` header that Notifuse adds to every email sent to a list, except broadcasts that also go to the list's unsubscribed contacts.
 
 #### Subscription Confirmation
 
@@ -164,6 +164,15 @@ Opening this link unsubscribes the contact from the list right away and shows th
 ```liquid
 <a href="{{ notification_center_url }}">Manage your preferences</a>
 ```
+
+#### Email Tracking Preferences
+
+```liquid
+<a href="{{ tracking_preferences_url }}">Choose what we track</a>
+<a href="{{ tracking_optout_url }}">Stop tracking my opens and clicks</a>
+```
+
+The first opens the email tracking dialog of the notification center; the second asks the contact to confirm in that dialog, then refuses open and click tracking. See [Email Tracking](/features/email-tracking#template-links).
 
 ### Complete Example
 
@@ -197,6 +206,8 @@ When designing templates, you have access to this data structure:
   },
   "unsubscribe_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=unsubscribe&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
   "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
-  "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
+  "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
+  "tracking_preferences_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking&email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
+  "tracking_optout_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking_optout&email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
 }
 ```
