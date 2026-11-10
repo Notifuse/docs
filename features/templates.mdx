@@ -153,6 +153,8 @@ Use pre-generated URLs for common actions:
 
 Opening this link unsubscribes the contact from the list right away and shows the [notification center](/features/notification-center). Mail clients can also show their own Unsubscribe button, from the `List-Unsubscribe` header that Notifuse adds to every email sent to a list, except broadcasts that also go to the list's unsubscribed contacts.
 
+To check these links and the header before sending, choose a **Mailing list** when you send a test email. A test sent from a broadcast has the broadcast's list already chosen. The test then carries that list's links and, as the broadcast will, the `List-Unsubscribe` header, and they work: unsubscribing or confirming from the test, or a bounce or complaint reported on it, changes the test recipient's subscription to the list. The **Mailing list** field is not offered for transactional notifications, whose real sends carry no list links. Without a list, the test's unsubscribe links lead to no real list and it has no `List-Unsubscribe` header.
+
 #### Subscription Confirmation
 
 ```liquid

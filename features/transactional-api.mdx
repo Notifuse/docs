@@ -345,7 +345,7 @@ Two limits apply to a key scoped that narrowly, and they apply identically to th
 
 Add Contacts read and write to the key if it needs to enrich contact profiles as it sends, or to copy extra recipients. A key holding both behaves exactly as it did before.
 
-Transactional write covers every path that sends real mail through your provider credentials, not just `/api/transactional.send`: it also covers `/api/transactional.testTemplate` and `/api/email.testProvider`, which despite its name delivers a real message.
+Transactional write covers every path that sends real mail through your provider credentials, not just `/api/transactional.send`: it also covers `/api/transactional.testTemplate` and `/api/email.testProvider`, which despite its name delivers a real message. A test email sent for a mailing list (`list_id`) also needs Lists read.
 
 Transactional **read** covers only the notification definitions — listing them and opening one. It does not let a key send.
 
