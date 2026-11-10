@@ -92,7 +92,7 @@ If using SES, you can create SMTP credentials in the SMTP settings section of th
 
 Notifuse needs a public API endpoint to be accessible from the web. Example: `https://emails.yourcompany.com`
 
-Behind a reverse proxy, forward the original `Host` header to Notifuse, or set `X-Forwarded-Host` to it. Web versions of emails open only on the domain their link was sent with, so a proxy that replaces `Host` with its upstream address, and sets no `X-Forwarded-Host`, makes those on workspace custom domains unavailable.
+Behind a reverse proxy, forward the original `Host` header to Notifuse, or set `X-Forwarded-Host` to it. [Web versions](/features/templates#view-in-browser) of emails open only on the domain their link was sent with and on `API_ENDPOINT`. A proxy that replaces `Host` with its upstream address, and sets no `X-Forwarded-Host`, makes every web version unavailable; one that replaces it with the `API_ENDPOINT` host lets every custom domain show every workspace's web versions.
 
 ## Environment Variables
 

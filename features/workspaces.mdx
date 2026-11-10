@@ -29,7 +29,7 @@ Each workspace can be configured with a custom endpoint URL to provide a branded
 
 This feature allows you to maintain brand consistency and build trust with your recipients by using your own domain instead of the default Notifuse domain.
 
-A custom domain belongs to a single workspace: saving one that another workspace already uses is refused, whatever its case, port or trailing dot. The [web version](/features/templates#view-in-browser) of an email opens on the domain it was sent with and on the `API_ENDPOINT` address, not on another workspace's domain.
+A custom domain belongs to a single workspace: saving one that another workspace already uses is refused, whatever its case, port or trailing dot. Notifuse checks that the domain points to it, not who owns it, so the first workspace to save a domain holds it; if another workspace holds yours, an owner of that workspace has to remove it. Workspaces that shared a domain before 43.1 keep it, and can still edit its URL as long as the domain stays the same. The [web version](/features/templates#view-in-browser) of an email opens on the domain it was sent with and on the `API_ENDPOINT` address, not on another workspace's domain.
 
 ## Who Can Change a Workspace
 
