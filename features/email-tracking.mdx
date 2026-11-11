@@ -68,7 +68,8 @@ No entry is written for:
 - a link whose address is longer than 2,048 characters, or a link beyond the first 50 different links clicked in an
   email;
 - links that are not `http` or `https`, such as `mailto:` and `tel:`, and links to your Notifuse instance itself, such
-  as the unsubscribe and notification center links.
+  as the unsubscribe, notification center and web version links. Behind a reverse proxy, Notifuse recognizes them when
+  the proxy passes the public host in `Host` or `X-Forwarded-Host`.
 
 Opens and clicks on an email whose contact was deleted are not recorded; the link still takes the reader to the page.
 
