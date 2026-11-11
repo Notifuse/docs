@@ -82,6 +82,7 @@ Automations can trigger on any of these timeline events:
 | `email.delivered` | Email was delivered |
 | `email.opened` | Contact opened email |
 | `email.clicked` | Contact clicked a link in email |
+| `email.link_clicked` | Contact clicked a link of an email for the first time, once per link |
 | `email.bounced` | Email bounced |
 | `email.complained` | Contact marked as spam |
 | `email.unsubscribed` | Contact unsubscribed via email link |
@@ -107,6 +108,45 @@ For `contact.updated` events, you can filter by specific fields that changed:
 - Number: `custom_number_1` through `custom_number_5`
 - Date: `custom_datetime_1` through `custom_datetime_5`
 - JSON: `custom_json_1` through `custom_json_5`
+
+### Link Click Triggers
+
+`email.link_clicked` (**Clicked a link** in the console) starts an automation when a contact clicks a given link, for
+instance to add everyone who clicked your pricing link to a list that feeds a follow-up sequence. Where
+`email.clicked` happens once per email, on its first click, `email.link_clicked` happens the first time a contact
+clicks each link of the email, so the pricing link starts the automation even when the contact clicked another link
+first. Clicking the same link again does not.
+
+Three optional filters narrow it:
+
+| Field | Console | Matches |
+|-------|---------|---------|
+| `link_url` | Clicked link contains | Links whose URL contains this text, ignoring case. The recorded URL keeps its UTM parameters, so match on a part of the address such as `/pricing` |
+| `broadcast_id` | Broadcast | Links in the emails of this broadcast |
+| `template_id` | Template | Links in the emails sent with this template |
+
+```json
+{
+  "event_kind": "email.link_clicked",
+  "link_url": "/pricing",
+  "broadcast_id": "YOUR_BROADCAST_ID",
+  "frequency": "once"
+}
+```
+
+A click on an email that the automation itself sent never starts it again, so an automation set to `every_time` does
+not loop on the links of its own emails.
+
+<Note>
+Only clicks Notifuse can verify start it: clicks on the signed links of emails sent from version 42.2 on. Clicks made
+before the upgrade to 44.0 are not replayed, but a link clicked before the upgrade starts the automation on its next
+click. See [what records a link click](/features/email-tracking#link-clicks).
+</Note>
+
+<Note>
+Some email security scanners follow every link of the emails they deliver. Notifuse leaves out the clicks it recognises
+as automated, and a scanner it does not recognise starts the automation as a contact would.
+</Note>
 
 ### Conditional Triggers
 
