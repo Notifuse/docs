@@ -366,6 +366,10 @@ Dear {{ contact.first_name }} {{ contact.last_name }},
 We've sent your order #{{ order_id }} to {{ contact.email }}.
 ```
 
+### Conditional blocks
+
+Blocks of a visual template can be sent only when a condition on this data holds, for example a section shown only when `order.total` is greater than 100. See [Conditional blocks](/features/templates#conditional-blocks).
+
 ### Complete Example
 
 **API Request**:
