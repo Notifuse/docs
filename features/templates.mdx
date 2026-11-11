@@ -78,21 +78,21 @@ A block of the visual editor can be sent only to some recipients: give it a **di
 
 Select a block, then use **Add a condition** at the top of its settings. A condition is a list of rules, each made of a variable, an operator and, for most operators, a value. Choose whether **all** the rules must hold or **at least one**; a condition holds up to 20 rules.
 
-Conditions can be set on sections, wrappers, text, images, buttons, dividers, spacers, social blocks and raw HTML blocks. A condition on a section or a wrapper hides everything inside it. Columns and groups can't have one, since removing a column would break the widths of the others; put the condition on the section, or on the blocks inside the column.
+Conditions can be set on sections, wrappers, text, images, buttons, dividers, spacers, social blocks and raw HTML blocks. A condition on a section or a wrapper hides everything inside it. Columns and groups can't have one, since removing a column would break the widths of the others; put the condition on the section, or on the blocks inside the column. Nor can a block that holds a Liquid block: hiding it would remove the Liquid block too, which may hold half of a tag such as `{% if %}` whose `{% endif %}` sits elsewhere. Move the Liquid block out first.
 
 ### Variables
 
-A variable is a path without braces, as you would write it inside `{{ }}`: `contact.first_name`, `order.total`, `order.items.size`. Every variable of the email's data is available: [contact fields](#contact-variables), the `data` of a [transactional API call](/features/transactional-api), [data feeds](/features/broadcast-campaigns#data-feeds). Variables assigned with Liquid inside the email (an `{% assign %}` in a Liquid or raw block) are not: a condition reads the data the email is sent with, not the content of the email.
+A variable is a path without braces, as you would write it inside `{{ }}`: `contact.first_name`, `order.total`, `order.items.size`. `.empty` and `.to_liquid` can't be used in a path; to test an empty list or text, use **is false or empty**. Every variable of the email's data is available: [contact fields](#contact-variables), the `data` of a [transactional API call](/features/transactional-api), [data feeds](/features/broadcast-campaigns#data-feeds). Variables assigned with Liquid inside the email (an `{% assign %}` in a Liquid or raw block) are not: a condition reads the data the email is sent with, not the content of the email.
 
 ### Operators
 
 | Operator | Holds when the variable |
 | --- | --- |
-| is true | is `true` |
+| is true | is `true`, or the text `true` |
 | is false or empty | is `false`, empty, made of spaces only, or absent |
-| is set / is not set | is present in the data, or absent (a `null` counts as absent) |
+| is set / is not set | has a value, or has none: absent, `null`, an empty text or list, an empty object, or a text made of spaces only (`false` and `0` are set) |
 | equals / does not equal | is the text of the value, exactly: `vip` doesn't equal `VIP` |
-| contains / does not contain | contains the value as text; for a list, has an element equal to the value; for an object, has a field of that name |
+| contains / does not contain | for a text, contains the value; for a list, has an element equal to the value; for an object, has a field of that name; a number or a boolean contains nothing |
 | is greater than, is greater than or equal to, is less than, is less than or equal to | is a number, or a text that is one (`"150"`), compared with the value |
 
 Some details:
@@ -109,7 +109,7 @@ The condition editor shows, for each rule and for the whole condition, its resul
 
 Each [translation](#translations) has its own content, so its own conditions: set them in the translation too. **Reset translation** copies the conditions of the default content along with it.
 
-**Export → MJML** writes each condition as Liquid around its block, so a code template made from the export sends the same blocks. Importing that file back into the visual editor drops the conditions: the editor warns you, and the blocks are then sent to every recipient until you add their conditions again.
+**Export → MJML** writes each condition as Liquid around its block, so a code template made from the export sends the same blocks, with one difference: in the code template, the condition also sees the variables the email's own Liquid assigns, such as an `{% assign %}` in a Liquid block or the variable of a `{% for %}` loop around the block. Importing that file back into the visual editor drops the conditions: the editor warns you, and the blocks are then sent to every recipient until you add their conditions again.
 
 Through the API, a block of `visual_editor_tree` carries its condition as `display_condition`:
 
