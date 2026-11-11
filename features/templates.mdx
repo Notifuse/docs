@@ -78,7 +78,7 @@ A block of the visual editor can be sent only to some recipients: give it a **di
 
 Select a block, then use **Add a condition** at the top of its settings. A condition is a list of rules, each made of a variable, an operator and, for most operators, a value. Choose whether **all** the rules must hold or **at least one**; a condition holds up to 20 rules.
 
-Conditions can be set on sections, wrappers, text, images, buttons, dividers, spacers, social blocks and raw HTML blocks. A condition on a section or a wrapper hides everything inside it. Columns and groups can't have one, since removing a column would break the widths of the others; put the condition on the section, or on the blocks inside the column. Nor can a block that holds a Liquid block: hiding it would remove the Liquid block too, which may hold half of a tag such as `{% if %}` whose `{% endif %}` sits elsewhere. Move the Liquid block out first.
+Conditions can be set on sections, wrappers, text, images, buttons, dividers, spacers, social blocks and raw HTML blocks. A condition on a section or a wrapper hides everything inside it. Columns and groups can't have one, since removing a column would break the widths of the others; put the condition on the section, or on the blocks inside the column. Nor can a block that holds a Liquid block: hiding it would remove the Liquid block too, which may hold half of a tag such as `{% if %}` whose `{% endif %}` sits elsewhere. Move the Liquid block out first; for the same reason, the editor doesn't let you put a Liquid block inside a block that has a condition.
 
 ### Variables
 
