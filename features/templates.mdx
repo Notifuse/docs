@@ -38,6 +38,17 @@ Check the preview after copying. The visual editor refuses MJML components it do
 
 The new template has its own ID. Point your broadcasts, transactional notifications and automations at it, then delete the old one.
 
+## Saved blocks library
+
+In the visual editor, the **Library** tab beside **Structure** holds the blocks saved in the workspace, shown as previews, newest first, with a search and a filter for sections and content blocks. Below them are the basic blocks: section, wrapper, text, image, button, divider, spacer, social, raw HTML and Liquid.
+
+To add a block to the email:
+
+- **Insert**: hover a saved block and click **Insert**, or click a basic block. It goes after the selected block, or at the end of the email when nothing is selected, and becomes the selected block. The confirmation offers to undo it. When the selection can't take the block, its tooltip says what to select instead, such as a column for a text.
+- **Drag**: drag a saved or basic block onto the email. A line shows where it will land, or a dashed box for an empty column or wrapper. Over a place that doesn't take it, a label says why, such as "Goes inside a column" for a text dropped between sections. Hold the pointer near the top or bottom of the email to scroll it, and press Escape to cancel. Blocks are dragged onto the email only, not onto the structure tree.
+
+To save a block, select it and use the save button in its toolbar. The dialog suggests a name from the block's content, and can instead replace an existing saved block of the same type. Saved blocks can be used in every template of the workspace. A template that already contains a saved block keeps its own copy: replacing or deleting the saved block doesn't change it. After a new block is saved, the library opens on it.
+
 ## Usage
 
 Templates are used across Notifuse for:
