@@ -82,7 +82,7 @@ The automatic version suits most emails. When you want different wording, such a
 - **One text per language.** The text you write in the main editor is for the default language. Each translation has its own, written from its editor in the **Translations** tab; a language without its own text receives the automatic version of its own HTML, never the default language's text.
 
 <Note>
-  The starting point keeps the Liquid written inside text blocks, and an `mj-raw` tag placed at the very start or the very end of the body. Conditions and loops written directly between blocks, in MJML code or in a Liquid block of the visual editor, are not carried over, nor is an `mj-raw` tag that has a section before and after it: a condition around one section in the middle of an email, or an `{% else %}`. The editor warns when the starting point holds fewer Liquid tags than the email: check the text, and add what is missing by hand before saving.
+  The starting point keeps the Liquid written inside text blocks. Conditions and loops placed between blocks are often not carried over, depending on the layout. The editor warns when the starting point holds fewer Liquid tags than the email: check the text, and add what is missing by hand before saving.
 </Note>
 
 If a custom text cannot be rendered when the email is sent, the email goes out with the automatic version instead, and the template preview says why. Through the API, the custom text is the template's `email.text` (and `translations.<language>.email.text`); `templates.compile` takes it as `text` and says in `text_source` whether the text returned is `custom` or `auto`.
