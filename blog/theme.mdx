@@ -167,6 +167,8 @@ Themes use [Liquid](https://shopify.github.io/liquid/) templating syntax:
 {% render 'shared', widget: 'categories' %}
 ```
 
+The template name must be quoted: as in Shopify Liquid 5.11, `{% render variable %}` and `{% snippet %}` are not supported. Liquid in themes behaves as in email templates, with the same [differences from Shopify Liquid](/features/templates#differences-from-shopify-liquid).
+
 ## Theme Versioning
 
 Themes are versioned. Each save creates a new version:
