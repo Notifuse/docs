@@ -233,7 +233,7 @@ When designing templates, you have access to this data structure:
 Notifuse renders Liquid with [liquidgo](https://github.com/Notifuse/liquidgo), which follows [Shopify Liquid](https://shopify.github.io/liquid/) 5.11. A few behaviours differ on purpose, because your data comes from JSON and your emails are read by people:
 
 - **Empty text is false**: `{% if contact.first_name %}` skips a contact whose first name is empty. In Shopify Liquid, only `nil` and `false` are false.
-- **Numbers from your data are decimals**: with `order.total` set to `1999`, `{{ order.total | plus: 1 }}` shows `2000` (not `2000.0`), and `{{ order.total | divided_by: 100 }}` keeps the decimals and shows `19.99`. Add `| floor` to keep the whole part. Amounts are exact: `{{ 0.1 | plus: 0.2 }}` shows `0.3`.
+- **Numbers from your data are decimals**: with `order.total` set to `1999`, `{{ order.total | plus: 1 }}` shows `2000` (not `2000.0`), and `{{ order.total | divided_by: 100 }}` keeps the decimals and shows `19.99`. Add `| floor` to keep the whole part.
 - **A filter error shows nothing**: `{{ 1 | divided_by: 0 }}`, an invalid `base64_decode` or a filter given too many arguments show nothing, instead of `Liquid error: ...`.
 - **Lists show with brackets**: `{{ contact.custom_json_1.tags }}` shows `["vip", "early"]`. Use `{{ contact.custom_json_1.tags | join: ", " }}` to list them.
 - **`escape`** writes `"` as `&#34;`, which mail clients read like `&quot;`.
