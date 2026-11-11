@@ -56,7 +56,95 @@ Deleting a template removes it from the template list and from every template pi
 
 Because of this, a deleted template keeps its ID. Creating a new template with the same ID is refused, and the API's `templates.update` answers `404` for it. Give the new template another ID.
 
+Deleting a template does take down the [web versions](#view-in-browser) of the emails sent with it.
+
 Templates managed by an integration, such as the [Supabase](/integrations/supabase) auth emails, can't be deleted.
+
+## Plain-text version
+
+Every email Notifuse sends carries two versions of its content: the HTML, and a plain-text version, generated from it unless you write your own. Mail clients that show text only, some watches and screen readers display the text version, and spam filters treat an email with both versions better than an HTML-only one.
+
+By default, the text version is generated at every send from the final HTML, so there is nothing to write or keep up to date:
+
+- headings and paragraphs keep their line breaks, lists become `- item` or `1. item`;
+- a link becomes its label followed by its URL in brackets, such as `Shop the sale (https://example.com/sale)`; a linked image uses its `alt` text as label;
+- hidden content (the preview text of the inbox, elements styled `display:none`) and tracking pixels are left out.
+
+Its links are the links of the HTML, with the same click tracking and UTM parameters, decided for each recipient as for the HTML. A click from the text version counts like any other click. If your email provider rewrites links for its own click tracking (SendGrid, Mailgun or Postmark, when enabled on their side), it rewrites those of the text version too. An email whose HTML holds no text at all, such as a single image without `alt`, is sent as HTML only.
+
+To see it before sending, open the **Text version** mode next to **Edit** and **Preview** in the visual editor, the **Text version** tab of the MJML editor, or the **Text version** tab of the template preview. They show the text built from your test data. Through the API, [`templates.compile`](/api-reference/compile-template) returns it in the `text` field.
+
+### Write your own
+
+The automatic version suits most emails. When you want different wording, such as a shorter text or one without the layout's repeated links, choose **Custom** in the **Text version** mode (or the **Text version** tab of the MJML editor) and write the text yourself. It starts from the automatic version of the email, with its variables kept, so you edit rather than start from nothing.
+
+- **Liquid works as in the subject.** `{{ contact.first_name }}`, conditions and loops are rendered for each recipient. A literal `{{` must be wrapped in `{% raw %}…{% endraw %}`. The text is checked when you save: a Liquid syntax error, an `{% include %}` or `{% render %}` tag, or a text over 64 KB is refused with the reason.
+- **Its links are sent as written.** Links in a custom text get no click tracking and no UTM parameters. A marketing email's text should keep `{{ unsubscribe_url }}`, and a double opt-in email's text `{{ confirm_subscription_url }}`; the editor reminds you, and warns on save when the link is missing.
+- **It does not follow the email.** A custom text is not updated when you change the HTML. **Start again from the automatic version** replaces it with a fresh starting point; choosing **Automatic** removes it.
+- **One text per language.** The text you write in the main editor is for the default language. Each translation has its own, written from its editor in the **Translations** tab; a language without its own text receives the automatic version of its own HTML, never the default language's text.
+
+<Note>
+  The starting point keeps the Liquid written inside text blocks. It keeps the text of a [conditional block](#conditional-blocks) but not its condition, and conditions and loops placed between blocks are often not carried over, depending on the layout. The editor warns when the starting point holds fewer Liquid tags than the email: check the text, and add what is missing by hand before saving.
+</Note>
+
+If a custom text cannot be rendered when the email is sent, the email goes out with the automatic version instead, and the template preview says why. Through the API, the custom text is the template's `email.text` (and `translations.<language>.email.text`); `templates.compile` takes it as `text` and says in `text_source` whether the text returned is `custom` or `auto`.
+
+## Conditional blocks
+
+A block of the visual editor can be sent only to some recipients: give it a **display condition** on the email's data, such as "`order.total` is greater than 100" or "`contact.custom_string_1` equals `vip`". Recipients for whom the condition doesn't hold receive the email without the block.
+
+Select a block, then use **Add a condition** at the top of its settings. A condition is a list of rules, each made of a variable, an operator and, for most operators, a value. Choose whether **all** the rules must hold or **at least one**; a condition holds up to 20 rules.
+
+Conditions can be set on sections, wrappers, text, images, buttons, dividers, spacers, social blocks and raw HTML blocks. A condition on a section or a wrapper hides everything inside it. Columns and groups can't have one, since removing a column would break the widths of the others; put the condition on the section, or on the blocks inside the column. Nor can a block that holds a Liquid block: hiding it would remove the Liquid block too, which may hold half of a tag such as `{% if %}` whose `{% endif %}` sits elsewhere. Move the Liquid block out first; for the same reason, the editor doesn't let you put a Liquid block inside a block that has a condition.
+
+### Variables
+
+A variable is a path without braces, as you would write it inside `{{ }}`: `contact.first_name`, `order.total`, `order.items.size`. `.empty` and `.to_liquid` can't be used in a path; to test an empty list or text, use **is false or empty**. Every variable of the email's data is available: [contact fields](#contact-variables), the `data` of a [transactional API call](/features/transactional-api), [data feeds](/features/broadcast-campaigns#data-feeds). Variables assigned with Liquid inside the email (an `{% assign %}` in a Liquid or raw block) are not: a condition reads the data the email is sent with, not the content of the email.
+
+### Operators
+
+| Operator | Holds when the variable |
+| --- | --- |
+| is true | is `true`, or the text `true` |
+| is false or empty | is `false`, empty, made of spaces only, or absent |
+| is set / is not set | has a value, or has none: absent, `null`, an empty text or list, an empty object, or a text made of spaces only (`false` and `0` are set) |
+| equals / does not equal | is the text of the value, exactly: `vip` doesn't equal `VIP` |
+| contains / does not contain | for a text, contains the value; for a list, has an element equal to the value; for an object, has a field of that name; a number or a boolean contains nothing |
+| is greater than, is greater than or equal to, is less than, is less than or equal to | is a number, or a text that is one (`"150"`), compared with the value |
+
+Some details:
+
+- **Absent variables**: a rule on a variable missing from the data is false, except **is false or empty**, **is not set**, **does not equal** and **does not contain**, which hold.
+- **Numbers and booleans**: **equals** `100` also matches the number `100`, and **equals** `true` matches the boolean `true`. The comparisons (**is greater than** and the others) need a number of at most 15 digits before the decimal point as value; a variable that isn't a number makes them false.
+- **Text values** are free: any character works, apart from the Liquid delimiters `{{`, `}}`, `{%` and `%}`.
+
+### Checking a condition
+
+The condition editor shows, for each rule and for the whole condition, its result with the template's test data, and warns when a variable is missing from that data. The preview hides the blocks your test data would hide and says how many. In the layer tree and on the canvas, an icon marks the blocks that have a condition.
+
+### Translations and exports
+
+Each [translation](#translations) has its own content, so its own conditions: set them in the translation too. **Reset translation** copies the conditions of the default content along with it.
+
+**Export → MJML** writes each condition as Liquid around its block, so a code template made from the export sends the same blocks, with one difference: in the code template, the condition also sees the variables the email's own Liquid assigns, such as an `{% assign %}` in a Liquid block or the variable of a `{% for %}` loop around the block. Importing that file back into the visual editor drops the conditions: the editor warns you, and the blocks are then sent to every recipient until you add their conditions again.
+
+Through the API, a block of `visual_editor_tree` carries its condition as `display_condition`:
+
+```json
+{
+  "type": "mj-section",
+  "display_condition": {
+    "match": "all",
+    "rules": [
+      { "variable": "order.has_image", "operator": "is_true" },
+      { "variable": "order.total", "operator": "gt", "value": "100" }
+    ]
+  },
+  "children": []
+}
+```
+
+The operators are `is_true`, `is_blank`, `is_present`, `is_absent`, `eq`, `neq`, `contains`, `not_contains`, `gt`, `gte`, `lt` and `lte`, and `match` is `all` or `any`. A condition on a block that can't have one, or an invalid condition, is refused with a `400`.
 
 ## Translations
 
@@ -153,6 +241,8 @@ Use pre-generated URLs for common actions:
 
 Opening this link unsubscribes the contact from the list right away and shows the [notification center](/features/notification-center). Mail clients can also show their own Unsubscribe button, from the `List-Unsubscribe` header that Notifuse adds to every email sent to a list, except broadcasts that also go to the list's unsubscribed contacts.
 
+To check these links and the header before sending, choose a **Mailing list** when you send a test email. A test sent from a broadcast has the broadcast's list already chosen. The test then carries that list's links and, as the broadcast will, the `List-Unsubscribe` header, and they work: unsubscribing or confirming from the test, or a bounce or complaint reported on it, changes the test recipient's subscription to the list. The **Mailing list** field is not offered for transactional notifications, whose real sends carry no list links. Without a list, the test's unsubscribe links lead to no real list and it has no `List-Unsubscribe` header.
+
 #### Subscription Confirmation
 
 ```liquid
@@ -173,6 +263,43 @@ Opening this link unsubscribes the contact from the list right away and shows th
 ```
 
 The first opens the email tracking dialog of the notification center; the second asks the contact to confirm in that dialog, then refuses open and click tracking. See [Email Tracking](/features/email-tracking#template-links).
+
+#### View in Browser
+
+```liquid
+{% if view_in_browser_url != blank %}
+  <a href="{{ view_in_browser_url }}">View this email in your browser</a>
+{% endif %}
+```
+
+The link opens the web version of the email, for recipients whose mail client renders it badly. In the visual builder, select some text, open the link editor and choose the **Web version of the email** link type.
+
+- **Available in broadcasts and automations.** Transactional and double opt-in emails leave the variable empty, unless a transactional API call sets `view_in_browser_url` in its own data. Guard the link as above in a template shared with them.
+- **Only where it is used.** Only emails whose template uses the variable have a web version. There is no workspace setting.
+- **The email as it was sent.** The page is rendered from the template version and the data of that send, in the contact's language. Editing the template later does not change it.
+- **Nothing is tracked on the page.** Viewing it records no open, and its links record no click; they keep the UTM parameters of the send. With click tracking on, the click on the link in the email itself counts as a click, like any other link.
+- **Taken down with the template or the contact.** [Deleting the template](#deleting-a-template) or [deleting the contact](/features/contacts#deleting-a-contact) makes the page answer "This email is no longer available".
+
+Anyone who has the link can open the page, as with a forwarded email. It shows what the email shows, including the contact's unsubscribe and notification center links, so whoever holds it can unsubscribe that contact. Each email's web version opens at most 30 times a minute: it is not meant as a public archive link.
+
+The link signs the domain it was sent with, your workspace's [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) or the `API_ENDPOINT` address, and the page opens there and on the `API_ENDPOINT` address only. This keeps another workspace's custom domain from showing your email under its own address. What it does not cover:
+
+- The `API_ENDPOINT` address opens the web version of every workspace, since every link can fall back to it.
+- Workspaces that already shared a custom domain before 44.0 show each other's web versions on it.
+- Anyone who has the link can fetch the page and publish a copy elsewhere, as with any email they receive.
+- A custom domain is checked to point to Notifuse, not to belong to the workspace that saves it. The workspace that saves a domain first holds it; see [Custom Endpoint URL](/features/workspaces#custom-endpoint-url).
+
+After your workspace changes its custom domain, links sent with the old one keep working while the old domain still points to Notifuse, until another workspace takes it; they stop within a few minutes of that. A redirect from the old domain keeps them working only if it goes to the `API_ENDPOINT` address, not to the new custom domain.
+
+Behind a reverse proxy, forward the original `Host` header, or set `X-Forwarded-Host` to it: when that header is present, the page is judged on it alone. A proxy that replaces `Host` with its upstream address, such as `notifuse:8080`, makes every web version answer "This email is no longer available". One that replaces it with the `API_ENDPOINT` host turns the rule off: every custom domain then shows every workspace's web versions.
+
+The page runs no script and is kept apart from the console, although both are served from the same domain.
+
+In a template preview and in a test email, the link opens a page saying that the web version exists once the email is sent to a contact.
+
+<Note>
+  Web versions are served under `/v/`. On a [blog](/blog/setup) served from a custom domain, a category whose slug is `v` cannot be reached: give it another slug.
+</Note>
 
 ### Complete Example
 
@@ -208,6 +335,20 @@ When designing templates, you have access to this data structure:
   "confirm_subscription_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=confirm&email=john.doe@example.com&lid=newsletter&lname=Newsletter&wid=workspace123&mid=msg_123&email_hmac=abc123",
   "notification_center_url": "https://your_notifuse_endpoint.your_website.com/notification-center?email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
   "tracking_preferences_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking&email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
-  "tracking_optout_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking_optout&email=john.doe@example.com&email_hmac=abc123&wid=workspace123"
+  "tracking_optout_url": "https://your_notifuse_endpoint.your_website.com/notification-center?action=tracking_optout&email=john.doe@example.com&email_hmac=abc123&wid=workspace123",
+  "view_in_browser_url": "https://your_notifuse_endpoint.your_website.com/v/ODkyY2Q..."
 }
 ```
+
+### Differences from Shopify Liquid
+
+Notifuse renders Liquid with [liquidgo](https://github.com/Notifuse/liquidgo), which follows [Shopify Liquid](https://shopify.github.io/liquid/) 5.11. A few behaviours differ on purpose, because your data comes from JSON and your emails are read by people:
+
+- **Empty text is false**: `{% if contact.first_name %}` skips a contact whose first name is empty. In Shopify Liquid, only `nil` and `false` are false.
+- **Numbers from your data are decimals**: with `order.total` set to `1999`, `{{ order.total | plus: 1 }}` shows `2000` (not `2000.0`), and `{{ order.total | divided_by: 100 }}` keeps the decimals and shows `19.99`. Add `| floor` to keep the whole part.
+- **A filter error shows nothing**: `{{ 1 | divided_by: 0 }}`, an invalid `base64_decode` or a filter given too many arguments show nothing, instead of `Liquid error: ...`.
+- **Lists show with brackets**: `{{ contact.custom_json_1.tags }}` shows `["vip", "early"]`. Use `{{ contact.custom_json_1.tags | join: ", " }}` to list them.
+- **`escape`** writes `"` as `&#34;`, which mail clients read like `&quot;`.
+- **`date`** reads a date written without a time zone as UTC, and a number as a Unix timestamp.
+
+As in Shopify Liquid 5.11, `{% render %}` takes a quoted template name (`{% render 'footer' %}`) and `{% snippet %}` is not supported.
