@@ -129,6 +129,7 @@ curl -X POST \
 
 | Parameter     | Type   | Description                                                            |
 | ------------- | ------ | ---------------------------------------------------------------------- |
+| `sender_id`   | string | Send from this sender of the transactional email integration instead of the template's. An unknown ID is refused with a 400 before the contact is created or updated |
 | `from_name`   | string | Override default sender display name                                   |
 | `subject`     | string | Override template subject line (supports Liquid templating, max 255)   |
 | `reply_to`    | string | Set custom reply-to email address, in place of the template's reply-to |
