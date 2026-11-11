@@ -165,7 +165,7 @@ Language codes are two-letter ISO codes such as `en`, `fr`, `de`, `es`. The defa
 
 ### Writing a translation
 
-When creating or editing a template, the editor has a tab per stage: **Template**, in the workspace's default language, and **Translations**, listing each other supported language. Open a language to write its version: its own subject, preview text and body, with the same visual editor, MJML code mode and Liquid variables as the default. **Reset translation** copies the default-language content into the translation as a starting point, replacing whatever was there.
+When creating or editing a template, the editor has a tab per stage: **Template**, in the workspace's default language, and **Translations**, listing each other supported language. Open a language to write its version: its own subject, preview text and body, with the same visual editor, MJML code mode and Liquid variables as the default. The sender and reply-to are set once, on the template: every translation is sent from the template's sender, with its reply-to. **Reset translation** copies the default-language content into the translation as a starting point, replacing whatever was there.
 
 A language that has no translation is simply skipped at send time — you do not have to translate a template into every supported language at once.
 
