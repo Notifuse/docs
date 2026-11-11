@@ -132,7 +132,7 @@ curl -X POST \
 | `sender_id`   | string | Send from this sender of the transactional email integration instead of the template's. An unknown ID is refused with a 400 before the contact is created or updated |
 | `from_name`   | string | Override default sender display name                                   |
 | `subject`     | string | Override template subject line (supports Liquid templating, max 255)   |
-| `reply_to`    | string | Set custom reply-to email address                                      |
+| `reply_to`    | string | Set custom reply-to email address, in place of the template's reply-to |
 | `cc`          | array  | List of carbon copy recipients                                         |
 | `bcc`         | array  | List of blind carbon copy recipients                                   |
 | `attachments` | array  | File attachments (max 20 files, 3MB per file, 10MB total)              |
@@ -366,6 +366,10 @@ Dear {{ contact.first_name }} {{ contact.last_name }},
 <!-- Combining both -->
 We've sent your order #{{ order_id }} to {{ contact.email }}.
 ```
+
+### Conditional blocks
+
+Blocks of a visual template can be sent only when a condition on this data holds, for example a section shown only when `order.total` is greater than 100. See [Conditional blocks](/features/templates#conditional-blocks).
 
 ### Complete Example
 
