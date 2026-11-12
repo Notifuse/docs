@@ -23,7 +23,7 @@ The owner holds every permission and cannot be restricted. Everyone else — hum
 
 A permission is a pair of switches on one area of the workspace: **read** and **write**. Write does not imply read, and both are off unless you grant them. A section appears in the console sidebar when the member holds either switch on the matching area.
 
-Change a member's permissions from the Team page at any time. The change applies to their very next request.
+Change a member's permissions from the Team & API keys page at any time. The change applies to their very next request.
 
 ## API Key Management
 
@@ -41,7 +41,7 @@ The prefix you choose becomes the key's API email address, which is also the SMT
 
 ### Changing a Key's Scope
 
-You can widen or narrow an existing key at any time from the Team page. The change takes effect immediately, on the key's next request. **The token does not change**, so there is nothing to re-issue and no integration to update — you do not have to touch the application holding the key.
+You can widen or narrow an existing key at any time from the Team & API keys page. The change takes effect immediately, on the key's next request. **The token does not change**, so there is nothing to re-issue and no integration to update — you do not have to touch the application holding the key.
 
 ### Security
 
@@ -64,7 +64,7 @@ Two consequences worth knowing before an incident rather than during one:
 - **Narrowing a key is not revoking it.** A key stripped of every permission still authenticates and still holds whatever access is not permission-gated. Treat it as a way to contain a key, not to kill it.
 - **You cannot tell which key leaked.** Keys carry no last-used timestamp and no per-key request log, so if you suspect a token has been exposed but do not have the token itself, nothing in Notifuse identifies which of your keys it is. With several keys in play, the only sound response is to remove all of them, create replacements, and update every integration.
 
-Removing the key from the Team page is not always where you do it: deleting a [Zapier](/integrations/zapier) connection from **Settings** → **Integrations** removes the key it minted, and deleting a workspace removes them all. Removing a Zapier connection's key from Team works too and revokes it just the same, but leaves the connection's card behind pointing at a key that no longer exists.
+Removing the key from the Team & API keys page is not always where you do it: deleting a [Zapier](/integrations/zapier) connection from **Settings** → **Integrations** removes the key it minted, and deleting a workspace removes them all. Removing a Zapier connection's key from Team & API keys works too and revokes it just the same, but leaves the connection's card behind pointing at a key that no longer exists.
 
 For that reason, keep the number of keys small, give each one a prefix that names the system holding it, and prefer narrow keys — so that a leak costs you one integration rather than the workspace.
 

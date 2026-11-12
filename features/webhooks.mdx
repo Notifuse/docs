@@ -544,7 +544,9 @@ Always verify webhook signatures in production to ensure requests are from Notif
 
 ### Monitor Delivery Failures
 
-Use the Notifuse console or API to monitor webhook delivery status. Add `status` (`pending`, `delivering`, `delivered` or `failed`) to list only the deliveries in that status:
+In the console, **Settings → Webhooks** shows each subscription's success rate over the last 7 days and its last successful delivery. Open a subscription to see its deliveries over the last 24 hours or 7 days, and **View deliveries** to list them in the logs.
+
+Through the API, add `status` (`pending`, `delivering`, `delivered` or `failed`) to list only the deliveries in that status:
 
 ```bash
 curl "https://your-instance.com/api/webhookSubscriptions.deliveries?workspace_id=ws_123&subscription_id=whsub_456&status=failed" \
