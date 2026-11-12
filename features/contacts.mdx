@@ -36,7 +36,19 @@ Contacts in Notifuse are comprehensive customer profiles that store subscriber i
 | `tracking_opens_consent`, `tracking_clicks_consent` | String | `granted`, `denied` or `null` (unknown): the contact's choice about [open and click tracking](/features/email-tracking) |
 | `tracking_consent_updated_at`, `tracking_consent_source` | DateTime, String | When and where that choice last changed |
 
-<img src="/assets/screenshots/contact_profile.png" alt="Profile of a contact" />
+## The Contact Sheet
+
+Clicking a contact in the table opens its sheet over the page. The sheet has its own address (the page's URL with `?contact=` and the email), so you can share it or come back to it. When you opened it from the table, the browser's Back button closes it.
+
+<img src="/assets/screenshots/contact_profile.png" alt="The sheet of a contact" />
+
+- **Move through the table** with the arrows at the top, or with **J** (next) and **K** (previous). The sheet walks the rows of the view you opened it from, in their order, and loads the next rows when you reach the last one.
+- **Edit a field** by clicking its value. Empty fields are folded under a link at the bottom of each panel.
+- **Key figures**: emails received, open and click rates, the last activity and, with web analytics on, site visits.
+- **Activity**: the contact's timeline, filtered by kind (emails, lists and segments, profile changes, events, web visits).
+- **Messages**: the emails sent to the contact.
+- **Web visits**: the contact's visits to your website, when [web analytics](/web-analytics/identifying-visitors#on-the-contact-sheet) is on.
+- **Lists and segments**: the contact's subscriptions, which you can change, and the segments they belong to.
 
 ## Contact Management
 
@@ -203,6 +215,8 @@ Contact data answers to the **Contacts** permission:
 - **Write** covers creating and updating contacts, **deleting** them, **bulk-overwriting** them through a CSV or API import, and recording custom events. Changing a contact's subscription status on a list needs Lists write as well.
 
 Write is not "can add contacts": it deletes permanently, and it overwrites in bulk.
+
+On the contact sheet, each part needs its own grant: **Messages** needs Message history read, **Web visits** needs Web analytics read (with web analytics on), and the lists and segments panels need Lists read and Segments read. Without Contacts write, its fields cannot be edited.
 
 Three grants reach contact data without Contacts write, which is worth knowing before you hand any of them out:
 
