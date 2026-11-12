@@ -12,7 +12,19 @@ Example:
 - Product Updates
 ```
 
-<img src="/assets/screenshots/lists.png" alt="Mailing lists screenshot" />
+<img src="/assets/screenshots/lists.png" alt="A list opened on the Contacts page" />
+
+## Lists in the Console
+
+Lists live on the **Contacts** page, in its left rail under **Lists**; there is no separate Lists page. The **+** beside **Lists** creates one.
+
+Selecting a list shows:
+
+- **Its subscriber counts by status**: click one to show only those contacts. Unsubscribed, bounced and complained counts also show their share of the list.
+- **Its settings**: visibility, double opt-in and its confirmation template, and the list ID. **Edit list** opens the form.
+- **Its members**, with each one's status in the list and since when.
+
+**Import to list** imports a CSV straight into the list, and the **…** menu deletes it.
 
 ## Contact Statuses
 
@@ -96,6 +108,8 @@ Public subscribe endpoints always return HTTP 200 regardless of the contact's in
 ## Permissions
 
 Lists answer to the **Lists** permission: **read** shows lists, their settings and their subscriber counts, and **write** creates, edits and deletes them and manages subscriptions. Listing the actual member addresses of a list needs **Contacts** read as well, and changing or removing an existing subscription needs **Contacts** write as well.
+
+In the console, a member with Lists read but not Contacts read still reaches the **Contacts** page: the rail shows the lists and their counts, but no contacts.
 
 <Warning>
   **Lists write is an implicit Contacts write.** Subscribing an address through `/api/lists.subscribe`
