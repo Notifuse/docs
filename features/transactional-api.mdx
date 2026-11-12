@@ -3,7 +3,7 @@ title: Transactional API
 description: 'The Transactional API enables you to send event-driven emails directly from your application. Unlike broadcast campaigns, transactional emails are sent individually to specific contacts in real-time with automatic contact management, making them perfect for user-triggered notifications and automated workflows.'
 ---
 
-<img src="/assets/screenshots/transactional_api.png" alt="Transactional templates screenshot" />
+<img src="/assets/screenshots/transactional_api.png" alt="Transactional notifications list in the console" />
 
 ## Common Use Cases
 
@@ -64,6 +64,18 @@ Opens and clicks follow the workspace settings and the contact's [tracking conse
 
 - **No open or click tracking, keep UTM parameters** (`tracking_mode: "no_tracking"`)
 - **Disabled for this notification** (`tracking_mode: "disabled"`): links are never rewritten, without tracking or UTM parameters, for links that must stay as they are, such as sign-in links
+
+## Monitoring in the console
+
+The **Transactional** page lists your notifications with their statistics over the last 7, 30 or 60 days, today included:
+
+- **Totals**: emails sent, delivery rate with its change since the previous period, open and click rates on tracked emails, failures and bounces.
+- **One row per notification**: its template, emails sent, delivery, open and click rates, failures, bounce rate, and when it last sent successfully. A delivery rate under 97% and a bounce rate from 2% are highlighted. Search by name or ID.
+- **Row actions**: send a test, show the API command, and from the menu edit, preview the template, copy the ID, open its messages in the [logs](/features/logs) or delete it.
+
+Click a row to open the notification's detail view, which keeps its own link to share. It shows the same statistics for that notification, linked to the matching messages in the logs, the sends per day, the latest sends (refreshed every 30 seconds), a preview of its template, its tracking and UTM settings, the sender a send uses by default, and the API call in cURL, TypeScript and Python. Move to the previous or next notification with **K** and **J**.
+
+With an SMTP provider, delivery and bounce rates are not available, since SMTP sends no delivery events. The statistics need the Message history read permission.
 
 ## API Endpoint
 
