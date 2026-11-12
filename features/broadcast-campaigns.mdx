@@ -5,6 +5,8 @@ description: 'Broadcast campaigns in Notifuse are mass email marketing initiativ
 
 <img src="/assets/screenshots/broadcast.png" alt="Broadcasts screenshot" />
 
+The **Broadcasts** page lists your campaigns with their results over the last 30 days: emails sent, open and click rates, unsubscribes and bounces. Tabs filter by status (Drafts, Scheduled, Sending, Sent, and Failed when a broadcast has failed recipients), with the number of broadcasts in each, and the search finds a broadcast by name. Each row shows the audience, when it was sent or is scheduled, its recipients (an estimate before it is sent), its opens, clicks, unsubscribes and bounces, and the website visits it brought when you have [web analytics](/web-analytics/setup). A draft opens in the editor; any other broadcast opens its results. In an open broadcast, <kbd>J</kbd> and <kbd>K</kbd> move to the next and previous one.
+
 ## Audience Targeting
 
 Broadcast campaigns offer flexible audience targeting through a contact list combined with optional dynamic segments, allowing you to reach the right people with precision.
@@ -46,7 +48,7 @@ Apply dynamic segment filters to further refine your broadcast audience based on
 
 A broadcast always sends through the workspace's marketing email integration. By default each email leaves from its template's sender, or from the integration's default sender when the template has none.
 
-To send a campaign from another address without editing the template, choose a **Sender** next to the template in the broadcast's content step. Only the senders of the marketing email integration are offered; clearing the field goes back to the template's sender. Over the API, set `sender_id` on the variation in `test_settings.variations`.
+To send a campaign from another address without editing the template, choose a **Sender** next to the template in the **Content** card of the broadcast editor. Only the senders of the marketing email integration are offered; clearing the field goes back to the template's sender. Over the API, set `sender_id` on the variation in `test_settings.variations`.
 
 The broadcast never falls back to another address:
 
@@ -100,8 +102,6 @@ Rates are counted over the recipients whose opens or clicks were tracked, which 
 3. Configure automatic winner selection based on open rate after 4 hours
 4. System automatically sends winning variation to remaining 80%
 
-<img src="/assets/screenshots/edit_broadcast.png" alt="Edit Broadcast screenshot" />
-
 ## UTM Tracking
 
 ### Automatic UTM Parameters
@@ -129,9 +129,8 @@ Check **Don't track opens and clicks for this broadcast** to send it with no tra
 
 ### Per-Link Statistics
 
-In the broadcast results, each variation's row expands, and is already open when there is only one, to list each
-clicked link with its unique clicks, total clicks and click rate. **See who clicked**, on each row, opens the [message log](/features/logs#filtering-options) on the emails of that
-variation where the link was clicked. To act on those clicks, for instance to add the contacts to a list, use the
+The **Clicked links** panel of a broadcast's results lists each clicked link with its unique clicks, click rate and total clicks, for all variations or for one. **See who clicked**, on each row, opens the [message log](/features/logs#filtering-options) on the emails
+where the link was clicked. To act on those clicks, for instance to add the contacts to a list, use the
 [Clicked a link](/features/automations#link-click-triggers) automation trigger.
 
 ### Analytics Integration
@@ -338,20 +337,23 @@ Two things about that are easy to get wrong:
 
 See [Admins & API Keys](/features/admins-api-keys).
 
-## Scheduling Options
+## Writing a Broadcast
 
-### Manual Sending
+**New broadcast** opens the editor: one screen with the audience, the content, when to send, web tracking and the advanced settings, beside a live preview and a summary.
 
-- **Immediate Delivery**: Send your campaign right away
-- **Review Before Send**: Final review and approval before deployment
-- **Real-time Monitoring**: Track delivery and engagement as it happens
+<img src="/assets/screenshots/edit_broadcast.png" alt="Broadcast editor screenshot" />
 
-### Scheduled Sending
+- **Saved as you type**: the broadcast is created as a draft once it has a name and a list, then every change is saved a second after you stop typing. The bar at the top says when it was last saved, or what is missing. Closing with changes not yet saved asks first.
+- **Audience**: choose a list and, optionally, segments. The number of recipients is estimated as you go, from the list's active contacts and the segments you add.
+- **Content**: choose a template for each variant. The subject, preview text and reply-to come from the template; the pencil opens it to edit them. Turn **A/B test** on to add variants and set the test sample, the winner metric and the test duration.
+- **Preview**: the email as it will look on desktop or on a phone, for each variant.
+- **Summary**: every check before sending, such as a missing list or template, a sender that no longer exists, a template without an unsubscribe link, or no marketing email provider. **Send now** stays disabled until the errors are fixed.
+- **Send test** sends the chosen template to the addresses you give.
 
-- **Date & Time Selection**: Choose specific delivery date and time
-- **Timezone Awareness**: Respects your workspace timezone settings
-- **Advance Planning**: Schedule campaigns days or weeks in advance
-- **Modification Window**: Edit or cancel scheduled campaigns before send time
+### Sending Now or Later
+
+- **Now**: **Send now** asks you to confirm with the number of recipients, then the broadcast starts sending and its results open.
+- **Schedule**: choose a date, a time and a timezone (the workspace's by default), then **Schedule**. A scheduled broadcast can still be edited until it starts: change it, then **Save changes**. Cancel it from its results.
 
 ### Scheduling Best Practices
 
@@ -359,16 +361,19 @@ See [Admins & API Keys](/features/admins-api-keys).
 - **Time Zone Considerations**: Consider your audience's geographic distribution
 - **Avoid Peak Times**: Prevent delivery during holidays or industry-specific busy periods
 
-## Campaign Workflow
+## Results
 
-1. **Create Campaign**: Set name, description, and goals
-2. **Select Audience**: Choose a target contact list and apply optional segment filters
-3. **Choose Template**: Select and customize your email template
-4. **Configure A/B Testing**: Set up variations and winner selection criteria (optional)
-5. **Configure Data Feeds**: Set up global or per-recipient data feeds (optional)
-6. **Review Settings**: Confirm audience size, UTM parameters, and schedule
-7. **Send or Schedule**: Deploy immediately or schedule for later delivery
-8. **Monitor Results**: Track delivery, opens, clicks, and conversions
+<img src="/assets/screenshots/broadcast_detail.png" alt="Broadcast results screenshot" />
+
+A sent broadcast opens on its results:
+
+- **Funnel**: sent, delivered, opened and clicked, with bounces, complaints, unsubscribes and failures beside them.
+- **Opens and clicks over time**: first opens and first clicks over 48 hours, 7 days or 30 days from the start of sending, with the moments the A/B test and the winner were sent.
+- **A/B test**: each variant with its template, subject, sender and results, the winner once chosen, and **Pick as winner** while the test waits for you.
+- **Clicked links**: see [Per-Link Statistics](#per-link-statistics).
+- **Beside them**: the preview, the audience, the UTM parameters, the sending task and the broadcast's history (created, started, test and winner sent, completed, paused).
+
+The header gives the status and the actions it allows: edit a draft or scheduled broadcast, send a test, pause, resume, change sender, retry failed recipients or cancel, and, with web analytics, open the broadcast's website traffic. The "…" menu refreshes the statistics, opens the sending logs and the website conversions, and deletes the broadcast.
 
 ## Sending Speed
 
@@ -418,7 +423,7 @@ When the circuit breaker triggers:
 
 A recipient whose delivery attempts were all refused is held for **7 days**, so you can send to them again once the cause is fixed.
 
-- **Where**: A broadcast that finished with failures reads "Completed — N failed" rather than "Complete". The Retry button sits beside it.
+- **Where**: A broadcast that finished with failures shows "N failed" instead of "Sent". **Retry failed** is in its header, and in the "…" menu of its row in the list.
 - **When**: Only once the broadcast has finished sending. A broadcast still working through its queue, or one that is paused, has to finish or be resumed first.
 - **What happens**: The same email is sent again to those recipients. Fix whatever the provider objected to before retrying, or it will fail a second time.
 - **Over the API**: `POST /api/broadcasts.retryFailed` with `workspace_id` and `id`, which answers with how many recipients were requeued.
