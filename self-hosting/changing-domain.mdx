@@ -28,7 +28,7 @@ Notifuse knows its public address through `API_ENDPOINT`, set as an environment 
 | --- | --- | --- |
 | Links in emails already sent: click tracking, open tracking, unsubscribe, `List-Unsubscribe`, notification center, web version | Keep pointing at the old domain | Keep the old domain routed to Notifuse. Workspaces with a [Custom Endpoint URL](/features/workspaces#custom-endpoint-url) use that domain instead and are not affected. When a workspace changes its own custom domain, redirect the old one to `API_ENDPOINT` rather than to the new custom domain: a web version opens only on the domain it was sent with and on `API_ENDPOINT`. |
 | Pending workspace invitations | Link to the old domain | Keep the old domain routed, or resend the invitations: a resent invitation uses the new address. |
-| Email provider webhooks | Registered once, with the address of the time | For each integration, open **Settings → Integrations** and click **Re-register**. See [Email provider webhooks](#email-provider-webhooks). |
+| Email provider webhooks | Registered once, with the address of the time | For each integration, open **Settings → Integrations** and choose **Re-register webhooks** in its **⋯** menu. See [Email provider webhooks](#email-provider-webhooks). |
 | `WEBHOOK_ENDPOINT` | Overrides `API_ENDPOINT` for webhooks when set | Change it too, then re-register. |
 | Single sign-on | The redirect URI is derived from `API_ENDPOINT` unless `OIDC_REDIRECT_URI` is set | Add `https://<new-domain>/api/user.oidc.callback` at your identity provider, and update `OIDC_REDIRECT_URI` if you set it. See [Single Sign-On](/self-hosting/sso). |
 | URLs copied into other tools: Supabase auth hooks, the Zapier connection, applications calling the API | Still call the old domain | Update them with the new address. |
@@ -38,12 +38,12 @@ Notifuse knows its public address through `API_ENDPOINT`, set as an environment 
 
 ### Email provider webhooks
 
-Notifuse registers its webhook with your email provider when you create the integration, using the address at that time, and never updates it on its own. **Re-register** sends the new address:
+Notifuse registers its webhook with your email provider when you create the integration, using the address at that time, and never updates it on its own. **Re-register webhooks** sends the new address:
 
 - **Mailgun** and **SendGrid** replace the old address.
 - **Postmark**, **SparkPost**, **Mailjet** and **Amazon SES** add the new address next to the old one. Delete the old webhook in the provider's dashboard, or for Amazon SES the old SNS subscription, so events are not delivered twice.
 
-An integration can show as registered while its webhook still points at the old domain. Hover over an endpoint in **Settings → Integrations** to see the address it uses.
+An integration can show as registered while its webhook still points at the old domain. Hover over the webhooks status of an integration in **Settings → Integrations** to see the address each endpoint uses.
 
 Amazon SES confirms the new SNS subscription automatically, which only succeeds once AWS can reach Notifuse on the new domain.
 
