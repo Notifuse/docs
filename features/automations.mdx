@@ -3,7 +3,7 @@ title: Automations
 description: 'Create automated workflows that trigger based on contact behavior and events'
 ---
 
-<img src="/assets/screenshots/automation.png" alt="Automation workflow editor" />
+<img src="/assets/screenshots/automation_list.png" alt="The automations list" />
 
 Marketing automations let you create event-driven workflows that automatically engage contacts based on their behavior and lifecycle events. Instead of manually sending emails, automations trigger actions when specific events occur—like a contact subscribing to a list, opening an email, or completing a custom event.
 
@@ -28,6 +28,12 @@ Automations have three states that control their behavior:
 3. **Activate** to go live and start enrolling contacts
 4. **Pause** when needed—active contacts continue their journey
 5. **Delete** performs soft-delete with recovery capability
+
+### The automations list
+
+The **Automations** page lists every automation with its status, its trigger, its steps and its list. Tabs keep the live, paused or draft ones, and the search finds an automation by its name or by its trigger (a list, a segment, a custom event name, a clicked link). Each row gives the journeys since the automation was created: in progress, entered, the share of finished journeys that completed and that exited, and the number that failed. The open rate is that of its emails over the last 30 days, and needs the **Message history** read permission.
+
+Activate or pause an automation from its row; edit or delete it while it is not live. A click on a row opens the automation in its editor, with its results when it has run.
 
 ## Triggers
 
@@ -172,7 +178,7 @@ each other's conditions.
 
 Nodes are the building blocks of automation workflows. They're divided into action nodes (linear flow) and branching nodes (multi-path).
 
-Every node also takes an optional **description**—a short note of your own, set at the top of the node's configuration panel. It appears under the node's title on the canvas and in Flow Stats, so a sequence of Email and Delay nodes explains its intent without opening each one. It has no effect on execution.
+Every node also takes an optional **description**—a short note of your own, set at the top of the node's configuration panel. It appears as the node's title on the canvas and in its panel, so a sequence of Email and Delay nodes explains its intent without opening each one. It has no effect on execution.
 
 ### Action Nodes
 
@@ -259,14 +265,24 @@ The receiver has to be reachable from the public internet. Notifuse refuses to c
 
 ## Visual Flow Editor
 
-The visual flow editor provides a drag-and-drop canvas for building automation workflows.
+<img src="/assets/screenshots/automation.png" alt="The automation editor, with an email step's panel open" />
+
+The editor opens full screen over the list, and has its own link: share it to open the same automation. The left column holds the automation's settings (its list, its frequency and [Exit on Reply](#exit-on-reply)) and the steps you can add, grouped as **Actions** and **Logic**. The canvas shows the flow, with zoom controls, a minimap and **Reorganize layout**.
 
 ### Building Workflows
 
 1. **Start with Trigger**: Every automation begins with a trigger node
-2. **Add Nodes**: Use the node palette or floating "+" buttons on unconnected outputs
-3. **Connect Nodes**: Drag connections between nodes
-4. **Configure**: Click a node to open its configuration panel
+2. **Add Nodes**: Drag a step from the left column onto the canvas, or use the "+" under an unconnected output
+3. **Connect Nodes**: Drag connections between nodes; each path of a filter, an A/B test or a list status is labelled on its edge
+4. **Configure**: Click a node to open its panel: its description, its settings, the email's preview for an email step, and **Delete step**
+
+An Email step needs the automation's list first: choose it in the left column.
+
+### Saving
+
+**Create** saves a new automation, then **Save** saves your changes (⌘S or Ctrl+S); undo and redo are ⌘Z and ⇧⌘Z. The bar shows **Unsaved changes** until you save, and **Activate** waits for them to be saved. Closing the editor or leaving the page with unsaved changes asks first.
+
+A live automation opens read-only: pause it to edit it. If someone else changed the automation while you were editing it, saving is refused and the editor offers to reload it.
 
 ## Exit on Reply
 
@@ -366,24 +382,39 @@ Track automation performance with built-in statistics.
 
 ### Automation-Level Stats
 
+The [automations list](#the-automations-list) gives each automation's journeys since it was created:
+
 | Stat | Description |
 |------|-------------|
-| **Enrolled** | Total contacts that entered the automation |
-| **Completed** | Successfully finished all nodes |
-| **Exited** | Left early (filter, unsubscribe, etc.) |
-| **Failed** | Errors after max retries |
+| **In progress** | Contacts on their journey now |
+| **Entered** | Every journey that started, whatever its status |
+| **Completed** | Share of finished journeys that reached the end |
+| **Exited** | Share of finished journeys that left early (a filter, a reply, an unsubscribe) |
+| **Failed** | Journeys that failed after their retries |
+| **Open rate** | Opens over the emails with tracked opens, over the last 30 days |
+
+A draft that no contact entered shows "—". The API gives the same counts with `automations.list` and `with_journey_counts=true`.
 
 ### Node-Level Stats
 
-Each node tracks:
-- **Entered**: Contacts that reached this node
-- **Completed**: Successfully processed
-- **Failed**: Encountered errors
-- **Skipped**: Bypassed (e.g., wrong branch)
+<img src="/assets/screenshots/automation_stats.png" alt="An automation with its stats on each step" />
+
+Switch the editor to **With stats** to read each step's results, over the **Last 30 days** (today included, in the workspace's timezone) or **All time**. Each card shows its key figure (entered, sent with opens and clicks, waiting, checked, added or removed, calls), with the journeys that failed, are retrying or still in progress on it, and the emails skipped. Each path of a split shows the share of the step's passes that took it.
+
+A step's panel gives the detail:
+- **Reached**: Journeys that reached the step
+- **Completed**: Executions that finished
+- **In progress**, **Waiting** and **Retrying**: Journeys on the step now, whatever the period
+- **Failed**: Journeys that failed on the step
+- **Errors**: Executions that recorded an error, such as a list step whose list was deleted
+
+An email step adds its emails: sent, delivered, opened and clicked, then the ones that failed, bounced or unsubscribed, the queued ones and the ones not sent, with **View messages** to open them in the message log. SMTP reports no delivery, so that row reads "—". The email figures need the **Message history** read permission.
+
+A step added since the last save has nothing to count until you save. The API gives the same figures with `automations.nodeStats`.
 
 ## Permissions
 
-Automations answer to the **Automations** permission: **read** opens automations and their complete node graphs, plus one named contact's journey; **write** creates, edits and deletes them, and activates or pauses them.
+Automations answer to the **Automations** permission: **read** opens automations and their complete node graphs, each step's statistics (`automations.nodeStats`), plus one named contact's journey; **write** creates, edits and deletes them, and activates or pauses them. Without write, the editor opens read-only. The email figures of the statistics and the open rate also need **Message history** read, and the email preview needs **Templates** read.
 
 <Warning>
   **Automations write reaches past its own area.** A webhook node posts the complete contact record
