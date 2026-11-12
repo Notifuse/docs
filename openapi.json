@@ -974,7 +974,7 @@
     "/api/contacts.list": {
       "get": {
         "summary": "List contacts with filtering and pagination",
-        "description": "Retrieves a paginated list of contacts with optional filtering. All contact fields are always returned.\n\n**Filtering**: Use filters to search for contacts. Text filters (email, external_id, first_name, last_name, full_name, phone, country, language) use case-insensitive partial matching (ILIKE).\n\n**List filtering**: Use `list_id` and/or `contact_list_status` to filter contacts by list membership.\n\n**Segment filtering**: Use `segments[]` to filter contacts that belong to specific segments.\n\n**Contact lists**: By default, `contact_lists` is not included in the response. Set `with_contact_lists=true` to include the contact's list subscriptions.\n\n**Pagination**: Uses cursor-based pagination. Use the `next_cursor` from the response to fetch the next page.\n",
+        "description": "Retrieves a paginated list of contacts with optional filtering. All contact fields are always returned.\n\n**Filtering**: Use `search` to match email, names and external ID at once, or filters on single fields. Text filters (email, external_id, first_name, last_name, full_name, phone, country, language) use case-insensitive partial matching (ILIKE).\n\n**List filtering**: Use `list_id` and/or `contact_list_status` to filter contacts by list membership.\n\n**Segment filtering**: Use `segments[]` to filter contacts that belong to specific segments.\n\n**Contact lists**: By default, `contact_lists` is not included in the response. Set `with_contact_lists=true` to include the contact's list subscriptions.\n\n**Pagination**: Uses cursor-based pagination. Use the `next_cursor` from the response to fetch the next page.\n",
         "operationId": "listContacts",
         "security": [
           {
@@ -991,6 +991,17 @@
             },
             "description": "The ID of the workspace",
             "example": "ws_1234567890"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Search across email, first name, last name, full name and external ID (case-insensitive partial match).\nLeading and trailing spaces are ignored; `%` and `_` are matched literally. At most 100 characters.\n",
+            "example": "john"
           },
           {
             "name": "email",
@@ -1098,6 +1109,36 @@
             },
             "description": "Filter by subscription status within the list",
             "example": "active"
+          },
+          {
+            "name": "tracking_opens_consent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "denied",
+                "unknown"
+              ]
+            },
+            "description": "Filter by the contact's open tracking choice; `unknown` matches contacts with none recorded",
+            "example": "denied"
+          },
+          {
+            "name": "tracking_clicks_consent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "denied",
+                "unknown"
+              ]
+            },
+            "description": "Filter by the contact's click tracking choice; `unknown` matches contacts with none recorded",
+            "example": "unknown"
           },
           {
             "name": "segments[]",
@@ -1863,10 +1904,301 @@
         }
       }
     },
+    "/api/automations.list": {
+      "get": {
+        "summary": "List automations",
+        "description": "Returns the workspace's automations, not the deleted ones, with the total matching the filters.\n\nWith `with_journey_counts=true`, the response also gives, for each automation returned, its journeys by status: `active`, `completed`, `exited`, `failed`, and `total`, which also counts any other status. An automation without any journey has zeros.\n\nRequires the automations read permission.\n",
+        "operationId": "listAutomations",
+        "tags": [
+          "Automations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace",
+            "example": "ws_1234567890"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "live",
+                  "paused"
+                ]
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "description": "Keep the automations in these statuses. Repeat the parameter for several.",
+            "example": [
+              "live"
+            ]
+          },
+          {
+            "name": "list_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Keep the automations of this list."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Maximum number of automations to return. Without it, all are returned.",
+            "example": 50
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Number of automations to skip.",
+            "example": 0
+          },
+          {
+            "name": "with_journey_counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Return journey_counts, the journeys of each returned automation by status. A value that is not a boolean is refused with 400.",
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The automations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAutomationsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "invalid with_journey_counts parameter: must be true or false"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - missing required permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to automations required"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/automations.nodeStats": {
+      "get": {
+        "summary": "Get the statistics of each step of an automation",
+        "description": "Returns, for every step of the automation's current graph, what its journeys did there: visits (distinct journeys that reached the step), completed and errored executions, failed attempts, skipped emails and their reasons, the path each split took, and the journeys that failed on the step. A step never visited is returned with zeros; a step that no longer exists in the graph is left out.\n\n`since` and `until` bound the time the executions entered their step, and the time failed journeys entered the automation; both are given, or neither for all time. `waiting`, `retrying` and `in_progress` describe the active journeys now, whatever the period.\n\nFor email steps, the `email` object counts the messages the step sent, from the message history: queued (still in the sending queue), not sent (neither sent nor queued, such as a cancelled send), sent, delivered, opened, clicked, failed, bounced, complained and unsubscribed, with the sent emails whose opens and clicks are tracked. It is present, with zeros if nothing was sent, on every email step when the caller may read the message history, and absent otherwise.\n\nRequires the automations read permission.\n",
+        "operationId": "getAutomationNodeStats",
+        "tags": [
+          "Automations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace",
+            "example": "ws_1234567890"
+          },
+          {
+            "name": "automation_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the automation",
+            "example": "welcome-series"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Start of the period, RFC 3339. Requires until.",
+            "example": "2026-10-12T00:00:00+02:00"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "End of the period, RFC 3339, not before since. Requires since.",
+            "example": "2026-11-10T23:59:59+01:00"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The statistics of each step, keyed by node ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NodeStatsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingAutomationId": {
+                    "value": {
+                      "error": "automation_id is required"
+                    }
+                  },
+                  "halfPeriod": {
+                    "value": {
+                      "error": "since and until must be given together"
+                    }
+                  },
+                  "reversedPeriod": {
+                    "value": {
+                      "error": "since must not be after until"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - missing required permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to automations required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The automation does not exist in the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Automation not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/broadcasts.list": {
       "get": {
         "summary": "List broadcasts",
-        "description": "Retrieves a list of broadcasts with pagination and optional filtering by status. Supports fetching template details for each variation.",
+        "description": "Retrieves a list of broadcasts with pagination and optional filtering by status, name and start date. Supports fetching template details for each variation, and the number of broadcasts in each status. Requires the broadcasts read permission.",
         "operationId": "listBroadcasts",
         "security": [
           {
@@ -1889,21 +2221,42 @@
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string",
-              "enum": [
-                "draft",
-                "scheduled",
-                "sending",
-                "paused",
-                "sent",
-                "cancelled",
-                "failed",
-                "testing",
-                "test_completed",
-                "winner_selected"
-              ]
+              "type": "string"
             },
-            "description": "Filter broadcasts by status"
+            "description": "Filter broadcasts by status: one status, or several separated by commas. Each one is draft, scheduled, processing, paused, processed, cancelled, failed, testing, test_completed or winner_selected; any other value is refused with 400.",
+            "example": "processing,paused"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Keep the broadcasts whose name contains this text, ignoring case. Leading and trailing spaces are ignored.",
+            "example": "autumn"
+          },
+          {
+            "name": "started_after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Keep the broadcasts that started sending at or after this RFC 3339 date-time. A broadcast that never started is left out. Applies to the rows, total_count and status_counts. An unreadable value is refused with 400.",
+            "example": "2026-10-13T00:00:00Z"
+          },
+          {
+            "name": "with_status_counts",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Return status_counts, the number of broadcasts in each status. The counts follow search and started_after but not status, so each status tab has its own number. A value that is not a boolean is refused with 400.",
+            "example": true
           },
           {
             "name": "limit",
@@ -1973,6 +2326,19 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden - missing required permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to broadcasts required"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal server error",
             "content": {
@@ -1982,6 +2348,99 @@
                 },
                 "example": {
                   "error": "Failed to list broadcasts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/broadcasts.estimateAudience": {
+      "post": {
+        "summary": "Estimate a broadcast audience",
+        "description": "Counts the recipients a broadcast with this audience would be sent to, with the count the send itself uses: the list's members, without the bounced and complained ones, the unsubscribed ones unless exclude_unsubscribed is false, and on a double opt-in list the ones who never confirmed; narrowed to the contacts in at least one of the segments when some are given. An unknown list or segment counts 0. Read only. Requires the broadcasts and lists read permissions, and the segments read permission when the audience names segments.",
+        "operationId": "estimateBroadcastAudience",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstimateAudienceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Number of recipients",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EstimateAudienceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid body or validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "audience.list is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - missing required permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to lists required"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed - only POST is accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Failed to estimate audience"
                 }
               }
             }
@@ -3302,6 +3761,103 @@
         }
       }
     },
+    "/api/templates.usage": {
+      "get": {
+        "summary": "Get template usage",
+        "description": "Counts the broadcasts, transactional notifications, automations and double opt-in lists that use each template. Broadcasts count while they may still send (draft, scheduled, processing, paused, testing, test_completed or winner_selected); deleted notifications, automations and lists do not count; an automation counts once, through its email nodes or its trigger. Templates referenced in segment or trigger conditions, and blog web templates, are not counted. With `template_id`, only that template is counted and `references` lists the objects using it, at most 50 per type, ordered by name; the counts stay exact beyond. Requires the templates read permission; a type the member cannot read (broadcasts, transactional, automations or lists read) is left out of the counts and references and listed in `hidden_types`.",
+        "operationId": "getTemplateUsage",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace",
+            "example": "ws_1234567890"
+          },
+          {
+            "name": "template_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Count this template only, and list what uses it.",
+            "example": "black-friday"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The usage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateUsageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "invalid get template usage request: workspace_id is required"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - missing the templates read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to templates required",
+                  "resource": "templates",
+                  "permission": "read"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Failed to get template usage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/templates.get": {
       "get": {
         "summary": "Get a template",
@@ -4236,7 +4792,7 @@
     "/api/blogPosts.list": {
       "get": {
         "summary": "List blog posts",
-        "description": "Returns posts page by page, drafts included unless filtered out. Posts come newest-created first; with `status=published`, most recently published first. Page through with `page` and `limit` until you have `total_count` posts. Requires the blog read permission.",
+        "description": "Returns posts page by page, drafts included unless filtered out. Posts come newest-created first; with `status=published`, most recently published first; with `status=scheduled`, soonest to publish first. Page through with `page` and `limit` until you have `total_count` posts. Requires the blog read permission.",
         "operationId": "listBlogPosts",
         "tags": [
           "Blog"
@@ -4276,12 +4832,24 @@
               "enum": [
                 "all",
                 "draft",
-                "published"
+                "published",
+                "scheduled"
               ],
               "default": "all"
             },
-            "description": "`draft` is posts never published or since unpublished; `published` is every post with a publication date, including one dated in the future.",
+            "description": "`draft` is posts never published or since unpublished; `published` is every post with a publication date, including one dated in the future; `scheduled` is only posts whose publication date is still to come.",
             "example": "published"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "Only posts whose title contains this text, case-insensitively. Leading and trailing spaces are ignored; `total_count` counts the matching posts.",
+            "example": "release notes"
           },
           {
             "name": "page",
@@ -4336,6 +4904,16 @@
                     "value": {
                       "error": "page must be a valid integer"
                     }
+                  },
+                  "invalidStatus": {
+                    "value": {
+                      "error": "validation error: invalid status: archived"
+                    }
+                  },
+                  "searchTooLong": {
+                    "value": {
+                      "error": "validation error: search must be at most 200 characters"
+                    }
                   }
                 }
               }
@@ -4367,7 +4945,7 @@
             }
           },
           "500": {
-            "description": "Internal server error. Also returned for a `status` outside the enum.",
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
@@ -4375,6 +4953,113 @@
                 },
                 "example": {
                   "error": "Failed to list posts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/blogPosts.counts": {
+      "get": {
+        "summary": "Count blog posts",
+        "description": "Counts the posts that are not deleted: in total, published (a post dated in the future included), scheduled (dated in the future) and draft. With `category_id`, these four follow that category, while `all_total` and `by_category` still cover every post. Requires the blog read permission.",
+        "operationId": "countBlogPosts",
+        "tags": [
+          "Blog"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "workspace_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the workspace",
+            "example": "ws_1234567890"
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Count the posts of this category only.",
+            "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlogPostCounts"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingWorkspaceId": {
+                    "value": {
+                      "error": "workspace_id is required"
+                    }
+                  },
+                  "invalidCategory": {
+                    "value": {
+                      "error": "category_id must be a UUID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - missing the blog read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionErrorResponse"
+                },
+                "example": {
+                  "error": "Insufficient permissions: read access to blog required",
+                  "resource": "blog",
+                  "permission": "read"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -7308,6 +7993,96 @@
       }
     },
     "schemas": {
+      "Automation": {
+        "type": "object",
+        "description": "An automation, its trigger and the steps of its graph.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "welcome-series"
+          },
+          "workspace_id": {
+            "type": "string",
+            "example": "ws_1234567890"
+          },
+          "name": {
+            "type": "string",
+            "example": "Welcome Series"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "live",
+              "paused"
+            ],
+            "example": "live"
+          },
+          "list_id": {
+            "type": "string",
+            "description": "The list the automation sends to; empty when it has none.",
+            "example": "newsletter"
+          },
+          "exit_on_reply": {
+            "type": "boolean",
+            "description": "Whether a reply from the contact ends their journey."
+          },
+          "trigger": {
+            "$ref": "#/components/schemas/AutomationTrigger"
+          },
+          "trigger_sql": {
+            "type": "string",
+            "description": "The condition generated from the trigger."
+          },
+          "root_node_id": {
+            "type": "string",
+            "description": "The first step of the graph, its trigger.",
+            "example": "ws-trigger"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutomationNode"
+            }
+          },
+          "stats": {
+            "$ref": "#/components/schemas/AutomationStats"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NodeStatsResponse": {
+        "type": "object",
+        "properties": {
+          "automation_id": {
+            "type": "string"
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The start of the period, in UTC; absent for all time."
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The end of the period, in UTC; absent for all time."
+          },
+          "nodes": {
+            "type": "object",
+            "description": "The statistics of every step of the graph, keyed by node ID.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/NodeStats"
+            }
+          }
+        }
+      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -7753,6 +8528,37 @@
             "description": "Job title of the contact",
             "example": "Software Engineer"
           },
+          "tracking_opens_consent": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "granted",
+              "denied",
+              null
+            ],
+            "description": "The contact's own choice about open tracking; `null` means unknown."
+          },
+          "tracking_clicks_consent": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "granted",
+              "denied",
+              null
+            ],
+            "description": "The contact's own choice about click tracking; `null` means unknown."
+          },
+          "tracking_consent_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When a tracking choice last changed."
+          },
+          "tracking_consent_source": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where the last tracking choice came from (api, console, import, notification_center, email_link, subscribe_form)."
+          },
           "custom_string_1": {
             "type": "string",
             "nullable": true,
@@ -7994,6 +8800,41 @@
             "nullable": true,
             "description": "Job title of the contact",
             "example": "Software Engineer"
+          },
+          "tracking_opens_consent": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "granted",
+              "denied",
+              null
+            ],
+            "description": "The contact's own choice about open tracking. `granted` or `denied` override the\nworkspace's rule for contacts without a recorded choice; `null` (or absent on\ncreate) means unknown. Opens are tracked only when the workspace tracks them and\nthis choice allows it.\n",
+            "example": "denied"
+          },
+          "tracking_clicks_consent": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "granted",
+              "denied",
+              null
+            ],
+            "description": "The contact's own choice about click tracking, with the same rules as `tracking_opens_consent`.",
+            "example": "granted"
+          },
+          "tracking_consent_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the tracking choice changed. Set by the server when a consent value changes and\nthis field is not given.\n"
+          },
+          "tracking_consent_source": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 50,
+            "description": "Where the change came from. Defaults to `api` for an API key and `console` for a\nconsole user; an import uses `import`. Known values: api, console, import,\nnotification_center, email_link, subscribe_form.\n",
+            "example": "api"
           },
           "custom_string_1": {
             "type": "string",
@@ -8316,6 +9157,22 @@
             "nullable": true,
             "description": "Job title of the contact",
             "example": "Software Engineer"
+          },
+          "tracking_opens_consent": {
+            "type": "string",
+            "enum": [
+              "granted",
+              "denied"
+            ],
+            "description": "The visitor's choice about open tracking, for example from a checkbox on your form.\nRecorded with source `subscribe_form` on a public request.\n"
+          },
+          "tracking_clicks_consent": {
+            "type": "string",
+            "enum": [
+              "granted",
+              "denied"
+            ],
+            "description": "The visitor's choice about click tracking, recorded like `tracking_opens_consent`."
           },
           "custom_string_1": {
             "type": "string",
@@ -8851,6 +9708,14 @@
             "type": "string",
             "nullable": true,
             "description": "Reason for pausing the broadcast"
+          },
+          "tracking_mode": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "no_tracking"
+            ],
+            "description": "Absent or `inherit` follows the workspace tracking settings and each recipient's\ntracking consent (stored as absent). `no_tracking` sends every email without the\nopen pixel and the click-tracking redirect, keeping the UTM parameters; it cannot be\ncombined with an A/B test whose winner is sent automatically.\n"
           }
         }
       },
@@ -9116,12 +9981,20 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Custom metadata for the broadcast"
+          },
+          "tracking_mode": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "no_tracking"
+            ],
+            "description": "See `Broadcast.tracking_mode`."
           }
         }
       },
       "UpdateBroadcastRequest": {
         "type": "object",
-        "description": "Partial update of a broadcast. workspace_id, id and name are always applied; audience is merged one key at a time, and schedule, test_settings, utm_parameters, metadata and data_feed keep their stored value when the key is left out of the body. Send the key to change it — including an explicitly empty object to clear it.",
+        "description": "Partial update of a broadcast. workspace_id, id and name are always applied; audience is merged one key at a time, and schedule, test_settings, utm_parameters, metadata, data_feed and tracking_mode keep their stored value when the key is left out of the body. Send the key to change it — including an explicitly empty object to clear it.",
         "required": [
           "workspace_id",
           "id",
@@ -9188,6 +10061,14 @@
             "type": "object",
             "additionalProperties": true,
             "description": "Custom metadata for the broadcast. Omit to keep the stored metadata; send an empty object to clear it."
+          },
+          "tracking_mode": {
+            "type": "string",
+            "enum": [
+              "inherit",
+              "no_tracking"
+            ],
+            "description": "Omit to keep the stored mode. Can be changed only while the broadcast is a draft or scheduled. See `Broadcast.tracking_mode`."
           }
         }
       },
@@ -9383,6 +10264,45 @@
             "type": "integer",
             "description": "Total number of broadcasts matching the query",
             "example": 45
+          },
+          "status_counts": {
+            "type": "object",
+            "description": "Returned only with with_status_counts=true, always an object then. The number of broadcasts in each status, following search and started_after but not status. A status no broadcast has is absent.",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "example": {
+              "draft": 3,
+              "processed": 12,
+              "paused": 1
+            }
+          }
+        }
+      },
+      "EstimateAudienceRequest": {
+        "type": "object",
+        "required": [
+          "workspace_id",
+          "audience"
+        ],
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "description": "The ID of the workspace",
+            "example": "ws_1234567890"
+          },
+          "audience": {
+            "$ref": "#/components/schemas/AudienceSettings"
+          }
+        }
+      },
+      "EstimateAudienceResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of recipients a broadcast with this audience would be sent to",
+            "example": 2214
           }
         }
       },
@@ -9419,16 +10339,26 @@
             "description": "Number of clicks",
             "example": 120
           },
+          "opens_tracked": {
+            "type": "integer",
+            "description": "Sent emails of this variation that carried the open pixel",
+            "example": 1000
+          },
+          "clicks_tracked": {
+            "type": "integer",
+            "description": "Sent emails of this variation whose links were tracked",
+            "example": 1000
+          },
           "open_rate": {
             "type": "number",
             "format": "float",
-            "description": "Open rate (opens / recipients)",
+            "description": "Open rate (opens / opens_tracked); 0 when no email was tracked",
             "example": 0.45
           },
           "click_rate": {
             "type": "number",
             "format": "float",
-            "description": "Click rate (clicks / recipients)",
+            "description": "Click rate (clicks / clicks_tracked); 0 when no email was tracked",
             "example": 0.12
           }
         }
@@ -10213,9 +11143,10 @@
             "type": "string",
             "enum": [
               "inherit",
+              "no_tracking",
               "disabled"
             ],
-            "description": "Per-notification tri-state tracking preference. Absent or \"inherit\"\nfollows the workspace tracking flag (the workspace flag always acts\nas a kill-switch and cannot be overridden). \"disabled\" suppresses all\nrewriting for this notification — no click-tracking redirect, no open\npixel, and no UTM parameters — used for auth emails (e.g. Supabase\nmagic links) whose single-use URLs must never be modified. Update\nsemantics: an ABSENT tracking_mode field keeps the stored value (so\npartial edits cannot wipe an opt-out; an empty string is treated as\nabsent); an explicit \"inherit\" resets the notification to follow the\nworkspace flag; an explicit \"disabled\" opts it out. Note that the\nother tracking_settings fields (utm_*) are replaced wholesale on\nupdate — only tracking_mode has keep-when-absent semantics.\n"
+            "description": "Per-notification tracking preference. Absent or \"inherit\" follows the\nworkspace tracking settings and each recipient's tracking consent (the\nworkspace settings always act as a kill-switch and cannot be\noverridden). \"no_tracking\" leaves out the open pixel and the\nclick-tracking redirect but keeps the UTM parameters. \"disabled\" suppresses all\nrewriting for this notification — no click-tracking redirect, no open\npixel, and no UTM parameters — used for auth emails (e.g. Supabase\nmagic links) whose single-use URLs must never be modified. Update\nsemantics: an ABSENT tracking_mode field keeps the stored value (so\npartial edits cannot wipe an opt-out; an empty string is treated as\nabsent); an explicit \"inherit\" resets the notification to follow the\nworkspace flag; an explicit \"disabled\" opts it out. Note that the\nother tracking_settings fields (utm_*) are replaced wholesale on\nupdate — only tracking_mode has keep-when-absent semantics.\n"
           },
           "endpoint": {
             "type": "string",
@@ -12105,7 +13036,7 @@
           },
           "user_agent": {
             "type": "string",
-            "description": "Raw user agent, stored as sent and usable as an attribution filter dimension. It is NOT parsed into device/browser/os — those arrive already resolved in the fields above. Falls back to the request's User-Agent header when the attribute is absent."
+            "description": "Raw user agent, usable as an attribution filter dimension. Stored as sent, except that NUL characters are removed, bytes that are not valid UTF-8 become U+FFFD (written as %XX when the value comes from the User-Agent header), and the result is cut to at most 1024 bytes, between characters. It is NOT parsed into device/browser/os — those arrive already resolved in the fields above. Falls back to the request's User-Agent header when the attribute is absent."
           },
           "connection_type": {
             "type": "string"
@@ -12625,6 +13556,331 @@
           }
         }
       },
+      "AutomationTrigger": {
+        "type": "object",
+        "description": "The contact timeline event that starts a journey.",
+        "properties": {
+          "event_kind": {
+            "type": "string",
+            "description": "The timeline event kind, such as list.subscribed, custom_event or email.link_clicked.",
+            "example": "list.subscribed"
+          },
+          "list_id": {
+            "type": "string",
+            "description": "For list events."
+          },
+          "segment_id": {
+            "type": "string",
+            "description": "For segment events."
+          },
+          "custom_event_name": {
+            "type": "string",
+            "description": "For custom_event."
+          },
+          "updated_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "For contact.updated, the fields whose change starts a journey."
+          },
+          "link_url": {
+            "type": "string",
+            "description": "For email.link_clicked, text the clicked URL contains."
+          },
+          "broadcast_id": {
+            "type": "string",
+            "description": "For email.link_clicked, the broadcast that sent the email."
+          },
+          "template_id": {
+            "type": "string",
+            "description": "For email.link_clicked, the template the email was sent with."
+          },
+          "conditions": {
+            "type": "object",
+            "nullable": true,
+            "description": "Conditions on the contact, in the segment condition format."
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "once",
+              "every_time"
+            ]
+          }
+        }
+      },
+      "AutomationNode": {
+        "type": "object",
+        "description": "A step of the automation.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "ws-email-welcome"
+          },
+          "automation_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "trigger",
+              "delay",
+              "email",
+              "branch",
+              "filter",
+              "add_to_list",
+              "remove_from_list",
+              "ab_test",
+              "webhook",
+              "list_status_branch"
+            ]
+          },
+          "config": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The step's settings, which depend on its type."
+          },
+          "next_node_id": {
+            "type": "string",
+            "description": "The next step, for steps that do not split."
+          },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AutomationStats": {
+        "type": "object",
+        "description": "The automation's journey counters.",
+        "properties": {
+          "enrolled": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "completed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "exited": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "failed": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "JourneyCounts": {
+        "type": "object",
+        "description": "The journeys of an automation by status.",
+        "properties": {
+          "active": {
+            "type": "integer"
+          },
+          "completed": {
+            "type": "integer"
+          },
+          "exited": {
+            "type": "integer"
+          },
+          "failed": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer",
+            "description": "Every journey, any other status included."
+          }
+        }
+      },
+      "ListAutomationsResponse": {
+        "type": "object",
+        "properties": {
+          "automations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Automation"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "The automations matching the filters, without limit and offset."
+          },
+          "journey_counts": {
+            "type": "object",
+            "description": "With with_journey_counts=true only: the journey counts of each returned automation, keyed by automation ID. An empty object when no automation is returned.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JourneyCounts"
+            },
+            "example": {
+              "welcome-series": {
+                "active": 12,
+                "completed": 840,
+                "exited": 31,
+                "failed": 4,
+                "total": 887
+              }
+            }
+          }
+        }
+      },
+      "NodeEmailStats": {
+        "type": "object",
+        "description": "The messages an email step sent, from the message history.",
+        "properties": {
+          "executions": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Completed executions of the step that queued a message."
+          },
+          "queued": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Not in the message history yet and still in the sending queue."
+          },
+          "not_sent": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Neither in the message history nor in the sending queue."
+          },
+          "sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "delivered": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opened": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opens_tracked": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Sent emails whose opens are tracked, the base of an open rate."
+          },
+          "clicked": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "clicks_tracked": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Sent emails whose clicks are tracked, the base of a click rate."
+          },
+          "failed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bounced": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "complained": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unsubscribed": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "NodeStats": {
+        "type": "object",
+        "description": "What the journeys did at one step.",
+        "properties": {
+          "node_type": {
+            "type": "string",
+            "description": "The step's type in the current graph.",
+            "example": "email"
+          },
+          "visits": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Distinct journeys that reached the step; a retry is the same visit."
+          },
+          "completed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Executions that completed without an error."
+          },
+          "failed_attempts": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Attempts that failed, each retry counted."
+          },
+          "skipped": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Emails not sent because the contact was not subscribed."
+          },
+          "skip_reasons": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": {
+              "unsubscribed": 3
+            }
+          },
+          "errors": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Executions that completed with an error in their output."
+          },
+          "failed_journeys": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Journeys that failed on this step."
+          },
+          "in_progress": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Active journeys on this step now."
+          },
+          "waiting": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Active journeys waiting on this delay now."
+          },
+          "retrying": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Active journeys waiting to retry this step now."
+          },
+          "branches": {
+            "type": "object",
+            "description": "For splits, the completed executions by path: yes and no for a filter, the branch for a list status branch, the variant ID for an A/B test, the path ID for a branch.",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": {
+              "yes": 120,
+              "no": 34
+            }
+          },
+          "email": {
+            "$ref": "#/components/schemas/NodeEmailStats"
+          }
+        }
+      },
       "RetryFailedBroadcastRequest": {
         "type": "object",
         "required": [
@@ -12653,6 +13909,164 @@
           },
           "web": {
             "$ref": "#/components/schemas/WebTemplate"
+          }
+        }
+      },
+      "TemplateUsageCounts": {
+        "type": "object",
+        "description": "How many objects of each type use the template. A type the member cannot read is absent, never 0.",
+        "properties": {
+          "broadcasts": {
+            "type": "integer",
+            "example": 1
+          },
+          "transactional_notifications": {
+            "type": "integer",
+            "example": 0
+          },
+          "automations": {
+            "type": "integer",
+            "example": 2
+          },
+          "lists": {
+            "type": "integer",
+            "example": 0
+          }
+        }
+      },
+      "TemplateUsageReference": {
+        "type": "object",
+        "required": [
+          "type",
+          "id",
+          "name"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "broadcast",
+              "transactional_notification",
+              "automation",
+              "list"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "example": "bc_123"
+          },
+          "name": {
+            "type": "string",
+            "example": "Black Friday"
+          },
+          "status": {
+            "type": "string",
+            "description": "Set for broadcasts and automations only.",
+            "example": "scheduled"
+          }
+        }
+      },
+      "TemplateUsageResponse": {
+        "type": "object",
+        "required": [
+          "usage",
+          "hidden_types"
+        ],
+        "properties": {
+          "usage": {
+            "type": "object",
+            "description": "Templates used at least once, by template ID.",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TemplateUsageCounts"
+            }
+          },
+          "references": {
+            "type": "array",
+            "description": "Present, possibly empty, exactly when `template_id` is given.",
+            "items": {
+              "$ref": "#/components/schemas/TemplateUsageReference"
+            }
+          },
+          "hidden_types": {
+            "type": "array",
+            "description": "The types the member cannot read, left out of `usage` and `references`.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "broadcasts",
+                "transactional_notifications",
+                "automations",
+                "lists"
+              ]
+            }
+          }
+        },
+        "example": {
+          "usage": {
+            "black-friday": {
+              "broadcasts": 1,
+              "transactional_notifications": 0,
+              "automations": 0
+            }
+          },
+          "references": [
+            {
+              "type": "broadcast",
+              "id": "bc_123",
+              "name": "Black Friday",
+              "status": "scheduled"
+            }
+          ],
+          "hidden_types": [
+            "lists"
+          ]
+        }
+      },
+      "BlogPostCounts": {
+        "type": "object",
+        "required": [
+          "all_total",
+          "total",
+          "published",
+          "scheduled",
+          "draft",
+          "by_category"
+        ],
+        "properties": {
+          "all_total": {
+            "type": "integer",
+            "description": "Every post that is not deleted, whatever `category_id`.",
+            "example": 42
+          },
+          "total": {
+            "type": "integer",
+            "description": "The posts of the category asked for, or every post without one.",
+            "example": 12
+          },
+          "published": {
+            "type": "integer",
+            "description": "Posts with a publication date, scheduled ones included.",
+            "example": 9
+          },
+          "scheduled": {
+            "type": "integer",
+            "description": "Posts whose publication date is still to come.",
+            "example": 1
+          },
+          "draft": {
+            "type": "integer",
+            "description": "Posts never published or since unpublished.",
+            "example": 3
+          },
+          "by_category": {
+            "type": "object",
+            "description": "Posts per category ID, over every post. Posts without a category are left out.",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "example": {
+              "7c9e6679-7425-40de-944b-e07fc1f90ae7": 12
+            }
           }
         }
       }
