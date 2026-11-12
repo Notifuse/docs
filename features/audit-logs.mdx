@@ -25,7 +25,7 @@ Owners always see the tab. A member or an API key sees it only when granted the 
 
 <img src="/assets/screenshots/audit_logs.png" alt="Audit logs tab in the Logs section" />
 
-**Settings → Audit logs** is where an owner sets the workspace's retention, and where the licence notice appears when nothing is being recorded.
+**Settings → Audit log** is where an owner sets the workspace's retention, and where the licence notice appears when nothing is being recorded.
 
 ## What an entry contains
 
@@ -80,7 +80,7 @@ The page filters by date range, action, outcome, actor email, target id and IP a
 
 ## Retention
 
-Entries older than the retention are deleted once a day. The default is **365 days**; a workspace owner can set the workspace's own retention in Settings → Audit logs (0 keeps every entry forever, otherwise 30 to 3650 days), and a root user sets the deployment default — which also governs deployment-level entries and the entries of workspaces that no longer exist — in the system settings. Each purge that removed something is recorded as `audit.purged`, with the count.
+Entries older than the retention are deleted once a day. The default is **365 days**; a workspace owner can set the workspace's own retention in Settings → Audit log (0 keeps every entry forever, otherwise 30 to 3650 days), and a root user sets the deployment default — which also governs deployment-level entries and the entries of workspaces that no longer exist — in the system settings. Each purge that removed something is recorded as `audit.purged`, with the count.
 
 The retention runs in every licence state: deleting data never depends on the licence.
 

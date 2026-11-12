@@ -37,16 +37,16 @@ Take **Transactional** seriously before you connect. It is what lets a Zap send,
 The token is displayed **once**, in the panel that replaces the form. Copy it before you press **Done** — it cannot be retrieved afterwards, and no screen in Notifuse can show it to you again. The same panel prints the **API URL** you will need in Step 2, with a copy button beside it.
 
 <Note>
-  **The key's address is derived from your label, not typed by you.** Notifuse builds it as `zapier-<label>-<random>`, lowercasing your label and replacing anything that is not a letter, digit or underscore with a dash — or just `zapier-<random>` if you kept the default. API key addresses are unique across your whole Notifuse installation rather than per workspace, which is what the random part is for: two workspaces can both connect a "Marketing" Zapier without clashing, and you never have to pick a name that is still free. The connect panel names the address it landed on, and the connection's card shows it afterwards — that is how you match a card to its row in **Settings** → **Team**.
+  **The key's address is derived from your label, not typed by you.** Notifuse builds it as `zapier-<label>-<random>`, lowercasing your label and replacing anything that is not a letter, digit or underscore with a dash — or just `zapier-<random>` if you kept the default. API key addresses are unique across your whole Notifuse installation rather than per workspace, which is what the random part is for: two workspaces can both connect a "Marketing" Zapier without clashing, and you never have to pick a name that is still free. The connect panel names the address it landed on, and the connection's card shows it afterwards — that is how you match a card to its row in **Settings** → **Team & API keys**.
 </Note>
 
 <Note>
-  **Or create the key by hand.** **Settings** → **Team** → **Create API Key** works too, and it is where you grant the permissions yourself — see the table below for what to tick. A key built that way is an ordinary API key: it is attached to no connection, so no card appears under **Settings** → **Integrations**, and removing its row from **Settings** → **Team** is the only thing that revokes it. Give Zapier its own key rather than reusing an existing one. See [Admins & API Keys](/features/admins-api-keys) for the full permission reference.
+  **Or create the key by hand.** **Settings** → **Team & API keys** → **New key** works too, and it is where you grant the permissions yourself — see the table below for what to tick. A key built that way is an ordinary API key: it is attached to no connection, so no card appears under **Settings** → **Integrations**, and removing its row from **Settings** → **Team & API keys** is the only thing that revokes it. Give Zapier its own key rather than reusing an existing one. See [Admins & API Keys](/features/admins-api-keys) for the full permission reference.
 </Note>
 
 ### What the Key Can Do
 
-This is a reference, not a checklist: connecting Zapier grants all of it for you. Read it to know what the token in Zapier's hands can reach — or to know what to tick if you are building the key by hand from **Settings** → **Team**, or narrowing one afterwards.
+This is a reference, not a checklist: connecting Zapier grants all of it for you. Read it to know what the token in Zapier's hands can reach — or to know what to tick if you are building the key by hand from **Settings** → **Team & API keys**, or narrowing one afterwards.
 
 | What you want to use | Permissions the key needs |
 | -------------------- | ------------------------- |
@@ -102,7 +102,7 @@ The connection appears as a card under **Settings** → **Integrations**, showin
 - **Renaming it** changes the label on the card and nothing else. The key keeps the address it was minted under, so the card's name and the address can disagree afterwards — the card shows both for exactly that reason. Nothing has to be re-entered in Zapier.
 - **Deleting it revokes the key.** Every Zap using that key stops working the moment you confirm, and there is no way back: a revoked key cannot be restored, and reconnecting mints a different one you must paste into Zapier. Deleting the workspace revokes its Zapier keys the same way.
 
-**Settings** → **Team** is where a key's permissions change. Widen or narrow the Zapier key there — the change takes effect on its next request and **the token does not change**, so there is nothing to re-enter in Zapier. Removing the key's row from Team also revokes it, exactly as deleting the card does, but leaves the card behind pointing at a key that no longer exists.
+**Settings** → **Team & API keys** is where a key's permissions change. Widen or narrow the Zapier key there — the change takes effect on its next request and **the token does not change**, so there is nothing to re-enter in Zapier. Removing the key's row from Team & API keys also revokes it, exactly as deleting the card does, but leaves the card behind pointing at a key that no longer exists.
 
 ## Triggers
 
@@ -151,7 +151,7 @@ A delivery that fails is retried, so a Zap can occasionally run twice for the sa
 
 All three actions match on the **email address**, so re-running them with the same address updates the same contact rather than creating a duplicate.
 
-Notifuse's custom contact fields appear in these actions under the labels you gave them. Name your custom fields in **Settings** → **Custom Fields** first — unlabelled slots are hidden, so a field you cannot find in Zapier is usually a field with no label yet.
+Notifuse's custom contact fields appear in these actions under the labels you gave them. Name your custom fields in **Settings** → **Custom fields** first — unlabelled slots are hidden, so a field you cannot find in Zapier is usually a field with no label yet.
 
 ### Sending Is About Choosing, Not Composing
 
@@ -212,13 +212,13 @@ Three more cases where the action reports success without adding a new subscribe
 - Check the API URL: it must start with `https://` and contain no path after the domain. The connect panel printed the exact value, and reopening the card only offers the label — so if you no longer have it, take the scheme and domain of the address you open the Notifuse console at and drop everything after the domain.
 - Open `https://your-domain/api/workspaces.list` in a browser. An authentication error is the expected answer and proves the address is reachable; a timeout, a connection error or a certificate warning means Zapier cannot reach it either.
 - Check the certificate is issued by a public certificate authority, not a self-signed or internal one.
-- If the key was revoked in Notifuse — by deleting the Zapier connection, or by removing its row from **Settings** → **Team** — the connection stops working immediately. Zapier reports it as an authentication failure and offers to reconnect the account: connect Zapier again and paste the new token in.
+- If the key was revoked in Notifuse — by deleting the Zapier connection, or by removing its row from **Settings** → **Team & API keys** — the connection stops working immediately. Zapier reports it as an authentication failure and offers to reconnect the account: connect Zapier again and paste the new token in.
 
 ### A step fails with a permission error
 
-The message names the missing permission. Add it to the key from **Settings** → **Team**; the change takes effect on the next request and the token stays the same. Do not connect Zapier a second time to fix this — a fresh connection mints a key with the same standard grant, and the step fails in the same place.
+The message names the missing permission. Add it to the key from **Settings** → **Team & API keys**; the change takes effect on the next request and the token stays the same. Do not connect Zapier a second time to fix this — a fresh connection mints a key with the same standard grant, and the step fails in the same place.
 
-One case has a known cause. If **Send Transactional Email** fails on **Transactional**, or its notification picker is empty and reports a permission error, the connection predates Notifuse 39.1 — the release that added sending to the standard grant. Tick **Transactional** read and write on the key in **Settings** → **Team** and the step works on its next run, with no reconnection and no change to the token.
+One case has a known cause. If **Send Transactional Email** fails on **Transactional**, or its notification picker is empty and reports a permission error, the connection predates Notifuse 39.1 — the release that added sending to the standard grant. Tick **Transactional** read and write on the key in **Settings** → **Team & API keys** and the step works on its next run, with no reconnection and no change to the token.
 
 ### A Zap stopped receiving events
 
