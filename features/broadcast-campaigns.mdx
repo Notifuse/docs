@@ -3,7 +3,7 @@ title: Broadcast campaigns
 description: 'Broadcast campaigns in Notifuse are mass email marketing initiatives that allow you to send targeted messages to a contact list. They provide powerful features for audience targeting with segment filters, A/B testing, UTM tracking, and flexible scheduling options to deliver the right message to the right people at the right time.'
 ---
 
-<img src="/assets/screenshots/broadcast.png" alt="Broadcasts screenshot" />
+<img src="/assets/screenshots/broadcast.png" alt="The Broadcasts page, with the results of the last 30 days and each broadcast's audience, recipients, opens and clicks" />
 
 The **Broadcasts** page lists your campaigns with their results over the last 30 days: emails sent, open and click rates, unsubscribes and bounces. Tabs filter by status (Drafts, Scheduled, Sending, Sent, and Failed when a broadcast has failed recipients), with the number of broadcasts in each, and the search finds a broadcast by name. Each row shows the audience, when it was sent or is scheduled, its recipients (an estimate before it is sent), its opens, clicks, unsubscribes and bounces, and the website visits it brought when you have [web analytics](/web-analytics/setup). A draft opens in the editor; any other broadcast opens its results. In an open broadcast, <kbd>J</kbd> and <kbd>K</kbd> move to the next and previous one.
 
@@ -69,6 +69,8 @@ Optimize your campaigns by testing different variations with your audience.
 - **Sender per Variation**: Each variation keeps its template's sender or chooses another one, so the sender can be part of what you test
 - **Control Groups**: Automatically split your test audience evenly
 
+<img src="/assets/screenshots/broadcast_ab_test.png" alt="The Content section of a broadcast with A/B test on: two variants, the test sample, and the winner sent automatically on the open rate after 4 hours" />
+
 ### Winner Selection
 
 #### Manual Selection
@@ -132,6 +134,8 @@ Check **Don't track opens and clicks for this broadcast** to send it with no tra
 The **Clicked links** panel of a broadcast's results lists each clicked link with its unique clicks, click rate and total clicks, for all variations or for one. **See who clicked**, on each row, opens the [message log](/features/logs#filtering-options) on the emails
 where the link was clicked. To act on those clicks, for instance to add the contacts to a list, use the
 [Clicked a link](/features/automations#link-click-triggers) automation trigger.
+
+<img src="/assets/screenshots/broadcast_clicked_links.png" alt="The Clicked links panel of a sent broadcast: each link with its unique clicks, click rate and total clicks" />
 
 ### Analytics Integration
 
@@ -341,7 +345,7 @@ See [Admins & API Keys](/features/admins-api-keys).
 
 **New broadcast** opens the editor: one screen with the audience, the content, when to send, web tracking and the advanced settings, beside a live preview and a summary.
 
-<img src="/assets/screenshots/edit_broadcast.png" alt="Broadcast editor screenshot" />
+<img src="/assets/screenshots/edit_broadcast.png" alt="The broadcast editor: audience, content, schedule and settings beside the preview and the summary" />
 
 - **Saved as you type**: the broadcast is created as a draft once it has a name and a list, then every change is saved a second after you stop typing. The bar at the top says when it was last saved, or what is missing. Closing with changes not yet saved asks first.
 - **Audience**: choose a list and, optionally, segments. The number of recipients is estimated as you go, from the list's active contacts and the segments you add.
@@ -363,7 +367,7 @@ See [Admins & API Keys](/features/admins-api-keys).
 
 ## Results
 
-<img src="/assets/screenshots/broadcast_detail.png" alt="Broadcast results screenshot" />
+<img src="/assets/screenshots/broadcast_detail.png" alt="The results of a sent A/B test broadcast: funnel, opens and clicks over time, and each variant's results" />
 
 A sent broadcast opens on its results:
 

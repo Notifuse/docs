@@ -3,7 +3,7 @@ title: Admins & API Keys
 description: 'Invite admins and create API keys scoped to exactly the parts of your workspace they need. Choose the permissions a key carries, change them at any time, and understand what each permission really allows.'
 ---
 
-<img src="/assets/screenshots/api_key.png" alt="Team & API keys" />
+<img src="/assets/screenshots/api_key.png" alt="Settings, Team & API keys: the members, a pending invitation and two API keys" />
 
 ## Admin Management
 
@@ -32,6 +32,8 @@ Change a member's permissions from the Team & API keys page at any time. The cha
 - **Owner Only**: Only the workspace owner can create an API key
 - **Scoped Access**: Choose the permissions the key carries when you create it, or grant everything
 - **One-Time Display**: The token is shown only once, when the key is created
+
+<img src="/assets/screenshots/api_key_permissions.png" alt="The permissions of an API key, with read and write switches for each resource" />
 
 A key created without any permission choice has full workspace access — which is also how keys created before scoped permissions existed keep behaving, until you narrow them. A key created with every permission switched off can still authenticate, and still reaches the handful of endpoints no permission gates: `/api/workspaces.list` returns the workspace record the key belongs to — its settings, custom field labels and the reusable template blocks stored on it — with provider credentials redacted. Everything on the table below is closed to it.
 
