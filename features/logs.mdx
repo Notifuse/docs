@@ -11,19 +11,39 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 
 ### Messages Tab
 
-- **Email Events**: Track delivery, opens, clicks, bounces, and complaints
-- **Real-Time Updates**: Events appear immediately as they occur
-- **Email Provider Data**: Direct feedback from your configured email providers
-- **Error**: When a send was refused, the provider's own reply — the SMTP code and the text that came with it, such as `452: 4.3.1 Daily sending quota exceeded`. Hover to read the whole of it, or hide the column from the column picker.
+Every email the workspace sent, newest first, over the **last 24 hours** by default. Pick another period (last hour, 7 days, 30 days or all time) from the **Period** filter.
 
-<img src="/assets/screenshots/logs_messages.png" alt="Messages logs screenshot" />
+- **Counts by status**: All, Delivered, Opened, Clicked, Bounced, Failed and Complaints. Click one to list only those messages. Counts are shown up to 7 days. For 30 days or all time, add a filter on an email address, a message ID, a newsletter, an automation, a transactional notification or a template. A workspace that sends only through SMTP shows no Delivered count, since SMTP reports no delivery.
+- **Search**: by email address, message ID or external ID, with exact matching. An email address is searched once it is complete.
+- **Origin**: newsletters, automations, transactional notifications, or other messages.
+- **Journey**: each row shows how far the message went: sent, delivered, opened, clicked.
+- **Error**: when a send was refused, the provider's own reply — the SMTP code and the text that came with it, such as `452: 4.3.1 Daily sending quota exceeded`. Hover to read the whole of it.
+- **Columns**: show or hide the message ID, external ID, metadata, template, list and creation date from the column picker.
+
+<img src="/assets/screenshots/logs_messages.png" alt="Messages tab of the Logs page" />
+
+Click a message to open it in a side panel. Move to the previous or next message with **K** and **J**.
+
+- **Events**: when it was sent, delivered, opened, clicked, bounced or marked as spam.
+- **Message**: its IDs, template and version, sender, subject, language, tracking, list, attachments, and the newsletter, automation or transactional notification that sent it.
+- **Sent content**: the email rendered again from its template and the message's data, in the contact's language, as HTML, text or MJML. Notifuse doesn't store the sent HTML, so a template changed since then renders as it is now, at the version the message used.
+- **Data**: the template data and the metadata the message was sent with.
+- **Open contact** opens the contact's profile.
+
+When a contact is erased, their messages stay in the log as **Contact erased**, without their data.
+
+<img src="/assets/screenshots/logs_message_detail.png" alt="A message opened in the Logs page" />
 
 ### Incoming Webhooks Tab
 
-- **Raw Payloads**: Stores each event's data exactly as the email provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch
-- **Real-Time Processing**: Webhooks processed immediately upon receipt
-- **Provider Integration**: Data from Mailgun, Amazon SES, Postmark, etc.
-- **Emails Notifuse Sent**: Only events about an email Notifuse sent, for the address it went to, are listed and acted on. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
+Every event your email providers and Supabase sent to Notifuse, newest first, over the last 24 hours by default.
+
+- **Filters**: search by recipient email or message ID; filter by period, by **Source** (Amazon SES, Postmark, Mailgun, SparkPost, Mailjet, SendGrid, SMTP, Supabase) and by **Type** (delivered, bounce, complaint, unsubscribe, reply, auto-reply, auth email, user created). The filters are kept in the page's link.
+- **Linked message**: a delivery, bounce, complaint or unsubscribe event links to the message it is about. A reply carries the reply's own message ID, so it links nowhere.
+- **Raw payloads**: click an event to see its bounce or complaint details and its data exactly as the provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch.
+- **Emails Notifuse sent**: only events about an email Notifuse sent, for the address it went to, are listed and acted on. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
+
+<img src="/assets/screenshots/logs_webhooks.png" alt="Incoming webhooks tab of the Logs page" />
 
 ### Outgoing Webhooks Tab
 
@@ -53,19 +73,17 @@ Email events are updated in real-time as email provider webhooks are received:
 - **Bounced**: Email delivery failed
 - **Complained**: Recipient marked email as spam
 
-<img src="/assets/screenshots/logs_webhooks.png" alt="Webhooks logs screenshot" />
-
 ## Filtering Options
 
-Filter logs by multiple criteria:
+Besides the search, the period, the origin and the counts, **+ Filter** on the Messages tab adds:
 
-- **Status**: Filter by delivery status (delivered, bounced, etc.)
-- **Delivery**: Show only the messages that failed to send, or only those that did not
-- **Email**: Search by specific recipient email address
-- **Template**: Filter by email template used
-- **Broadcast**: Filter by specific broadcast campaign
-- **Transactional notification**: filter by the notification that sent the message (`transactional_notification_id` in `messages.list`). The detail view of a notification opens the log with this filter
-- **Clicked link**: Within a broadcast, show only the messages on which this exact link was clicked. The per-link statistics of a broadcast open the log with this filter (**See who clicked**). Through the API, pass `clicked_url` with `broadcast_id` to `messages.list`
+- **Status**: delivered, opened, clicked, bounced, failed, complained or unsubscribed, or their opposite (not delivered, not opened…)
+- **Channel**: the channel the message went through
+- **List**, **Newsletter** and **Automation**: chosen by name
+- **Template** and **Transactional notification**: by ID. The detail view of a notification opens the log with this filter (`transactional_notification_id` in `messages.list`)
+- **Clicked link**: within a newsletter, show only the messages on which this exact link was clicked. The per-link statistics of a broadcast open the log with this filter (**See who clicked**). Through the API, pass `clicked_url` with `broadcast_id` to `messages.list`
+
+Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. Through the API, `messages.count` returns the same counts for the filters of `messages.list`.
 
 ## Permissions
 
