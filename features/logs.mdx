@@ -41,7 +41,7 @@ The events Notifuse kept from your email providers and Supabase, newest first, o
 - **Filters**: search by recipient email or message ID; filter by period, by **Source** (Amazon SES, Postmark, Mailgun, SparkPost, Mailjet, SendGrid, SMTP, Supabase) and by **Type** (delivered, bounce, complaint, unsubscribe, reply, auto-reply, auth email, user created). The filters are kept in the page's link.
 - **Linked message**: a delivery, bounce, complaint or unsubscribe event links to the message it is about. A reply carries the reply's own message ID, so it links nowhere.
 - **Raw payloads**: click an event to see its bounce or complaint details and its data exactly as the provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch.
-- **Emails Notifuse sent**: an email provider's events are listed and acted on only when they are about an email Notifuse sent, for the address it went to. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
+- **Emails Notifuse sent**: a delivery, bounce, complaint or unsubscribe event is listed and acted on only when it is about an email Notifuse sent, for the address it went to; a reply, when it answers an email Notifuse sent. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
 
 <img src="/assets/screenshots/logs_webhooks.png" alt="Incoming webhooks tab of the Logs page" />
 
