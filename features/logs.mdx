@@ -76,7 +76,7 @@ The page shows only the tabs you may read, and the Logs menu entry appears as so
 - **Outgoing webhooks** needs **Webhook Subscriptions** read.
 - **Audit log** needs **Audit logs** read, which an owner grants deliberately — it is never part of full access, because full access should not imply reading every colleague's email address, IP address and refused actions. Owners always see the tab, and a root user can switch it to the whole deployment.
 
-The write verb of Message History, Webhook Events and Audit logs gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. Webhook Subscriptions write is different: it lets a member create, change, delete and test the subscriptions themselves, in Settings → Webhooks. See [Admins & API Keys](/features/admins-api-keys).
+The write verb of Message History, Webhook Events and Audit logs gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. Webhook Subscriptions write is different: it lets a member or an API key create, edit, switch on or off, delete and test the subscriptions themselves (Settings → Webhooks in the console). See [Admins & API Keys](/features/admins-api-keys).
 
 ## Debugging Email Issues
 
