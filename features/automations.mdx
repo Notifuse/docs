@@ -402,7 +402,7 @@ A draft that no contact entered shows "—". The API gives the same counts with 
 Switch the editor to **With stats** to read each step's results, over the **Last 30 days** (today included, in the workspace's timezone) or **All time**. Each card shows its key figure (entered, sent with opens and clicks, waiting, checked, added or removed, calls), with the journeys that failed, are retrying or still in progress on it, and the emails skipped. Each path of a split shows the share of the step's passes that took it.
 
 A step's panel gives the detail:
-- **Reached**: Journeys that reached the step
+- **Reached**: Times journeys reached the step. A journey that loops back counts each time round, and a retry counts as the same pass. Over a period, a pass is dated by its attempt that succeeded, else by its last attempt
 - **Completed**: Executions that finished
 - **In progress**, **Waiting** and **Retrying**: Journeys on the step now, whatever the period
 - **Failed**: Journeys that failed on the step
