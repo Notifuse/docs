@@ -19,11 +19,13 @@ On Notifuse Cloud the key is managed for you, and audit logs are recorded on the
 
 ## Where to find it
 
-**Logs → Audit logs** in a workspace shows that workspace's entries, next to the message and webhook logs. A root user (a `ROOT_EMAIL`) can switch the same tab to **Whole deployment**: every workspace plus the deployment-level entries that belong to no workspace — sign-ins, the licence, the system settings.
+**Logs → Audit log** in a workspace shows that workspace's entries, next to the message and webhook logs. A root user (a `ROOT_EMAIL`) can switch the same tab to **Whole deployment**: every workspace plus the deployment-level entries that belong to no workspace — sign-ins, the licence, the system settings.
 
-Owners always see the tab. A member or an API key sees it only when granted the **Audit logs** read permission, which is an opt-in grant: it is never part of "full access", because full access should not imply reading every colleague's email address, IP address and refused actions.
+Owners always see the tab. A member or an API key sees it only when granted the **Audit logs** read permission, which is an opt-in grant: it is never part of "full access", because full access should not imply reading every colleague's email address, IP address and refused actions. A member with that permission alone sees the Logs menu entry and only this tab.
 
-<img src="/assets/screenshots/audit_logs.png" alt="Audit logs tab in the Logs section" />
+Each entry reads as a sentence, such as "Invited **ann@example.com**", next to the actor, the resource and, when the request did not succeed, its outcome. Clicking an entry opens it in a side panel with the action, the outcome and HTTP status, the actor, the target, the IP address, the user agent, the request id, the before/after of what changed, the metadata and the raw entry.
+
+<img src="/assets/screenshots/audit_logs.png" alt="Audit log tab in the Logs section" />
 
 **Settings → Audit log** is where an owner sets the workspace's retention, and where the licence notice appears when nothing is being recorded.
 
@@ -74,9 +76,9 @@ Every `POST /api/…` route below is recorded under its own name. Reads are not 
 
 ## Filtering and export
 
-The page filters by date range, action, outcome, actor email, target id and IP address; the API accepts the same filters plus `categories`, `actor_id`, `actor_type` and `target_type`. Pages are cursor-based, newest first.
+The search box takes an IP address, an actor email or a target id, and says which one it is searching by: an IP address and a target id must match exactly, an email matches any part of it. Next to it, filters for the period (the last 24 hours to the last 90 days, all time, or a custom range), the actor (yourself, a member or one key in the workspace view; any API key, the system or a signed-out visitor in both views) and the resource, and **+ Filter** for the action, the outcome, the actor email, the target id and the IP address. Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. The API accepts the same filters plus `target_type`. Pages are cursor-based, newest first, and in the workspace view the foot of the list shows how long the workspace keeps its entries.
 
-**Export** downloads the current filter as CSV or NDJSON, up to 100 000 rows; an export that hits the cap ends with an `export.truncated` marker row carrying `max_rows`, so a truncated file never passes for a complete one — narrow the date range and export again. The export is itself recorded as `auditLogs.export`. Every entry carries an id, and the details drawer has a **Copy link** button that opens the page on that entry.
+**Export** downloads the current filter as CSV or NDJSON, up to 100 000 rows; an export that hits the cap ends with an `export.truncated` marker row carrying `max_rows`, so a truncated file never passes for a complete one — narrow the date range and export again. The export is itself recorded as `auditLogs.export`. Every entry carries an id, and the side panel has a **Copy link** button: the link opens the page on that entry, even when it is far down the list.
 
 ## Retention
 
