@@ -5,7 +5,7 @@ description: 'Real-time logs for monitoring email delivery and debugging email p
 
 ## Overview
 
-Logs provide real-time monitoring of email activity and webhook events to help debug email delivery issues and track campaign performance. The same section also holds the workspace's **audit trail** — who did what, from where — on its own tab.
+Logs provide real-time monitoring of email activity and webhook events to help debug email delivery issues and track campaign performance. The same section also holds the deliveries of your own webhooks and the workspace's **audit trail** — who did what, from where — each on its own tab: **Messages**, **Incoming webhooks**, **Outgoing webhooks** and **Audit log**.
 
 ## Log Types
 
@@ -18,14 +18,24 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 
 <img src="/assets/screenshots/logs_messages.png" alt="Messages logs screenshot" />
 
-### Email Provider Webhooks Tab
+### Incoming Webhooks Tab
 
 - **Raw Payloads**: Stores each event's data exactly as the email provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch
 - **Real-Time Processing**: Webhooks processed immediately upon receipt
 - **Provider Integration**: Data from Mailgun, Amazon SES, Postmark, etc.
 - **Emails Notifuse Sent**: Only events about an email Notifuse sent, for the address it went to, are listed and acted on. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
 
-### Audit Logs Tab
+### Outgoing Webhooks Tab
+
+Every delivery of your [webhook subscriptions](/features/webhooks), newest first:
+
+- **Filters**: by subscription and by status (pending, delivering, delivered, failed), kept in the page's link
+- **Retrying**: a failed delivery that still has attempts left reads **Retrying**, with the time of its next attempt
+- **Delivery Detail**: click a delivery to see the response code and body your endpoint answered with, and the payload Notifuse sent. **Open subscription** goes to that subscription in Settings → Webhooks
+
+### Audit Log Tab
+
+Each entry reads as a sentence, such as "Created the template **Welcome**", filtered by period, actor, resource, action or outcome, with its filters kept in the page's link.
 
 - **Who Did What**: Every control-plane action — a member invited, a permission changed, an API key created, an integration edited, a template saved, a broadcast scheduled — with the actor, the IP address, the outcome and a before/after of what changed
 - **Append-Only**: A database trigger refuses every rewrite; the retention purge is the only deletion
@@ -59,11 +69,12 @@ Filter logs by multiple criteria:
 
 ## Permissions
 
-The tabs answer to different permissions, all read-only in practice:
+The page shows only the tabs you may read, and the Logs menu entry appears as soon as you may read one of them. The tabs answer to different permissions, all read-only in practice:
 
 - **Messages** needs **Message History** read. This is also where broadcast delivery statistics live — delivered, open, click, bounce and per-link counts — so a member who may create and send a broadcast still cannot see how it performed without it. The log carries recipient addresses and the data each message was rendered with, so treat it as contact data.
-- **Email Provider Webhooks** needs **Webhook Events** read. These are the providers' own payloads, including recipient addresses and provider diagnostics.
-- **Audit logs** needs **Audit logs** read, which an owner grants deliberately — it is never part of full access, because full access should not imply reading every colleague's email address, IP address and refused actions. Owners always see the tab, and a root user can switch it to the whole deployment.
+- **Incoming webhooks** needs **Webhook Events** read. These are the providers' own payloads, including recipient addresses and provider diagnostics.
+- **Outgoing webhooks** needs **Webhook Subscriptions** read.
+- **Audit log** needs **Audit logs** read, which an owner grants deliberately — it is never part of full access, because full access should not imply reading every colleague's email address, IP address and refused actions. Owners always see the tab, and a root user can switch it to the whole deployment.
 
 The write verb of these permissions gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. See [Admins & API Keys](/features/admins-api-keys).
 
