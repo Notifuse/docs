@@ -29,8 +29,8 @@ Logs provide real-time monitoring of email activity and webhook events to help d
 
 Every delivery of your [webhook subscriptions](/features/webhooks), newest first:
 
-- **Filters**: by subscription and by status (pending, delivering, delivered, failed), kept in the page's link
-- **Retrying**: a failed delivery that still has attempts left reads **Retrying**, with the time of its next attempt
+- **Filters**: by subscription and by status (Pending, Delivering, Delivered, Failed), kept in the page's link
+- **Retrying**: a failed delivery that still has attempts left reads **Retrying**, and its side panel gives the time of the next attempt. The **Failed** filter lists these deliveries too
 - **Delivery Detail**: click a delivery to see the response code and body your endpoint answered with, and the payload Notifuse sent. **Open subscription** goes to that subscription in Settings → Webhooks
 
 ### Audit Log Tab
@@ -69,14 +69,14 @@ Filter logs by multiple criteria:
 
 ## Permissions
 
-The page shows only the tabs you may read, and the Logs menu entry appears as soon as you may read one of them. The tabs answer to different permissions, all read-only in practice:
+The page shows only the tabs you may read, and the Logs menu entry appears as soon as you may read one of them. The tabs answer to different permissions, all read rights:
 
 - **Messages** needs **Message History** read. This is also where broadcast delivery statistics live — delivered, open, click, bounce and per-link counts — so a member who may create and send a broadcast still cannot see how it performed without it. The log carries recipient addresses and the data each message was rendered with, so treat it as contact data.
 - **Incoming webhooks** needs **Webhook Events** read. These are the providers' own payloads, including recipient addresses and provider diagnostics.
 - **Outgoing webhooks** needs **Webhook Subscriptions** read.
 - **Audit log** needs **Audit logs** read, which an owner grants deliberately — it is never part of full access, because full access should not imply reading every colleague's email address, IP address and refused actions. Owners always see the tab, and a root user can switch it to the whole deployment.
 
-The write verb of these permissions gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. See [Admins & API Keys](/features/admins-api-keys).
+The write verb of Message History, Webhook Events and Audit logs gates nothing today: these rows are written by the sending pipeline, by the provider callback routes and by the platform's own audit recorder, never by anything you can call. Webhook Subscriptions write is different: it lets a member create, change, delete and test the subscriptions themselves, in Settings → Webhooks. See [Admins & API Keys](/features/admins-api-keys).
 
 ## Debugging Email Issues
 
