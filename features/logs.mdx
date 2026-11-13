@@ -26,7 +26,7 @@ Click a message to open it in a side panel. Move to the previous or next message
 
 - **Events**: when it was sent, delivered, opened, clicked, bounced or marked as spam.
 - **Message**: its IDs, template and version, sender, subject, language, tracking, list, attachments, and the newsletter, automation or transactional notification that sent it.
-- **Sent content**: the email rendered again from its template and the message's data, in the contact's language, as HTML, text or MJML. Notifuse doesn't store the sent HTML, so a template changed since then renders as it is now, at the version the message used.
+- **Sent content**: the email rendered again from its template and the message's data, in the contact's language, as HTML, text or MJML. Notifuse doesn't store the sent HTML. It renders the template again, at the version the message used, so later edits to the template don't show.
 - **Data**: the template data and the metadata the message was sent with.
 - **Open contact** opens the contact's profile.
 
@@ -36,12 +36,12 @@ When a contact is erased, their messages stay in the log as **Contact erased**, 
 
 ### Incoming Webhooks Tab
 
-Every event your email providers and Supabase sent to Notifuse, newest first, over the last 24 hours by default.
+The events Notifuse kept from your email providers and Supabase, newest first, over the last 24 hours by default.
 
 - **Filters**: search by recipient email or message ID; filter by period, by **Source** (Amazon SES, Postmark, Mailgun, SparkPost, Mailjet, SendGrid, SMTP, Supabase) and by **Type** (delivered, bounce, complaint, unsubscribe, reply, auto-reply, auth email, user created). The filters are kept in the page's link.
 - **Linked message**: a delivery, bounce, complaint or unsubscribe event links to the message it is about. A reply carries the reply's own message ID, so it links nowhere.
 - **Raw payloads**: click an event to see its bounce or complaint details and its data exactly as the provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch.
-- **Emails Notifuse sent**: only events about an email Notifuse sent, for the address it went to, are listed and acted on. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
+- **Emails Notifuse sent**: an email provider's events are listed and acted on only when they are about an email Notifuse sent, for the address it went to. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
 
 <img src="/assets/screenshots/logs_webhooks.png" alt="Incoming webhooks tab of the Logs page" />
 
@@ -83,7 +83,7 @@ Besides the search, the period, the origin and the counts, **+ Filter** on the M
 - **Template** and **Transactional notification**: by ID. The detail view of a notification opens the log with this filter (`transactional_notification_id` in `messages.list`)
 - **Clicked link**: within a newsletter, show only the messages on which this exact link was clicked. The per-link statistics of a broadcast open the log with this filter (**See who clicked**). Through the API, pass `clicked_url` with `broadcast_id` to `messages.list`
 
-Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. Through the API, `messages.count` returns the same counts for the filters of `messages.list`.
+Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. Through the API, `messages.count` returns the same counts for the filters of `messages.list`. It needs `created_after`, or a filter on a message ID, an email address, a newsletter, an automation, a transactional notification or a template.
 
 ## Permissions
 
