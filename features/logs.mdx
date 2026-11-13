@@ -15,7 +15,13 @@ Every email the workspace sent, newest first, over the **last 24 hours** by defa
 
 - **Counts by status**: All, Delivered, Opened, Clicked, Bounced, Failed and Complaints. Click one to list only those messages. Counts are shown up to 7 days. For 30 days or all time, add a filter on an email address, a message ID, a newsletter, an automation, a transactional notification or a template. A workspace that sends only through SMTP shows no Delivered count, since SMTP reports no delivery.
 - **Search**: by email address, message ID or external ID, with exact matching. Typing an "@" switches the search to the email address, unless you picked the field yourself. An email address is searched once it is complete.
-- **Origin**: newsletters, automations, transactional notifications, or other messages.
+- **Origin**: what sent the message, read in this order:
+  - **Newsletter**: the message belongs to a broadcast, its test sends included;
+  - **Automation**: it was sent by an automation. An automation email that also names a transactional notification, as some older ones do after the upgrade to 28.0, counts as the automation's;
+  - **Transactional**: it was sent by a transactional notification;
+  - **Other**: none of the three, such as a template test or a double opt-in confirmation.
+
+  The dashboard splits emails by the same four origins, so its figures match this tab.
 - **Journey**: each row shows how far the message went: sent, delivered, opened, clicked.
 - **Error**: when a send was refused, the provider's own reply — the SMTP code and the text that came with it, such as `452: 4.3.1 Daily sending quota exceeded`. Hover to read the whole of it.
 - **Columns**: show or hide the message ID, external ID, metadata, template, list and creation date from the column picker.
@@ -83,7 +89,7 @@ Besides the search, the period, the origin and the counts, **+ Filter** on the M
 - **Template** and **Transactional notification**: by ID. The detail view of a notification opens the log with this filter (`transactional_notification_id` in `messages.list`)
 - **Clicked link**: within a newsletter, show only the messages on which this exact link was clicked. The per-link statistics of a broadcast open the log with this filter (**See who clicked**). Through the API, pass `clicked_url` with `broadcast_id` to `messages.list`
 
-Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. Through the API, `messages.count` returns the same counts for the filters of `messages.list`. It needs `created_after`, or a filter on a message ID, an email address, a newsletter, an automation, a transactional notification or a template.
+Every filter is kept in the page's link, so a filtered view can be shared or bookmarked. Through the API, `messages.list` filters by origin with `origin` (`broadcast`, `automation`, `transactional` or `other`), and `messages.count` returns the same counts for the filters of `messages.list`. It needs `created_after`, or a filter on a message ID, an email address, a newsletter, an automation, a transactional notification or a template. The `origin` dimension of the `message_history` analytics schema gives the same four values.
 
 ## Permissions
 
