@@ -3,13 +3,13 @@ title: Mailjet
 description: 'Configure Mailjet as your email provider in Notifuse.'
 ---
 
-Mailjet integration allows you to use Mailjet for sending marketing emails through Notifuse.
+Mailjet integration allows you to use Mailjet for sending transactional emails through Notifuse.
 
 <img className="block" src="/assets/screenshots/mailjet_form.png" alt="Mailjet Integration Form" />
 
 ## Configuration
 
-Navigate to **Settings** → **Integrations** → **Add Integration** → **Mailjet**.
+Navigate to **Settings** → **Integrations**, then **Add a provider** under **Email providers** → **Mailjet**. On a workspace with no integration yet, choose **Mailjet** in the list of available integrations.
 
 <img className="block" src="/assets/screenshots/mailjet_settings.png" alt="Mailjet Settings" />
 
@@ -34,11 +34,11 @@ Add sender addresses that have been verified in your Mailjet account:
 
 ### Usage Types
 
-Mailjet can only be used for marketing emails:
+Mailjet can only be used for transactional emails. Mailjet's API rewrites unsubscribe links, so Notifuse refuses it as the marketing provider of broadcasts:
 
-| Option                | Description                                           | Examples                                                  |
-| --------------------- | ----------------------------------------------------- | --------------------------------------------------------- |
-| **Use for Marketing** | Promotional and newsletter emails sent to subscribers | Product announcements, newsletters, promotional campaigns |
+| Option                    | Description                                       | Examples                                                    |
+| ------------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| **Use for Transactional** | System-generated emails triggered by user actions | Password resets, order confirmations, account notifications |
 
 ### Webhooks
 

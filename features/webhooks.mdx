@@ -18,11 +18,15 @@ Outgoing webhooks allow you to receive HTTP POST requests to your server when sp
 - Build custom integrations and dashboards
 - React to email engagement events in real-time
 
-<img src="/assets/screenshots/outgoing_webhooks.png" alt="Outgoing webhooks screenshot" />
+<img src="/assets/screenshots/outgoing_webhooks.png" alt="Settings, Webhooks: two endpoints with their events and delivery success rate" />
 
 ## Creating a Webhook Subscription
 
-Create a webhook subscription via the API or the Notifuse console:
+Create a webhook subscription in the console, from **Settings** → **Webhooks** → **Add endpoint**, where you choose the URL and the event types:
+
+<img src="/assets/screenshots/webhooks_event_types.png" alt="The event types of a webhook endpoint, chosen by checkbox, with Select all" />
+
+Or create it through the API:
 
 ```bash
 curl -X POST "https://your-instance.com/api/webhookSubscriptions.create" \

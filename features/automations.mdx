@@ -3,7 +3,7 @@ title: Automations
 description: 'Create automated workflows that trigger based on contact behavior and events'
 ---
 
-<img src="/assets/screenshots/automation_list.png" alt="The automations list" />
+<img src="/assets/screenshots/automation_list.png" alt="The automations list, with the journeys, completion and open rate of each automation" />
 
 Marketing automations let you create event-driven workflows that automatically engage contacts based on their behavior and lifecycle events. Instead of manually sending emails, automations trigger actions when specific events occur—like a contact subscribing to a list, opening an email, or completing a custom event.
 
@@ -43,8 +43,8 @@ Triggers define when contacts enter an automation. They're based on events that 
 
 | Frequency | Behavior |
 |-----------|----------|
-| `once` | Contact enters only on the first occurrence of the event |
-| `every_time` | Contact can re-enter each time the event occurs |
+| `once` (**Once per contact**) | Contact enters only on the first occurrence of the event |
+| `every_time` (**Every time**) | Contact can re-enter each time the event occurs |
 
 ### Event Types
 
@@ -161,6 +161,9 @@ Add segment conditions to filter which contacts enter the automation. For exampl
 - Trigger on `contact.updated` but only when `custom_number_1 > 100`
 
 Set them in the trigger panel under **Entry conditions**, or through the API with the `conditions` field.
+
+<img src="/assets/screenshots/automation_trigger.png" alt="The trigger panel of an automation: the List / Subscribed event on the Newsletter list, with one entry condition" />
+
 They use the same condition builder as segments and the Filter node.
 
 A contact who does not match is never enrolled — which differs from placing a Filter node after the
@@ -290,7 +293,9 @@ When a contact **replies** to an email an automation sent, you usually want to s
 
 ### Enabling it
 
-Toggle **Exit on reply** in the automation's settings when creating or editing it. Once enabled, a genuine reply to any email that automation sent will exit the contact's journey (recorded with the `replied` exit reason).
+Toggle **Exit on reply** in the automation's settings, in the left column of the editor, when creating or editing it. Once enabled, a genuine reply to any email that automation sent will exit the contact's journey (recorded with the `replied` exit reason).
+
+<img src="/assets/screenshots/automation_exit_on_reply.png" alt="The automation's settings: list, frequency and the Exit on reply toggle switched on" />
 
 <Warning>
 **Exit on reply requires inbound email setup at your email provider.** Replies are delivered back to Notifuse by the provider's inbound-parsing feature. This is currently supported for **Mailgun** (see [Mailgun → Inbound replies](/integrations/mailgun#inbound-replies-stop-on-reply)) and **Amazon SES** (see [Amazon SES → Inbound replies](/integrations/amazon-ses#inbound-replies-stop-on-reply))—each needs a one-time setup. On other providers the toggle has no effect until inbound ingestion is configured.
@@ -397,7 +402,7 @@ A draft that no contact entered shows "—". The API gives the same counts with 
 
 ### Node-Level Stats
 
-<img src="/assets/screenshots/automation_stats.png" alt="An automation with its stats on each step" />
+<img src="/assets/screenshots/automation_stats.png" alt="The editor switched to With stats, with the results of each step on its card" />
 
 Switch the editor to **With stats** to read each step's results, over the **Last 30 days** (today included, in the workspace's timezone) or **All time**. Each card shows its key figure (entered, sent with opens and clicks, waiting, checked, added or removed, calls), with the journeys that failed, are retrying or still in progress on it, and the emails skipped. Each path of a split shows the share of the step's passes that took it.
 
@@ -407,6 +412,8 @@ A step's panel gives the detail:
 - **In progress**, **Waiting** and **Retrying**: Journeys on the step now, whatever the period
 - **Failed**: Journeys that failed on the step
 - **Errors**: Executions that recorded an error, such as a list step whose list was deleted
+
+<img src="/assets/screenshots/automation_step_stats.png" alt="The results of an email step over the last 30 days: sent, delivered, opened and clicked, then reached, completed, in progress and failed" />
 
 An email step adds its emails: sent, delivered, opened and clicked, then the ones that failed, bounced or unsubscribed, the queued ones and the ones not sent, with **View messages** to open them in the message log. SMTP reports no delivery, so that row reads "—". The email figures need the **Message history** read permission.
 

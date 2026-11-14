@@ -26,6 +26,8 @@ Every email the workspace sent, newest first, over the **last 24 hours** by defa
 
 <img src="/assets/screenshots/logs_messages.png" alt="Messages tab of the Logs page" />
 
+<img src="/assets/screenshots/logs_status_journey.png" alt="The counts by status above the messages, and the journey icons of each row" />
+
 Click a message to open it in a side panel. Move to the previous or next message with **K** and **J**.
 
 - **Events**: when it was sent, delivered, opened, clicked, bounced or marked as spam.
@@ -36,7 +38,7 @@ Click a message to open it in a side panel. Move to the previous or next message
 
 When a contact is erased, their messages stay in the log as **Contact erased**, without their data.
 
-<img src="/assets/screenshots/logs_message_detail.png" alt="A message opened in the Logs page" />
+<img src="/assets/screenshots/logs_message_detail.png" alt="A message opened in a side panel of the Logs page, with its events and details" />
 
 ### Incoming Webhooks Tab
 
@@ -47,7 +49,7 @@ The events Notifuse kept from your email providers and Supabase, newest first, o
 - **Raw payloads**: click an event to see its bounce or complaint details and its data exactly as the provider sent it. When a provider sends its events in batches (SendGrid, SparkPost, Mailjet), each event keeps its own entry of the batch.
 - **Emails Notifuse sent**: a delivery, bounce, complaint or unsubscribe event is listed and acted on only when it is about an email Notifuse sent, for the address it went to; a reply, when it answers an email Notifuse sent. Events about other mail, such as another application's on the same provider account or an integration's test email, are ignored.
 
-<img src="/assets/screenshots/logs_webhooks.png" alt="Incoming webhooks tab of the Logs page" />
+<img src="/assets/screenshots/logs_webhooks.png" alt="Incoming webhooks tab of the Logs page, with Mailgun delivery and complaint events" />
 
 ### Outgoing Webhooks Tab
 
